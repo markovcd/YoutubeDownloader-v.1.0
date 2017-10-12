@@ -18,9 +18,19 @@
         </DataTemplate>
     </Window.Resources>
     <DockPanel LastChildFill="True">
-        <StackPanel x:Name="navigation" DockPanel.Dock="Left">
-            <Button Command="{Binding HomeButtonCommand}" Content="Home" />
-            <Button Command="{Binding Mp3ButtonCommand}" Content="Mp3" />
+        <StackPanel
+            x:Name="navigation"
+            Width="100"
+            Margin="5"
+            DockPanel.Dock="Left">
+            <Button
+                Command="{Binding HomeButtonCommand}"
+                Content="Home"
+                Style="{StaticResource DockPanelButtonStyle}" />
+            <Button
+                Command="{Binding Mp3ButtonCommand}"
+                Content="Mp3"
+                Style="{StaticResource DockPanelButtonStyle}" />
         </StackPanel>
         <ContentControl
             x:Name="Views"
