@@ -52,5 +52,11 @@ namespace YoutubeDownloader
                 fileHelper.CheckIfDirectoryExists();
             }
         }
+
+        protected bool CanExecute()
+        {
+            // TODO: some logic
+            return true;
+        }
     }
 }

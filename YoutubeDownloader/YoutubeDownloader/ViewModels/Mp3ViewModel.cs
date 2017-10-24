@@ -1,6 +1,9 @@
-﻿using System.Collections.Generic;
+﻿using System.Diagnostics;
+using System.IO;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using ToastNotifications.Messages;
+using VideoLibrary;
 
 namespace YoutubeDownloader
 {
@@ -40,6 +43,20 @@ namespace YoutubeDownloader
                 }
             }
         }
+
+        private double _currentProgress;
+        public double CurrentProgress
+        {
+            get
+            {
+                return _currentProgress;
+            }
+            set
+            {
+                _currentProgress = value;
+                OnPropertyChanged("CurrentProgress");
+            }
+        }
         #endregion
 
         #region Commands
@@ -47,7 +64,7 @@ namespace YoutubeDownloader
         {
             get
             {
-                return new RelayCommand(GoButtonClicked, CanExecute);
+                return new RelayCommand(GoButtonClickedAsync, CanExecute);
             }
         }
         #endregion
@@ -61,41 +78,61 @@ namespace YoutubeDownloader
         #endregion
 
         #region Events
-        private void GoButtonClicked()
+        private async void GoButtonClickedAsync()
         {
             if (ValidateEditFieldString())
             {
-                // TODO: Implement whole downloading logic
+                await SaveVideoToDiskAsync(YoutubeLinkUrl);
             }
         }
         #endregion
 
         #region Methods
-        private void SaveVideoToDisk(string link)
+        private async Task SaveVideoToDiskAsync(string link)
         {
-            // TODO: Check if there's an internet connection
-            // if there is.. than start downloading the file
+            await Task.Run(() =>
+            {
+                if (CheckIfInternetConnectivityIsOn())
+                {
+                    using (var service = Client.For(YouTube.Default))
+                    {
+                        using (var video = service.GetVideo(link))
+                        {
+                            using (var outFile = File.OpenWrite(fileHelper.Path + "\\" + video.FullName))
+                            {
+                                using (var progressStream = new ProgressStream(outFile))
+                                {
+                                    var streamLength = (long)video.StreamLength();
 
-            //if (_connectionHelper != null)
-            //{
-            //    if (_connectionHelper.CheckForInternetConnection())
-            //    {
+                                    progressStream.BytesMoved += (sender, args) =>
+                                    {
+                                        CurrentProgress = args.StreamLength * 100 / streamLength;
+                                        Debug.WriteLine($"{CurrentProgress}% of video downloaded");
+                                    };
 
-            //        //string tmp = "http://www.youtube.com/watch?v=6bITHU0srt4";
-            //        //var youTube = YouTube.Default; // starting point for YouTube actions
-            //        //var video = youTube.GetVideo(tmp); // gets a Video object with info about the video
+                                    video.Stream().CopyTo(progressStream);
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
 
-            //        //if (fileHelper != null)
-            //        //{
-            //        //    fileHelper.WriteToFile(video.FullName, video.GetBytes());
-            //        //}
-            //        //notifier.ShowSuccess("Zajebiscie wyszlo");
-            //    }
-            //    else
-            //    {
-            //        notifier.ShowError(Consts.InternetConnectionError);
-            //    }
-            //}
+        private bool CheckIfInternetConnectivityIsOn()
+        {
+            if (_connectionHelper != null)
+            {
+                if (_connectionHelper.CheckForInternetConnection())
+                {
+                    return true;
+                }
+                else
+                {
+                    notifier.ShowError(Consts.InternetConnectionError);
+                }
+            }
+            return false;
         }
 
         private bool ValidateEditFieldString()
@@ -118,12 +155,6 @@ namespace YoutubeDownloader
                 notifier.ShowWarning(Consts.LinkValidatorEmpty);
                 return false;
             }
-        }
-
-        private bool CanExecute()
-        {
-            // TODO: some logic
-            return true;
         }
         #endregion
     }

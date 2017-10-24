@@ -6,8 +6,8 @@
     xmlns:local="clr-namespace:YoutubeDownloader"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="MainWindow"
-    Width="525"
-    Height="350"
+    Width="825"
+    Height="550"
     mc:Ignorable="d">
     <Window.Resources>
         <DataTemplate DataType="{x:Type local:HomeViewModel}">

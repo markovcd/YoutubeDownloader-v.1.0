@@ -7,7 +7,7 @@ namespace YoutubeDownloader
     {
         private static readonly string _folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private const string _folderName = "YouTubeDownloader";
-        private string _path = Path.Combine(_folderPath, _folderName);
+        public string Path = System.IO.Path.Combine(_folderPath, _folderName);
 
         public FileHelper()
         {
@@ -18,9 +18,9 @@ namespace YoutubeDownloader
         {
             try
             {
-                if (!Directory.Exists(_path))
+                if (!Directory.Exists(Path))
                 {
-                    DirectoryInfo directoryInfo = Directory.CreateDirectory(_path);
+                    DirectoryInfo directoryInfo = Directory.CreateDirectory(Path);
                 }
             }
             catch (IOException e)
@@ -33,7 +33,7 @@ namespace YoutubeDownloader
         {
             try
             {
-                File.WriteAllBytes(_path + "\\" + fileName, bytes);
+                File.WriteAllBytes(Path + "\\" + fileName, bytes);
             }
             catch (Exception e)
             {

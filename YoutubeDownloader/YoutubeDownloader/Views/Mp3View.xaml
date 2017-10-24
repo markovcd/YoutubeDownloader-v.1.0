@@ -44,5 +44,20 @@
                 Command="{Binding GoButtonCommand}"
                 Content="Go!" />
         </Grid>
+        <Grid
+            Grid.Row="1"
+            Grid.RowSpan="2"
+            Grid.Column="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <ProgressBar
+                Height="40"
+                Margin="10"
+                Value="{Binding CurrentProgress, Mode=TwoWay}" />
+        </Grid>
     </Grid>
 </UserControl>

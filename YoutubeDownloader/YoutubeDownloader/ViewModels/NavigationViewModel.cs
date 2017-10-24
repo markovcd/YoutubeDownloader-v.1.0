@@ -59,11 +59,6 @@ namespace YoutubeDownloader
         #endregion
 
         #region Methods
-        private bool CanExecute()
-        {
-            // TODO: some logic
-            return true;
-        }
         #endregion
     }
 }
