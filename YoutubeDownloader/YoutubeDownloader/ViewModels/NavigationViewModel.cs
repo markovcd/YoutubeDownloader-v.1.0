@@ -1,4 +1,5 @@
 ﻿using System.Windows.Input;
+using ToastNotifications.Messages;
 
 namespace YoutubeDownloader
 {
@@ -41,7 +42,7 @@ namespace YoutubeDownloader
         #region Ctor
         public NavigationViewModel()
         {
-
+            SelectedViewModel = new HomeViewModel();
         }
         #endregion
 

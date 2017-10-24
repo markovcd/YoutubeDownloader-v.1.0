@@ -5,11 +5,50 @@
     xmlns:local="clr-namespace:YoutubeDownloader"
     StartupUri="MainWindow.xaml">
     <Application.Resources>
-        <!--  Button Styles  -->
-        <Style x:Key="DockPanelButtonStyle" TargetType="{x:Type Button}">
-            <Setter Property="Width" Value="80" />
-            <Setter Property="Height" Value="60" />
-            <Setter Property="Margin" Value="5" />
-        </Style>
+        <ResourceDictionary>
+            <!--  Button Styles  -->
+            <Style x:Key="DockPanelButtonStyle" TargetType="{x:Type Button}">
+                <Setter Property="Width" Value="80" />
+                <Setter Property="Height" Value="60" />
+                <Setter Property="Margin" Value="5" />
+            </Style>
+            <!--  TextBox Template Style  -->
+            <Style TargetType="TextBox">
+                <Setter Property="Template">
+                    <Setter.Value>
+                        <ControlTemplate TargetType="{x:Type TextBox}">
+                            <Border
+                                x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                SnapsToDevicePixels="True">
+                                <ScrollViewer
+                                    x:Name="PART_ContentHost"
+                                    Focusable="false"
+                                    HorizontalScrollBarVisibility="Hidden"
+                                    VerticalScrollBarVisibility="Hidden" />
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsEnabled" Value="false">
+                                    <Setter TargetName="border" Property="Opacity" Value="0.56" />
+                                    <Setter TargetName="border" Property="BorderBrush" Value="Red" />
+                                </Trigger>
+                                <Trigger Property="IsMouseOver" Value="true">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="Red" />
+                                </Trigger>
+                                <Trigger Property="IsFocused" Value="true">
+                                    <Setter TargetName="border" Property="BorderBrush" Value="Blue" />
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Setter.Value>
+                </Setter>
+            </Style>
+            <!--  Toast Resource  -->
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="pack://application:,,,/ToastNotifications.Messages;component/Themes/Default.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Application.Resources>
 </Application>
