@@ -2,6 +2,7 @@
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows;
 using ToastNotifications.Messages;
 using VideoLibrary;
 
@@ -57,6 +58,20 @@ namespace YoutubeDownloader
                 OnPropertyChanged("CurrentProgress");
             }
         }
+
+        private Visibility _isProgressDownloadVisible;
+        public Visibility IsProgressDownloadVisible
+        {
+            get
+            {
+                return _isProgressDownloadVisible;
+            }
+            set
+            {
+                _isProgressDownloadVisible = value;
+                OnPropertyChanged("IsProgressDownloadVisible");
+            }
+        }
         #endregion
 
         #region Commands
@@ -72,8 +87,7 @@ namespace YoutubeDownloader
         #region Ctor
         public Mp3ViewModel()
         {
-            this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
-            this._connectionHelper = new ConnectionHelper();
+            DefaultValues();
         }
         #endregion
 
@@ -88,35 +102,59 @@ namespace YoutubeDownloader
         #endregion
 
         #region Methods
+        private void DefaultValues()
+        {
+            this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
+            this.IsProgressDownloadVisible = Visibility.Hidden;
+            this._connectionHelper = new ConnectionHelper();
+        }
+
         private async Task SaveVideoToDiskAsync(string link)
         {
-            await Task.Run(() =>
+            if (!CheckIfFileAlreadyExists(link))
             {
-                if (CheckIfInternetConnectivityIsOn())
+                await Task.Run(() =>
                 {
-                    using (var service = Client.For(YouTube.Default))
+                    if (CheckIfInternetConnectivityIsOn())
                     {
-                        using (var video = service.GetVideo(link))
+                        using (var service = Client.For(YouTube.Default))
                         {
-                            using (var outFile = File.OpenWrite(fileHelper.Path + "\\" + video.FullName))
+                            using (var video = service.GetVideo(link))
                             {
-                                using (var progressStream = new ProgressStream(outFile))
+                                IsProgressDownloadVisible = Visibility.Visible;
+                                using (var outFile = File.OpenWrite(fileHelper.Path + "\\" + video.FullName))
                                 {
-                                    var streamLength = (long)video.StreamLength();
-
-                                    progressStream.BytesMoved += (sender, args) =>
+                                    using (var progressStream = new ProgressStream(outFile))
                                     {
-                                        CurrentProgress = args.StreamLength * 100 / streamLength;
-                                        Debug.WriteLine($"{CurrentProgress}% of video downloaded");
-                                    };
+                                        var streamLength = (long)video.StreamLength();
 
-                                    video.Stream().CopyTo(progressStream);
+                                        progressStream.BytesMoved += (sender, args) =>
+                                        {
+                                            CurrentProgress = args.StreamLength * 100 / streamLength;
+                                            Debug.WriteLine($"{CurrentProgress}% of video downloaded");
+                                        };
+
+                                        video.Stream().CopyTo(progressStream);
+                                    }
                                 }
                             }
                         }
                     }
-                }
-            });
+                    IsProgressDownloadVisible = Visibility.Hidden;
+                    YoutubeLinkUrl = string.Empty;
+                });
+            }
+            else
+            {
+                notifier.ShowInformation(Consts.FileAlreadyExistsInfo);
+            }
+        }
+
+        private bool CheckIfFileAlreadyExists(string FileName)
+        {
+            var youTube = YouTube.Default;
+            var video = youTube.GetVideo(FileName);
+            return !fileHelper.CheckPossibleDuplicate(FileName);
         }
 
         private bool CheckIfInternetConnectivityIsOn()

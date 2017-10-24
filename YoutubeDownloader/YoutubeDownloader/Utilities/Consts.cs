@@ -2,6 +2,7 @@
 {
     public static class Consts
     {
+        public const string FileAlreadyExistsInfo = "File already exists";
         public const string DefaultTextBoxEntry = "Please enter your link here!";
         public const string LinkValidatorEmpty = "This field cannot be empty";
         public const string LinkValidatorIsNotValid = "Please correct edit field";

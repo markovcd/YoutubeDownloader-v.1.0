@@ -40,5 +40,10 @@ namespace YoutubeDownloader
 
             }
         }
+
+        public bool CheckPossibleDuplicate(string fileName)
+        {
+            return File.Exists(System.IO.Path.Combine(Path, fileName));
+        }
     }
 }

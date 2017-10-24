@@ -57,6 +57,7 @@
             <ProgressBar
                 Height="40"
                 Margin="10"
+                Visibility="{Binding IsProgressDownloadVisible}"
                 Value="{Binding CurrentProgress, Mode=TwoWay}" />
         </Grid>
     </Grid>
