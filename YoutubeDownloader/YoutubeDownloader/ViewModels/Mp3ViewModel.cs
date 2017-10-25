@@ -122,6 +122,8 @@ namespace YoutubeDownloader
                             using (var video = service.GetVideo(link))
                             {
                                 IsProgressDownloadVisible = Visibility.Visible;
+                                //string tmp = fileHelper.Path + "\\" + video.FullName;
+                                //string tmp2 = tmp.Replace(".mp4", ".mp3");
                                 using (var outFile = File.OpenWrite(fileHelper.Path + "\\" + video.FullName))
                                 {
                                     using (var progressStream = new ProgressStream(outFile))
@@ -131,6 +133,7 @@ namespace YoutubeDownloader
                                         progressStream.BytesMoved += (sender, args) =>
                                         {
                                             CurrentProgress = args.StreamLength * 100 / streamLength;
+                                            // TODO: Remove Debug.Writeline() in final version
                                             Debug.WriteLine($"{CurrentProgress}% of video downloaded");
                                         };
 
@@ -154,7 +157,7 @@ namespace YoutubeDownloader
         {
             var youTube = YouTube.Default;
             var video = youTube.GetVideo(FileName);
-            return !fileHelper.CheckPossibleDuplicate(FileName);
+            return fileHelper.CheckPossibleDuplicate(video.FullName);
         }
 
         private bool CheckIfInternetConnectivityIsOn()
