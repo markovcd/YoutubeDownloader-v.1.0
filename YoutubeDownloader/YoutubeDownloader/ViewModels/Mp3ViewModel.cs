@@ -12,6 +12,7 @@ namespace YoutubeDownloader
     {
         #region Fields and Properties
         private ConnectionHelper _connectionHelper;
+        private Converter _converter;
 
         private string _youtubeLinkUrl;
         public string YoutubeLinkUrl
@@ -107,6 +108,7 @@ namespace YoutubeDownloader
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
             this.IsProgressDownloadVisible = Visibility.Hidden;
             this._connectionHelper = new ConnectionHelper();
+            this._converter = new Converter();
         }
 
         private async Task SaveVideoToDiskAsync(string link)
@@ -121,10 +123,9 @@ namespace YoutubeDownloader
                         {
                             using (var video = service.GetVideo(link))
                             {
+                                var tmpWOSpaces = video.FullName.Replace(" ", string.Empty);
                                 IsProgressDownloadVisible = Visibility.Visible;
-                                //string tmp = fileHelper.Path + "\\" + video.FullName;
-                                //string tmp2 = tmp.Replace(".mp4", ".mp3");
-                                using (var outFile = File.OpenWrite(fileHelper.Path + "\\" + video.FullName))
+                                using (var outFile = File.OpenWrite(fileHelper.Path + "\\" + tmpWOSpaces))
                                 {
                                     using (var progressStream = new ProgressStream(outFile))
                                     {
@@ -140,6 +141,9 @@ namespace YoutubeDownloader
                                         video.Stream().CopyTo(progressStream);
                                     }
                                 }
+                                
+                                _converter.ExtractAudioMp3FromVideo(fileHelper.Path + "\\" + tmpWOSpaces);
+                                fileHelper.RemoveFile(tmpWOSpaces);
                             }
                         }
                     }
@@ -151,6 +155,11 @@ namespace YoutubeDownloader
             {
                 notifier.ShowInformation(Consts.FileAlreadyExistsInfo);
             }
+        }
+
+        private void TrimAudioTrack()
+        {
+            
         }
 
         private bool CheckIfFileAlreadyExists(string FileName)

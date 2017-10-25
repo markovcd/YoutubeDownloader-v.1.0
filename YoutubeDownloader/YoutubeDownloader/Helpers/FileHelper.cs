@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
 
 namespace YoutubeDownloader
@@ -25,7 +26,7 @@ namespace YoutubeDownloader
             }
             catch (IOException e)
             {
-
+                Debug.WriteLine("Exception occured: {0}", e.ToString());
             }
         }
 
@@ -37,7 +38,34 @@ namespace YoutubeDownloader
             }
             catch (Exception e)
             {
+                Debug.WriteLine("Exception occured: {0}", e.ToString());
+            }
+        }
 
+        public void RemoveFile(string fileName)
+        {
+            try
+            {
+                if (CheckPossibleDuplicate(fileName))
+                {
+                    File.Delete(Path + "\\" + fileName);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception occured: {0}", e.ToString());
+            }
+        }
+
+        public void RenameFile(string oldNamePath, string newNamePath)
+        {
+            try
+            {
+                File.Move(oldNamePath, newNamePath);
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception occured: {0}", e.ToString());
             }
         }
 
