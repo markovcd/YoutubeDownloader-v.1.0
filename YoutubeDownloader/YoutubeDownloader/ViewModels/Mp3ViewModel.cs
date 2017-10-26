@@ -124,7 +124,8 @@ namespace YoutubeDownloader
                             using (var video = service.GetVideo(link))
                             {
                                 var defaultTrackName = (fileHelper.Path + "\\" + video.FullName).Replace(".mp4", ".mp3");
-                                TrackNameManager.Instance.DefaultTrackName = defaultTrackName;
+                                TrackNameManager.Instance.DefaultTrackPath = defaultTrackName;
+                                TrackNameManager.Instance.DefaultTrackName = video.FullName;
                                 var tmpWOSpaces = video.FullName.Replace(" ", string.Empty);
                                 IsProgressDownloadVisible = Visibility.Visible;
                                 using (var outFile = File.OpenWrite(fileHelper.HiddenPath + "\\" + tmpWOSpaces))
@@ -147,14 +148,17 @@ namespace YoutubeDownloader
                                 var tmpOutputPathForAudioTrack = (fileHelper.Path + "\\" + tmpWOSpaces).Replace(".mp4", ".mp3");
                                 _converter.ExtractAudioMp3FromVideo(fileHelper.HiddenPath + "\\" + tmpWOSpaces);
                                 fileHelper.RemoveFile(tmpWOSpaces, true);
-                                fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackName);
-                                TrackNameManager.Instance.DefaultTrackName = string.Empty;
+                                fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
                             }
                         }
                     }
-                    IsProgressDownloadVisible = Visibility.Hidden;
-                    YoutubeLinkUrl = string.Empty;
                 });
+                IsProgressDownloadVisible = Visibility.Hidden;
+                CurrentProgress = 0;
+                YoutubeLinkUrl = string.Empty;
+                longToastMessage.ShowSuccess(TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded");
+                TrackNameManager.Instance.DefaultTrackPath = string.Empty;
+                TrackNameManager.Instance.DefaultTrackName = string.Empty;
             }
             else
             {

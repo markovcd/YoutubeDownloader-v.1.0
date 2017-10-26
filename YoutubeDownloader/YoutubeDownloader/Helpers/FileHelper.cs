@@ -120,16 +120,15 @@ namespace YoutubeDownloader
 
         public bool CheckPossibleDuplicate(string fileName)
         {
-            var firstReplace = fileName.Replace(".mp4", ".mp3");
-            var finalReplace = firstReplace.Replace(_youtubeLastPartString, string.Empty);
-
             if (!_isHidden)
             {
+                var firstReplace = fileName.Replace(".mp4", ".mp3");
+                var finalReplace = firstReplace.Replace(_youtubeLastPartString, string.Empty);
                 return File.Exists(System.IO.Path.Combine(Path, finalReplace));
             }
             else
             {
-                return File.Exists(System.IO.Path.Combine(HiddenPath, finalReplace));
+                return File.Exists(System.IO.Path.Combine(HiddenPath, fileName));
             }
         }
         #endregion

@@ -6,6 +6,7 @@ namespace YoutubeDownloader
     {
         private static volatile TrackNameManager instance;
         private static object syncRoot = new Object();
+        private string _defaultTrackPath = string.Empty;
         private string _defaultTrackName = string.Empty;
 
         private TrackNameManager() { }
@@ -24,6 +25,19 @@ namespace YoutubeDownloader
                 }
 
                 return instance;
+            }
+        }
+
+        public string DefaultTrackPath
+        {
+            get
+            {
+                return _defaultTrackPath;
+            }
+
+            set
+            {
+                _defaultTrackPath = value;
             }
         }
 
