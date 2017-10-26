@@ -7,8 +7,11 @@ namespace YoutubeDownloader
     public class FileHelper
     {
         private static readonly string _folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+        private const string _folderNameHidden = "YouTubeDownloaderTEMP";
         private const string _folderName = "YouTubeDownloader";
         public string Path = System.IO.Path.Combine(_folderPath, _folderName);
+        public string HiddenPath = System.IO.Path.Combine(_folderPath, _folderNameHidden);
+        private bool _isHidden = false;
 
         public FileHelper()
         {
@@ -23,6 +26,7 @@ namespace YoutubeDownloader
                 {
                     DirectoryInfo directoryInfo = Directory.CreateDirectory(Path);
                 }
+                CreateHiddenFolder();
             }
             catch (IOException e)
             {
@@ -30,11 +34,18 @@ namespace YoutubeDownloader
             }
         }
 
-        public void WriteToFile(string fileName, byte[] bytes)
+        public void WriteToFile(string fileName, byte[] bytes, bool isHidden)
         {
             try
             {
-                File.WriteAllBytes(Path + "\\" + fileName, bytes);
+                if (!isHidden)
+                {
+                    File.WriteAllBytes(Path + "\\" + fileName, bytes);
+                }
+                else
+                {
+                    File.WriteAllBytes(HiddenPath + "\\" + fileName, bytes);
+                }
             }
             catch (Exception e)
             {
@@ -42,13 +53,21 @@ namespace YoutubeDownloader
             }
         }
 
-        public void RemoveFile(string fileName)
+        public void RemoveFile(string fileName, bool isHidden)
         {
+            _isHidden = isHidden;
             try
             {
                 if (CheckPossibleDuplicate(fileName))
                 {
-                    File.Delete(Path + "\\" + fileName);
+                    if (!isHidden)
+                    {
+                        File.Delete(Path + "\\" + fileName);
+                    }
+                    else
+                    {
+                        File.Delete(HiddenPath + "\\" + fileName);
+                    }
                 }
             }
             catch (Exception e)
@@ -69,9 +88,32 @@ namespace YoutubeDownloader
             }
         }
 
+        private void CreateHiddenFolder()
+        {
+            try
+            {
+                if (!Directory.Exists(HiddenPath))
+                {
+                    DirectoryInfo directoryInfo = Directory.CreateDirectory(HiddenPath);
+                    directoryInfo.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception occured: {0}", e.ToString());
+            }
+        }
+
         public bool CheckPossibleDuplicate(string fileName)
         {
-            return File.Exists(System.IO.Path.Combine(Path, fileName));
+            if (!_isHidden)
+            {
+                return File.Exists(System.IO.Path.Combine(Path, fileName));
+            }
+            else
+            {
+                return File.Exists(System.IO.Path.Combine(HiddenPath, fileName));
+            }
         }
     }
 }

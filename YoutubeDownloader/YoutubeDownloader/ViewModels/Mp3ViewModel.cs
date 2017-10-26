@@ -123,9 +123,11 @@ namespace YoutubeDownloader
                         {
                             using (var video = service.GetVideo(link))
                             {
+                                var defaultTrackName = (fileHelper.Path + "\\" + video.FullName).Replace(".mp4", ".mp3");
+                                TrackNameManager.Instance.DefaultTrackName = defaultTrackName;
                                 var tmpWOSpaces = video.FullName.Replace(" ", string.Empty);
                                 IsProgressDownloadVisible = Visibility.Visible;
-                                using (var outFile = File.OpenWrite(fileHelper.Path + "\\" + tmpWOSpaces))
+                                using (var outFile = File.OpenWrite(fileHelper.HiddenPath + "\\" + tmpWOSpaces))
                                 {
                                     using (var progressStream = new ProgressStream(outFile))
                                     {
@@ -141,9 +143,12 @@ namespace YoutubeDownloader
                                         video.Stream().CopyTo(progressStream);
                                     }
                                 }
-                                
-                                _converter.ExtractAudioMp3FromVideo(fileHelper.Path + "\\" + tmpWOSpaces);
-                                fileHelper.RemoveFile(tmpWOSpaces);
+
+                                var tmpOutputPathForAudioTrack = (fileHelper.Path + "\\" + tmpWOSpaces).Replace(".mp4", ".mp3");
+                                _converter.ExtractAudioMp3FromVideo(fileHelper.HiddenPath + "\\" + tmpWOSpaces);
+                                fileHelper.RemoveFile(tmpWOSpaces, true);
+                                fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackName);
+                                TrackNameManager.Instance.DefaultTrackName = string.Empty;
                             }
                         }
                     }
