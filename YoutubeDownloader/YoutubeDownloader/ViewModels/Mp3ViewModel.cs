@@ -162,11 +162,6 @@ namespace YoutubeDownloader
             }
         }
 
-        private void TrimAudioTrack()
-        {
-            
-        }
-
         private bool CheckIfFileAlreadyExists(string FileName)
         {
             var youTube = YouTube.Default;

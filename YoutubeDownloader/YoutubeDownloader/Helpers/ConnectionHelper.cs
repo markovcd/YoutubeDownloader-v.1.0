@@ -6,11 +6,14 @@ namespace YoutubeDownloader
 {
     public sealed class ConnectionHelper
     {
+        #region Ctor
         public ConnectionHelper()
         {
 
         }
+        #endregion
 
+        #region Methods
         public bool CheckForInternetConnection()
         {
             try
@@ -28,5 +31,6 @@ namespace YoutubeDownloader
                 return false;
             }
         }
+        #endregion
     }
 }

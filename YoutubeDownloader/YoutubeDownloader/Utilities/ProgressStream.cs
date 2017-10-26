@@ -8,15 +8,11 @@ namespace YoutubeDownloader
     /// </summary>
     public class ProgressStream : Stream
     {
-        #region Private Data Members
+        #region Fields & Properties
         private Stream innerStream;
         #endregion
 
-        #region Constructor
-        /// <summary>
-        /// Creates a new ProgressStream supplying the stream for it to report on.
-        /// </summary>
-        /// <param name="streamToReportOn">The underlying stream that will be reported on when bytes are read or written.</param>
+        #region Ctor
         public ProgressStream(Stream streamToReportOn)
         {
             if (streamToReportOn != null)
@@ -31,19 +27,8 @@ namespace YoutubeDownloader
         #endregion
 
         #region Events
-        /// <summary>
-        /// Raised when bytes are read from the stream.
-        /// </summary>
         public event ProgressStreamReportDelegate BytesRead;
-
-        /// <summary>
-        /// Raised when bytes are written to the stream.
-        /// </summary>
         public event ProgressStreamReportDelegate BytesWritten;
-
-        /// <summary>
-        /// Raised when bytes are either read or written to the stream.
-        /// </summary>
         public event ProgressStreamReportDelegate BytesMoved;
 
         protected virtual void OnBytesRead(int bytesMoved)
@@ -148,10 +133,7 @@ namespace YoutubeDownloader
         }
         #endregion
     }
-
-    /// <summary>
-    /// Contains the pertinent data for a ProgressStream Report event.
-    /// </summary>
+    
     public class ProgressStreamReportEventArgs : EventArgs
     {
         /// <summary>

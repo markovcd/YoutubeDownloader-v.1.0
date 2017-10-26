@@ -4,20 +4,26 @@ using System.IO;
 
 namespace YoutubeDownloader
 {
-    public class FileHelper
+    public sealed class FileHelper
     {
+        #region Fields & Properties
         private static readonly string _folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private const string _folderNameHidden = "YouTubeDownloaderTEMP";
         private const string _folderName = "YouTubeDownloader";
+        private const string _youtubeLastPartString = " - YouTube";
         public string Path = System.IO.Path.Combine(_folderPath, _folderName);
         public string HiddenPath = System.IO.Path.Combine(_folderPath, _folderNameHidden);
         private bool _isHidden = false;
+        #endregion
 
+        #region Ctor
         public FileHelper()
         {
 
         }
+        #endregion
 
+        #region Methods
         public void CheckIfDirectoryExists()
         {
             try
@@ -80,7 +86,14 @@ namespace YoutubeDownloader
         {
             try
             {
-                File.Move(oldNamePath, newNamePath);
+                if (newNamePath.Contains(_youtubeLastPartString))
+                {
+                    File.Move(oldNamePath, newNamePath.Replace(_youtubeLastPartString, string.Empty));
+                }
+                else
+                {
+                    File.Move(oldNamePath, newNamePath);
+                }
             }
             catch (Exception e)
             {
@@ -115,5 +128,6 @@ namespace YoutubeDownloader
                 return File.Exists(System.IO.Path.Combine(HiddenPath, fileName));
             }
         }
+        #endregion
     }
 }

@@ -6,15 +6,20 @@ namespace YoutubeDownloader
 {
     public class Converter
     {
+        #region Fields & Properties
         private readonly string ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
         private const string _temporaryFolderName = "YouTubeDownloaderTEMP";
         private const string _defaultFolderName = "YouTubeDownloader";
+        #endregion
 
+        #region Ctor
         public Converter()
         {
 
         }
+        #endregion
 
+        #region Methods
         public void ExtractAudioMp3FromVideo(string videoToWorkWith)
         {
             var inputFile = videoToWorkWith;
@@ -46,5 +51,6 @@ namespace YoutubeDownloader
             Debug.WriteLine(mp3output);
             ffmpegProcess.Dispose();
         }
+        #endregion
     }
 }
