@@ -80,6 +80,7 @@ namespace YoutubeDownloader
             {
                 Debug.WriteLine("Exception occured: {0}", e.ToString());
             }
+            _isHidden = false;
         }
 
         public void RenameFile(string oldNamePath, string newNamePath)
@@ -119,13 +120,16 @@ namespace YoutubeDownloader
 
         public bool CheckPossibleDuplicate(string fileName)
         {
+            var firstReplace = fileName.Replace(".mp4", ".mp3");
+            var finalReplace = firstReplace.Replace(_youtubeLastPartString, string.Empty);
+
             if (!_isHidden)
             {
-                return File.Exists(System.IO.Path.Combine(Path, fileName));
+                return File.Exists(System.IO.Path.Combine(Path, finalReplace));
             }
             else
             {
-                return File.Exists(System.IO.Path.Combine(HiddenPath, fileName));
+                return File.Exists(System.IO.Path.Combine(HiddenPath, finalReplace));
             }
         }
         #endregion
