@@ -9,6 +9,9 @@
     d:DesignWidth="400"
     Background="Aqua"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <local:ProgressBarConverter x:Key="PercentageConverter" />
+    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -54,11 +57,18 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <ProgressBar
-                Height="40"
-                Margin="10"
-                Visibility="{Binding IsProgressDownloadVisible}"
-                Value="{Binding CurrentProgress, Mode=TwoWay}" />
+            <Grid Width="300" Height="50">
+                <ProgressBar
+                    Height="40"
+                    Margin="10"
+                    Visibility="{Binding IsProgressDownloadVisible}"
+                    Value="{Binding CurrentProgress, Mode=TwoWay}" />
+                <TextBlock
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Text="{Binding CurrentProgress, Converter={StaticResource PercentageConverter}, Mode=TwoWay}"
+                    Visibility="{Binding IsProgressDownloadVisible}" />
+            </Grid>
         </Grid>
     </Grid>
 </UserControl>

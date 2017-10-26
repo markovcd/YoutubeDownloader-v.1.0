@@ -76,6 +76,7 @@
     <Compile Include="Models\VideoModel.cs" />
     <Compile Include="Utilities\Consts.cs" />
     <Compile Include="Utilities\FocusExtension.cs" />
+    <Compile Include="Utilities\ProgressBarConverter.cs" />
     <Compile Include="Utilities\ProgressStream.cs" />
     <Compile Include="Utilities\RelayCommand.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
