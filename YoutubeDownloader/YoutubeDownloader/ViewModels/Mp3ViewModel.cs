@@ -6,6 +6,7 @@ using System.Windows;
 using ToastNotifications.Messages;
 using VideoLibrary;
 using System.Threading;
+using System;
 
 namespace YoutubeDownloader
 {
@@ -14,6 +15,8 @@ namespace YoutubeDownloader
         #region Fields and Properties
         private ConnectionHelper _connectionHelper;
         private Converter _converter;
+        public event Action<string> OnffmpegStarted;
+        public event Action<string> OnffmpegFinished;
 
         private string _youtubeLinkUrl;
         public string YoutubeLinkUrl
@@ -75,6 +78,20 @@ namespace YoutubeDownloader
             }
         }
 
+        private string _convertingLabelText;
+        public string ConvertingLabelText
+        {
+            get
+            {
+                return _convertingLabelText;
+            }
+            set
+            {
+                _convertingLabelText = value;
+                OnPropertyChanged("ConvertingLabelText");
+            }
+        }
+
         private Visibility _isProgressDownloadVisible;
         public Visibility IsProgressDownloadVisible
         {
@@ -86,6 +103,34 @@ namespace YoutubeDownloader
             {
                 _isProgressDownloadVisible = value;
                 OnPropertyChanged("IsProgressDownloadVisible");
+            }
+        }
+
+        private Visibility _isPercentLabelVisible;
+        public Visibility IsPercentLabelVisible
+        {
+            get
+            {
+                return _isPercentLabelVisible;
+            }
+            set
+            {
+                _isPercentLabelVisible = value;
+                OnPropertyChanged("IsPercentLabelVisible");
+            }
+        }
+
+        private Visibility _isConvertingLabelVisible;
+        public Visibility IsConvertingLabelVisible
+        {
+            get
+            {
+                return _isConvertingLabelVisible;
+            }
+            set
+            {
+                _isConvertingLabelVisible = value;
+                OnPropertyChanged("IsConvertingLabelVisible");
             }
         }
         #endregion
@@ -130,11 +175,28 @@ namespace YoutubeDownloader
                 }
             }
         }
+
+        private void OnFFmpegStarted(string s1)
+        {
+            this.IsConvertingLabelVisible = Visibility.Visible;
+            this.IsPercentLabelVisible = Visibility.Hidden;
+            Debug.WriteLine("Started");
+        }
+
+        private void OnFFmpegFinished(string s1)
+        {
+            Debug.WriteLine("Finished!");
+            this.IsConvertingLabelVisible = Visibility.Hidden;
+        }
         #endregion
 
         #region Methods
         private void Initialize()
         {
+            // tmp place for event
+            OnffmpegStarted += new Action<string>(OnFFmpegStarted);
+            OnffmpegFinished += new Action<string>(OnFFmpegFinished);
+
             this._connectionHelper = new ConnectionHelper();
             this._converter = new Converter();
 
@@ -144,6 +206,9 @@ namespace YoutubeDownloader
         private void DefaultSetup()
         {
             this.IsProgressDownloadVisible = Visibility.Hidden;
+            this.IsPercentLabelVisible = Visibility.Hidden;
+            this.IsConvertingLabelVisible = Visibility.Hidden;
+            this.ConvertingLabelText = Consts.ConvertingPleaseWait;
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
             this.CurrentProgress = 0;
 
@@ -163,6 +228,7 @@ namespace YoutubeDownloader
                     TrackNameManager.Instance.DefaultTrackName = video.FullName;
                     var tmpWOSpaces = video.FullName.Replace(" ", string.Empty);
                     IsProgressDownloadVisible = Visibility.Visible;
+                    IsPercentLabelVisible = Visibility.Visible;
                     using (var outFile = File.OpenWrite(fileHelper.HiddenPath + "\\" + tmpWOSpaces))
                     {
                         using (var progressStream = new ProgressStream(outFile))
@@ -181,7 +247,7 @@ namespace YoutubeDownloader
                     }
 
                     var tmpOutputPathForAudioTrack = (fileHelper.Path + "\\" + tmpWOSpaces).Replace(".mp4", ".mp3");
-                    _converter.ExtractAudioMp3FromVideo(fileHelper.HiddenPath + "\\" + tmpWOSpaces);
+                    ExtractAudioMp3FromVideo(fileHelper.HiddenPath + "\\" + tmpWOSpaces);
                     fileHelper.RemoveFile(tmpWOSpaces, true);
                     fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
                 }
@@ -190,6 +256,46 @@ namespace YoutubeDownloader
             result = TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded";
             DefaultSetup();
             this.IsGoButtonEnabled = true;
+        }
+
+        public void ExtractAudioMp3FromVideo(string videoToWorkWith)
+        {
+            OnffmpegStarted("I've just started!");
+            string ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
+            const string _temporaryFolderName = "YouTubeDownloaderTEMP";
+            const string _defaultFolderName = "YouTubeDownloader";
+
+            try
+            {
+                Process ffmpegProcess = new Process();
+                var inputFile = videoToWorkWith;
+                var tmp = videoToWorkWith.Replace(".mp4", ".mp3");
+                var outputFile = tmp.Replace(_temporaryFolderName, _defaultFolderName);
+                var mp3output = string.Empty;
+
+                ffmpegProcess.StartInfo.UseShellExecute = false;
+                ffmpegProcess.StartInfo.RedirectStandardInput = true;
+                ffmpegProcess.StartInfo.RedirectStandardOutput = true;
+                ffmpegProcess.StartInfo.RedirectStandardError = true;
+                ffmpegProcess.StartInfo.CreateNoWindow = true;
+                ffmpegProcess.StartInfo.FileName = ffmpegExePath;
+
+                // TIP! Refer to https://trac.ffmpeg.org/wiki/Encode/MP3 for more infor about arguments you get use
+                // or https://gist.github.com/protrolium/e0dbd4bb0f1a396fcb55 
+                ffmpegProcess.StartInfo.Arguments = " -i " + inputFile + " -codec:a libmp3lame -qscale:a 2 " + outputFile;
+
+                ffmpegProcess.Start();
+                ffmpegProcess.StandardOutput.ReadToEnd();
+                mp3output = ffmpegProcess.StandardError.ReadToEnd();
+                ffmpegProcess.WaitForExit();
+
+                Debug.WriteLine(mp3output);
+                OnffmpegFinished("I've just finished!");
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("Exception Occured: {0}", e);
+            }
         }
 
         private bool CheckIfFileAlreadyExists(string FileName)
