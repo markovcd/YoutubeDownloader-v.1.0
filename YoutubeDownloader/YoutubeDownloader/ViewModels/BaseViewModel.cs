@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Windows;
 using ToastNotifications;
 using ToastNotifications.Lifetime;
-using ToastNotifications.Messages;
 using ToastNotifications.Position;
 
 namespace YoutubeDownloader

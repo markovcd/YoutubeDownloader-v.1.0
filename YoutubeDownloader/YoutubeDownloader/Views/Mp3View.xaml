@@ -9,9 +9,6 @@
     d:DesignWidth="400"
     Background="Aqua"
     mc:Ignorable="d">
-    <UserControl.Resources>
-        <local:ProgressBarConverter x:Key="PercentageConverter" />
-    </UserControl.Resources>
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -45,7 +42,8 @@
                 Height="30"
                 Margin="5"
                 Command="{Binding GoButtonCommand}"
-                Content="Go!" />
+                Content="Go!"
+                IsEnabled="{Binding IsGoButtonEnabled}" />
         </Grid>
         <Grid
             Grid.Row="1"
@@ -66,7 +64,7 @@
                 <TextBlock
                     HorizontalAlignment="Center"
                     VerticalAlignment="Center"
-                    Text="{Binding CurrentProgress, Converter={StaticResource PercentageConverter}, Mode=TwoWay}"
+                    Text="{Binding CurrentProgress, StringFormat={}{0:0}%}"
                     Visibility="{Binding IsProgressDownloadVisible}" />
             </Grid>
         </Grid>

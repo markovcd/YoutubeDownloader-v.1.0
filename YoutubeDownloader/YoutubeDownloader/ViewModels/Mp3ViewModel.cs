@@ -5,6 +5,7 @@ using System.Windows.Input;
 using System.Windows;
 using ToastNotifications.Messages;
 using VideoLibrary;
+using System.Threading;
 
 namespace YoutubeDownloader
 {
@@ -60,6 +61,20 @@ namespace YoutubeDownloader
             }
         }
 
+        private bool _isGoButtonEnabled = true;
+        public bool IsGoButtonEnabled
+        {
+            get
+            {
+                return _isGoButtonEnabled;
+            }
+            set
+            {
+                _isGoButtonEnabled = value;
+                OnPropertyChanged("IsGoButtonEnabled");
+            }
+        }
+
         private Visibility _isProgressDownloadVisible;
         public Visibility IsProgressDownloadVisible
         {
@@ -80,7 +95,7 @@ namespace YoutubeDownloader
         {
             get
             {
-                return new RelayCommand(GoButtonClickedAsync, CanExecute);
+                return new RelayCommand(GoButtonClicked, CanExecute);
             }
         }
         #endregion
@@ -88,89 +103,106 @@ namespace YoutubeDownloader
         #region Ctor
         public Mp3ViewModel()
         {
-            DefaultValues();
+            Initialize();
         }
         #endregion
 
         #region Events
-        private async void GoButtonClickedAsync()
+        private void GoButtonClicked()
         {
             if (ValidateEditFieldString())
             {
-                await SaveVideoToDiskAsync(YoutubeLinkUrl);
+                if (!CheckIfFileAlreadyExists(YoutubeLinkUrl))
+                {
+                    if (CheckIfInternetConnectivityIsOn())
+                    {
+                        TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+                        string result = string.Empty;
+                        CancellationToken cancellationToken = new CancellationToken();
+                        Task.Factory.StartNew(() => SaveVideoToDisk(out result)).
+                            ContinueWith(w =>
+                            {
+                                longToastMessage.ShowSuccess(result);
+                            },
+                            cancellationToken,
+                            TaskContinuationOptions.None, scheduler);
+                    }
+                }
             }
         }
         #endregion
 
         #region Methods
-        private void DefaultValues()
+        private void Initialize()
         {
-            this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
-            this.IsProgressDownloadVisible = Visibility.Hidden;
             this._connectionHelper = new ConnectionHelper();
             this._converter = new Converter();
+
+            DefaultSetup();
         }
 
-        private async Task SaveVideoToDiskAsync(string link)
+        private void DefaultSetup()
         {
-            if (!CheckIfFileAlreadyExists(link))
+            this.IsProgressDownloadVisible = Visibility.Hidden;
+            this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
+            this.CurrentProgress = 0;
+
+            TrackNameManager.Instance.DefaultTrackPath = string.Empty;
+            TrackNameManager.Instance.DefaultTrackName = string.Empty;
+        }
+
+        private void SaveVideoToDisk(out string result)
+        {
+            this.IsGoButtonEnabled = false;
+            using (var service = Client.For(YouTube.Default))
             {
-                await Task.Run(() =>
+                using (var video = service.GetVideo(YoutubeLinkUrl))
                 {
-                    if (CheckIfInternetConnectivityIsOn())
+                    var defaultTrackName = (fileHelper.Path + "\\" + video.FullName).Replace(".mp4", ".mp3");
+                    TrackNameManager.Instance.DefaultTrackPath = defaultTrackName;
+                    TrackNameManager.Instance.DefaultTrackName = video.FullName;
+                    var tmpWOSpaces = video.FullName.Replace(" ", string.Empty);
+                    IsProgressDownloadVisible = Visibility.Visible;
+                    using (var outFile = File.OpenWrite(fileHelper.HiddenPath + "\\" + tmpWOSpaces))
                     {
-                        using (var service = Client.For(YouTube.Default))
+                        using (var progressStream = new ProgressStream(outFile))
                         {
-                            using (var video = service.GetVideo(link))
+                            var streamLength = (long)video.StreamLength();
+
+                            progressStream.BytesMoved += (sender, args) =>
                             {
-                                var defaultTrackName = (fileHelper.Path + "\\" + video.FullName).Replace(".mp4", ".mp3");
-                                TrackNameManager.Instance.DefaultTrackPath = defaultTrackName;
-                                TrackNameManager.Instance.DefaultTrackName = video.FullName;
-                                var tmpWOSpaces = video.FullName.Replace(" ", string.Empty);
-                                IsProgressDownloadVisible = Visibility.Visible;
-                                using (var outFile = File.OpenWrite(fileHelper.HiddenPath + "\\" + tmpWOSpaces))
-                                {
-                                    using (var progressStream = new ProgressStream(outFile))
-                                    {
-                                        var streamLength = (long)video.StreamLength();
+                                CurrentProgress = args.StreamLength * 100 / streamLength;
+                                // TODO: Remove Debug.Writeline() in final version
+                                Debug.WriteLine($"{CurrentProgress}% of video downloaded");
+                            };
 
-                                        progressStream.BytesMoved += (sender, args) =>
-                                        {
-                                            CurrentProgress = args.StreamLength * 100 / streamLength;
-                                            // TODO: Remove Debug.Writeline() in final version
-                                            Debug.WriteLine($"{CurrentProgress}% of video downloaded");
-                                        };
-
-                                        video.Stream().CopyTo(progressStream);
-                                    }
-                                }
-
-                                var tmpOutputPathForAudioTrack = (fileHelper.Path + "\\" + tmpWOSpaces).Replace(".mp4", ".mp3");
-                                _converter.ExtractAudioMp3FromVideo(fileHelper.HiddenPath + "\\" + tmpWOSpaces);
-                                fileHelper.RemoveFile(tmpWOSpaces, true);
-                                fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
-                            }
+                            video.Stream().CopyTo(progressStream);
                         }
                     }
-                });
-                IsProgressDownloadVisible = Visibility.Hidden;
-                CurrentProgress = 0;
-                YoutubeLinkUrl = string.Empty;
-                longToastMessage.ShowSuccess(TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded");
-                TrackNameManager.Instance.DefaultTrackPath = string.Empty;
-                TrackNameManager.Instance.DefaultTrackName = string.Empty;
+
+                    var tmpOutputPathForAudioTrack = (fileHelper.Path + "\\" + tmpWOSpaces).Replace(".mp4", ".mp3");
+                    _converter.ExtractAudioMp3FromVideo(fileHelper.HiddenPath + "\\" + tmpWOSpaces);
+                    fileHelper.RemoveFile(tmpWOSpaces, true);
+                    fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
+                }
             }
-            else
-            {
-                notifier.ShowInformation(Consts.FileAlreadyExistsInfo);
-            }
+            
+            result = TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded";
+            DefaultSetup();
+            this.IsGoButtonEnabled = true;
         }
 
         private bool CheckIfFileAlreadyExists(string FileName)
         {
             var youTube = YouTube.Default;
             var video = youTube.GetVideo(FileName);
-            return fileHelper.CheckPossibleDuplicate(video.FullName);
+
+            if (fileHelper.CheckPossibleDuplicate(video.FullName))
+            {
+                notifier.ShowInformation(Consts.FileAlreadyExistsInfo);
+                return true;
+            }
+            return false;
         }
 
         private bool CheckIfInternetConnectivityIsOn()
