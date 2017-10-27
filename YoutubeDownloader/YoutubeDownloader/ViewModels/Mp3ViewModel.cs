@@ -223,24 +223,18 @@ namespace YoutubeDownloader
 
         private bool ValidateEditFieldString()
         {
-            if (YoutubeLinkUrl != string.Empty)
-            {
-                if (YoutubeLinkUrl.Contains(Consts.LinkPartValidation))
-                {
-                    return true;
-                }
-                else
-                {
-                    notifier.ShowWarning(Consts.LinkValidatorIsNotValid);
-                    YoutubeLinkUrl = string.Empty;
-                    return false;
-                }
-            }
-            else
+            if (YoutubeLinkUrl == string.Empty)
             {
                 notifier.ShowWarning(Consts.LinkValidatorEmpty);
                 return false;
             }
+            else if (!YoutubeLinkUrl.Contains(Consts.LinkPartValidation))
+            {
+                notifier.ShowWarning(Consts.LinkValidatorIsNotValid);
+                YoutubeLinkUrl = string.Empty;
+                return false;
+            }
+            return true;
         }
         #endregion
     }
