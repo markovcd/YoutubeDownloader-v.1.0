@@ -7,10 +7,18 @@ namespace YoutubeDownloader
     /// </summary>
     public partial class HomeView : UserControl
     {
+        private HomeViewModel _viewModel;
+
         public HomeView()
         {
             InitializeComponent();
-            this.DataContext = new HomeViewModel();
+            Setup();
+        }
+
+        public void Setup()
+        {
+            _viewModel = new HomeViewModel();
+            this.DataContext = _viewModel;
         }
     }
 }

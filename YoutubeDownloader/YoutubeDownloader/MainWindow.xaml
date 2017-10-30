@@ -21,16 +21,31 @@
         <StackPanel
             x:Name="navigation"
             Width="100"
-            Margin="5"
             DockPanel.Dock="Left">
-            <Button
-                Command="{Binding HomeButtonCommand}"
-                Content="Home"
-                Style="{StaticResource DockPanelButtonStyle}" />
-            <Button
-                Command="{Binding Mp3ButtonCommand}"
-                Content="Mp3"
-                Style="{StaticResource DockPanelButtonStyle}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                    <RowDefinition Height="*" />
+                </Grid.RowDefinitions>
+                <Grid Grid.Row="0" Background="{Binding HomeBackgroundColor}" />
+                <Grid Grid.Row="1" Background="{Binding Mp3BackgroundColor}" />
+                <Button
+                    Grid.Row="0"
+                    Command="{Binding HomeButtonCommand}"
+                    Content="Home"
+                    Style="{StaticResource DockPanelButtonStyle}" />
+                <Button
+                    Grid.Row="1"
+                    Command="{Binding Mp3ButtonCommand}"
+                    Content="Mp3"
+                    Style="{StaticResource DockPanelButtonStyle}" />
+            </Grid>
         </StackPanel>
         <ContentControl
             x:Name="Views"

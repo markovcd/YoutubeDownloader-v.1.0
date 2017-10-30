@@ -1,12 +1,12 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using System.Windows;
+using System.Windows.Input;
 using ToastNotifications.Messages;
 using VideoLibrary;
-using System.Threading;
-using System;
 
 namespace YoutubeDownloader
 {
@@ -15,6 +15,7 @@ namespace YoutubeDownloader
         #region Fields and Properties
         private ConnectionHelper _connectionHelper;
         private Converter _converter;
+        private CursorControl _cursor;
         public event Action<string> OnffmpegStarted;
         public event Action<string> OnffmpegFinished;
 
@@ -180,25 +181,25 @@ namespace YoutubeDownloader
         {
             this.IsConvertingLabelVisible = Visibility.Visible;
             this.IsPercentLabelVisible = Visibility.Hidden;
-            Debug.WriteLine("Started");
+            _cursor.Wait();
         }
 
         private void OnFFmpegFinished(string s1)
         {
-            Debug.WriteLine("Finished!");
             this.IsConvertingLabelVisible = Visibility.Hidden;
+            _cursor.Arrow();
         }
         #endregion
 
         #region Methods
         private void Initialize()
         {
-            // tmp place for event
             OnffmpegStarted += new Action<string>(OnFFmpegStarted);
             OnffmpegFinished += new Action<string>(OnFFmpegFinished);
 
             this._connectionHelper = new ConnectionHelper();
             this._converter = new Converter();
+            this._cursor = new CursorControl();
 
             DefaultSetup();
         }
@@ -211,7 +212,7 @@ namespace YoutubeDownloader
             this.ConvertingLabelText = Consts.ConvertingPleaseWait;
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
             this.CurrentProgress = 0;
-
+            
             TrackNameManager.Instance.DefaultTrackPath = string.Empty;
             TrackNameManager.Instance.DefaultTrackName = string.Empty;
         }
@@ -273,24 +274,23 @@ namespace YoutubeDownloader
                 var outputFile = tmp.Replace(_temporaryFolderName, _defaultFolderName);
                 var mp3output = string.Empty;
 
+                // TIP! Refer to https://trac.ffmpeg.org/wiki/Encode/MP3 for more infor about arguments you get use
+                // or https://gist.github.com/protrolium/e0dbd4bb0f1a396fcb55 
+                ffmpegProcess.StartInfo.Arguments = " -i " + inputFile + " -codec:a libmp3lame -qscale:a 2 " + outputFile;
+                ffmpegProcess.StartInfo.FileName = ffmpegExePath;
                 ffmpegProcess.StartInfo.UseShellExecute = false;
                 ffmpegProcess.StartInfo.RedirectStandardInput = true;
                 ffmpegProcess.StartInfo.RedirectStandardOutput = true;
                 ffmpegProcess.StartInfo.RedirectStandardError = true;
                 ffmpegProcess.StartInfo.CreateNoWindow = true;
-                ffmpegProcess.StartInfo.FileName = ffmpegExePath;
-
-                // TIP! Refer to https://trac.ffmpeg.org/wiki/Encode/MP3 for more infor about arguments you get use
-                // or https://gist.github.com/protrolium/e0dbd4bb0f1a396fcb55 
-                ffmpegProcess.StartInfo.Arguments = " -i " + inputFile + " -codec:a libmp3lame -qscale:a 2 " + outputFile;
-
                 ffmpegProcess.Start();
-                ffmpegProcess.StandardOutput.ReadToEnd();
-                mp3output = ffmpegProcess.StandardError.ReadToEnd();
-                ffmpegProcess.WaitForExit();
+                ffmpegProcess.BeginOutputReadLine();
 
-                Debug.WriteLine(mp3output);
+                var tmpErrorOutput = ffmpegProcess.StandardError.ReadToEnd();
+                Debug.WriteLine(tmpErrorOutput);
+                ffmpegProcess.WaitForExit();
                 OnffmpegFinished("I've just finished!");
+                ffmpegProcess.Close();
             }
             catch (Exception e)
             {

@@ -1,5 +1,5 @@
 ﻿using System.Windows.Input;
-using ToastNotifications.Messages;
+using System.Windows.Media;
 
 namespace YoutubeDownloader
 {
@@ -17,6 +17,34 @@ namespace YoutubeDownloader
             {
                 _selectedViewModel = value;
                 OnPropertyChanged("SelectedViewModel");
+            }
+        }
+
+        private Brush _homeBackgroundColor;
+        public Brush HomeBackgroundColor
+        {
+            get
+            {
+                return _homeBackgroundColor;
+            }
+            set
+            {
+                _homeBackgroundColor = value;
+                OnPropertyChanged("HomeBackgroundColor");
+            }
+        }
+
+        private Brush _mp3BackgroundColor;
+        public Brush Mp3BackgroundColor
+        {
+            get
+            {
+                return _mp3BackgroundColor;
+            }
+            set
+            {
+                _mp3BackgroundColor = value;
+                OnPropertyChanged("Mp3BackgroundColor");
             }
         }
         #endregion
@@ -43,6 +71,7 @@ namespace YoutubeDownloader
         public NavigationViewModel()
         {
             SelectedViewModel = new HomeViewModel();
+            HomeBackgroundColor = Brushes.DeepSkyBlue;
         }
         #endregion
 
@@ -50,11 +79,15 @@ namespace YoutubeDownloader
         private void HomeButtonClicked()
         {
             SelectedViewModel = new HomeViewModel();
+            HomeBackgroundColor = Brushes.DeepSkyBlue;
+            Mp3BackgroundColor = Brushes.White;
         }
 
         private void Mp3ButtonClicked()
         {
             SelectedViewModel = new Mp3ViewModel();
+            Mp3BackgroundColor = Brushes.DeepSkyBlue;
+            HomeBackgroundColor = Brushes.White;
         }
         #endregion
 

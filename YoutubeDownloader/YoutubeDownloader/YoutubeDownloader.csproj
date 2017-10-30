@@ -69,6 +69,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Controls\CursorControl.cs" />
     <Compile Include="Helpers\ConnectionHelper.cs" />
     <Compile Include="Utilities\Converter.cs" />
     <Compile Include="Helpers\FileHelper.cs" />

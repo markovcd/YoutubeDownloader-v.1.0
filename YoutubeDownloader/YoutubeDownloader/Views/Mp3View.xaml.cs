@@ -7,10 +7,18 @@ namespace YoutubeDownloader
     /// </summary>
     public partial class Mp3View : UserControl
     {
+        private Mp3ViewModel _viewModel;
+
         public Mp3View()
         {
             InitializeComponent();
-            this.DataContext = new Mp3ViewModel();
+            Setup();
+        }
+
+        private void Setup()
+        {
+            _viewModel = new Mp3ViewModel();
+            this.DataContext = _viewModel;
         }
     }
 }
