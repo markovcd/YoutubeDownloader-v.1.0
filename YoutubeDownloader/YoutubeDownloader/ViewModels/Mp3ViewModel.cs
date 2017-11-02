@@ -51,6 +51,20 @@ namespace YoutubeDownloader
             }
         }
 
+        private bool _isIndeterminate;
+        public bool IsIndeterminate
+        {
+            get
+            {
+                return _isIndeterminate;
+            }
+            set
+            {
+                _isIndeterminate = value;
+                OnPropertyChanged("IsIndeterminate");
+            }
+        }
+
         private double _currentProgress;
         public double CurrentProgress
         {
@@ -187,6 +201,7 @@ namespace YoutubeDownloader
             this.ConvertingLabelText = Consts.ConvertingPleaseWait;
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
             this.IsGoButtonEnabled = true;
+            this.IsIndeterminate = false;
             this.CurrentProgress = 0;
 
             this._outputPath_TEMP = string.Empty;
@@ -214,6 +229,7 @@ namespace YoutubeDownloader
         {
             this.IsConvertingLabelVisible = Visibility.Visible;
             this.IsPercentLabelVisible = Visibility.Hidden;
+            this.IsIndeterminate = true;
             _cursor.Wait();
 
             DispatchService.Invoke(() =>
@@ -299,14 +315,13 @@ namespace YoutubeDownloader
                 ffmpegProcess.BeginErrorReadLine();
 
                 ffmpegProcess.EnableRaisingEvents = true;
-                ffmpegProcess.ErrorDataReceived += new DataReceivedEventHandler(TROLOLO);
-                ffmpegProcess.Exited += new EventHandler(EXITEDTORLO);
+                ffmpegProcess.ErrorDataReceived += new DataReceivedEventHandler(OnErrorDataReceived);
+                ffmpegProcess.Exited += new EventHandler(OnConversionExited);
 
                 var tmpErrorOutput = ffmpegProcess.StandardError.ReadToEnd();
                 Debug.WriteLine(tmpErrorOutput);
                 ffmpegProcess.WaitForExit();
                 ffmpegProcess.Close();
-                
             }
             catch (Exception e)
             {
@@ -314,16 +329,13 @@ namespace YoutubeDownloader
             }
         }
 
-        private void EXITEDTORLO(object sender, EventArgs e)
+        private void OnConversionExited(object sender, EventArgs e)
         {
-            //fileHelper.RemoveFile(tmpWOSpaces, true);
-            //fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
-            Debug.WriteLine("FINISHED FROM EXITED EVENT!!!");
             AfterConversion();
         }
 
         private int currentLine = 0;
-        private void TROLOLO(object sender, DataReceivedEventArgs e)
+        private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             Console.WriteLine("Input line: {0} ({1:m:s:fff})", currentLine++, DateTime.Now);
         }

@@ -59,6 +59,7 @@
                 <ProgressBar
                     Height="40"
                     Margin="10"
+                    IsIndeterminate="{Binding IsIndeterminate}"
                     Maximum="100"
                     Minimum="0"
                     Visibility="{Binding IsProgressDownloadVisible}"
