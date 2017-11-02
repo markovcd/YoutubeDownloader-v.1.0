@@ -16,8 +16,8 @@ namespace YoutubeDownloader
         private ConnectionHelper _connectionHelper;
         private Converter _converter;
         private CursorControl _cursor;
-        public event Action<string> OnffmpegStarted;
-        public event Action<string> OnffmpegFinished;
+        private string _outputPath_TEMP;
+        private string _trackName_TEMP;
 
         private string _youtubeLinkUrl;
         public string YoutubeLinkUrl
@@ -162,52 +162,16 @@ namespace YoutubeDownloader
                 {
                     if (CheckIfInternetConnectivityIsOn())
                     {
-                        TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
-                        string result = string.Empty;
-                        CancellationToken cancellationToken = new CancellationToken();
-                        Task.Factory.StartNew(() => SaveVideoToDisk(out result)).
-                            ContinueWith(w =>
-                            {
-                                //longToastMessage.ShowSuccess(result);
-                            },
-                            cancellationToken,
-                            TaskContinuationOptions.None, scheduler);
+                        BackgroundMainTask();
                     }
                 }
             }
-        }
-
-        private void OnFFmpegStarted(string s1)
-        {
-            this.IsConvertingLabelVisible = Visibility.Visible;
-            this.IsPercentLabelVisible = Visibility.Hidden;
-            _cursor.Wait();
-            Debug.WriteLine(s1);
-        }
-
-        private void OnFFmpegFinished(string s1)
-        {
-            this.IsConvertingLabelVisible = Visibility.Hidden;
-            _cursor.Arrow();
-            Debug.WriteLine(s1);
-            fileHelper.RemoveFile(tmpWOSpaces, true);
-            fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
-            DispatchService.Invoke(() =>
-            {
-                longToastMessage.ShowSuccess(TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded");
-            });
-            DefaultSetup();
-            this.IsGoButtonEnabled = true;
-            //longToastMessage.ShowSuccess(TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded");
         }
         #endregion
 
         #region Methods
         private void Initialize()
         {
-            OnffmpegStarted += new Action<string>(OnFFmpegStarted);
-            OnffmpegFinished += new Action<string>(OnFFmpegFinished);
-
             this._connectionHelper = new ConnectionHelper();
             this._converter = new Converter();
             this._cursor = new CursorControl();
@@ -222,16 +186,56 @@ namespace YoutubeDownloader
             this.IsConvertingLabelVisible = Visibility.Hidden;
             this.ConvertingLabelText = Consts.ConvertingPleaseWait;
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
+            this.IsGoButtonEnabled = true;
             this.CurrentProgress = 0;
-            
+
+            this._outputPath_TEMP = string.Empty;
+            this._trackName_TEMP = string.Empty;
+
             TrackNameManager.Instance.DefaultTrackPath = string.Empty;
             TrackNameManager.Instance.DefaultTrackName = string.Empty;
         }
 
-        private string tmpOutputPathForAudioTrack;
-        private string tmpWOSpaces;
+        private void BackgroundMainTask()
+        {
+            TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
+            CancellationToken cancellationToken = new CancellationToken();
 
-        private void SaveVideoToDisk(out string result)
+            Task.Factory.StartNew(() => SaveVideoToDisk()).
+                ContinueWith(w =>
+                {
+                                // TODO: 
+                },
+                cancellationToken,
+                TaskContinuationOptions.None, scheduler);
+        }
+
+        private void BeforeConversion()
+        {
+            this.IsConvertingLabelVisible = Visibility.Visible;
+            this.IsPercentLabelVisible = Visibility.Hidden;
+            _cursor.Wait();
+
+            DispatchService.Invoke(() =>
+            {
+                longToastMessage.ShowInformation("Converting...");
+            });
+        }
+
+        private void AfterConversion()
+        {
+            DispatchService.Invoke(() =>
+            {
+                longToastMessage.ShowSuccess(TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded");
+            });
+
+            fileHelper.RemoveFile(_trackName_TEMP, true);
+            fileHelper.RenameFile(_outputPath_TEMP, TrackNameManager.Instance.DefaultTrackPath);
+            DefaultSetup();
+            _cursor.Arrow();
+        }
+
+        private void SaveVideoToDisk()
         {
             this.IsGoButtonEnabled = false;
             using (var service = Client.For(YouTube.Default))
@@ -241,10 +245,10 @@ namespace YoutubeDownloader
                     var defaultTrackName = (fileHelper.Path + "\\" + video.FullName).Replace(".mp4", ".mp3");
                     TrackNameManager.Instance.DefaultTrackPath = defaultTrackName;
                     TrackNameManager.Instance.DefaultTrackName = video.FullName;
-                    tmpWOSpaces = video.FullName.Replace(" ", string.Empty);
+                    _trackName_TEMP = video.FullName.Replace(" ", string.Empty);
                     IsProgressDownloadVisible = Visibility.Visible;
                     IsPercentLabelVisible = Visibility.Visible;
-                    using (var outFile = File.OpenWrite(fileHelper.HiddenPath + "\\" + tmpWOSpaces))
+                    using (var outFile = File.OpenWrite(fileHelper.HiddenPath + "\\" + _trackName_TEMP))
                     {
                         using (var progressStream = new ProgressStream(outFile))
                         {
@@ -253,7 +257,6 @@ namespace YoutubeDownloader
                             progressStream.BytesMoved += (sender, args) =>
                             {
                                 CurrentProgress = args.StreamLength * 100 / streamLength;
-                                // TODO: Remove Debug.Writeline() in final version
                                 Debug.WriteLine($"{CurrentProgress}% of video downloaded");
                             };
 
@@ -261,26 +264,21 @@ namespace YoutubeDownloader
                         }
                     }
 
-                    tmpOutputPathForAudioTrack = (fileHelper.Path + "\\" + tmpWOSpaces).Replace(".mp4", ".mp3");
-                    ExtractAudioMp3FromVideo(fileHelper.HiddenPath + "\\" + tmpWOSpaces);
-                    //fileHelper.RemoveFile(tmpWOSpaces, true);
-                    //fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
+                    _outputPath_TEMP = (fileHelper.Path + "\\" + _trackName_TEMP).Replace(".mp4", ".mp3");
+                    ExtractAudioFromVideo(fileHelper.HiddenPath + "\\" + _trackName_TEMP);
                 }
             }
-
-            //result = TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded";
-            result = "";
         }
 
-        public void ExtractAudioMp3FromVideo(string videoToWorkWith)
+        public void ExtractAudioFromVideo(string videoToWorkWith)
         {
-            OnffmpegStarted("I've just started!");
             string ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
             const string _temporaryFolderName = "YouTubeDownloaderTEMP";
             const string _defaultFolderName = "YouTubeDownloader";
 
             try
             {
+                BeforeConversion();
                 Process ffmpegProcess = new Process();
                 var inputFile = videoToWorkWith;
                 var tmp = videoToWorkWith.Replace(".mp4", ".mp3");
@@ -307,7 +305,6 @@ namespace YoutubeDownloader
                 var tmpErrorOutput = ffmpegProcess.StandardError.ReadToEnd();
                 Debug.WriteLine(tmpErrorOutput);
                 ffmpegProcess.WaitForExit();
-                OnffmpegFinished("I've just finished!");
                 ffmpegProcess.Close();
                 
             }
@@ -322,7 +319,7 @@ namespace YoutubeDownloader
             //fileHelper.RemoveFile(tmpWOSpaces, true);
             //fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
             Debug.WriteLine("FINISHED FROM EXITED EVENT!!!");
-            OnffmpegFinished("I've just finished!");
+            AfterConversion();
         }
 
         private int currentLine = 0;
@@ -338,7 +335,7 @@ namespace YoutubeDownloader
 
             if (fileHelper.CheckPossibleDuplicate(video.FullName))
             {
-                notifier.ShowInformation(Consts.FileAlreadyExistsInfo);
+                shortToastMessage.ShowInformation(Consts.FileAlreadyExistsInfo);
                 return true;
             }
             return false;
@@ -354,7 +351,7 @@ namespace YoutubeDownloader
                 }
                 else
                 {
-                    notifier.ShowError(Consts.InternetConnectionError);
+                    shortToastMessage.ShowError(Consts.InternetConnectionError);
                 }
             }
             return false;
@@ -364,12 +361,12 @@ namespace YoutubeDownloader
         {
             if (YoutubeLinkUrl == string.Empty)
             {
-                notifier.ShowWarning(Consts.LinkValidatorEmpty);
+                shortToastMessage.ShowWarning(Consts.LinkValidatorEmpty);
                 return false;
             }
             else if (!YoutubeLinkUrl.Contains(Consts.LinkPartValidation))
             {
-                notifier.ShowWarning(Consts.LinkValidatorIsNotValid);
+                shortToastMessage.ShowWarning(Consts.LinkValidatorIsNotValid);
                 YoutubeLinkUrl = string.Empty;
                 return false;
             }

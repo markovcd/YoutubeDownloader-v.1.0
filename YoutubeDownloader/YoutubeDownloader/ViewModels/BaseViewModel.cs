@@ -9,7 +9,7 @@ namespace YoutubeDownloader
 {
     class BaseViewModel : INotifyPropertyChanged
     {
-        protected Notifier notifier;
+        protected Notifier shortToastMessage;
         protected Notifier longToastMessage;
         protected FileHelper fileHelper;
 
@@ -29,7 +29,7 @@ namespace YoutubeDownloader
 
         private void SetToastMessages()
         {
-            notifier = new Notifier(cfg =>
+            shortToastMessage = new Notifier(cfg =>
             {
                 cfg.PositionProvider = new WindowPositionProvider(
                     parentWindow: Application.Current.MainWindow,
