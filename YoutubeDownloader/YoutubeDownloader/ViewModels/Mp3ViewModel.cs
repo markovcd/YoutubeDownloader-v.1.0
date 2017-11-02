@@ -168,7 +168,7 @@ namespace YoutubeDownloader
                         Task.Factory.StartNew(() => SaveVideoToDisk(out result)).
                             ContinueWith(w =>
                             {
-                                longToastMessage.ShowSuccess(result);
+                                //longToastMessage.ShowSuccess(result);
                             },
                             cancellationToken,
                             TaskContinuationOptions.None, scheduler);
@@ -182,12 +182,23 @@ namespace YoutubeDownloader
             this.IsConvertingLabelVisible = Visibility.Visible;
             this.IsPercentLabelVisible = Visibility.Hidden;
             _cursor.Wait();
+            Debug.WriteLine(s1);
         }
 
         private void OnFFmpegFinished(string s1)
         {
             this.IsConvertingLabelVisible = Visibility.Hidden;
             _cursor.Arrow();
+            Debug.WriteLine(s1);
+            fileHelper.RemoveFile(tmpWOSpaces, true);
+            fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
+            DispatchService.Invoke(() =>
+            {
+                longToastMessage.ShowSuccess(TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded");
+            });
+            DefaultSetup();
+            this.IsGoButtonEnabled = true;
+            //longToastMessage.ShowSuccess(TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded");
         }
         #endregion
 
@@ -217,6 +228,9 @@ namespace YoutubeDownloader
             TrackNameManager.Instance.DefaultTrackName = string.Empty;
         }
 
+        private string tmpOutputPathForAudioTrack;
+        private string tmpWOSpaces;
+
         private void SaveVideoToDisk(out string result)
         {
             this.IsGoButtonEnabled = false;
@@ -227,7 +241,7 @@ namespace YoutubeDownloader
                     var defaultTrackName = (fileHelper.Path + "\\" + video.FullName).Replace(".mp4", ".mp3");
                     TrackNameManager.Instance.DefaultTrackPath = defaultTrackName;
                     TrackNameManager.Instance.DefaultTrackName = video.FullName;
-                    var tmpWOSpaces = video.FullName.Replace(" ", string.Empty);
+                    tmpWOSpaces = video.FullName.Replace(" ", string.Empty);
                     IsProgressDownloadVisible = Visibility.Visible;
                     IsPercentLabelVisible = Visibility.Visible;
                     using (var outFile = File.OpenWrite(fileHelper.HiddenPath + "\\" + tmpWOSpaces))
@@ -247,16 +261,15 @@ namespace YoutubeDownloader
                         }
                     }
 
-                    var tmpOutputPathForAudioTrack = (fileHelper.Path + "\\" + tmpWOSpaces).Replace(".mp4", ".mp3");
+                    tmpOutputPathForAudioTrack = (fileHelper.Path + "\\" + tmpWOSpaces).Replace(".mp4", ".mp3");
                     ExtractAudioMp3FromVideo(fileHelper.HiddenPath + "\\" + tmpWOSpaces);
-                    fileHelper.RemoveFile(tmpWOSpaces, true);
-                    fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
+                    //fileHelper.RemoveFile(tmpWOSpaces, true);
+                    //fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
                 }
             }
-            
-            result = TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded";
-            DefaultSetup();
-            this.IsGoButtonEnabled = true;
+
+            //result = TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded";
+            result = "";
         }
 
         public void ExtractAudioMp3FromVideo(string videoToWorkWith)
@@ -285,17 +298,37 @@ namespace YoutubeDownloader
                 ffmpegProcess.StartInfo.CreateNoWindow = true;
                 ffmpegProcess.Start();
                 ffmpegProcess.BeginOutputReadLine();
+                ffmpegProcess.BeginErrorReadLine();
+
+                ffmpegProcess.EnableRaisingEvents = true;
+                ffmpegProcess.ErrorDataReceived += new DataReceivedEventHandler(TROLOLO);
+                ffmpegProcess.Exited += new EventHandler(EXITEDTORLO);
 
                 var tmpErrorOutput = ffmpegProcess.StandardError.ReadToEnd();
                 Debug.WriteLine(tmpErrorOutput);
                 ffmpegProcess.WaitForExit();
                 OnffmpegFinished("I've just finished!");
                 ffmpegProcess.Close();
+                
             }
             catch (Exception e)
             {
                 Debug.WriteLine("Exception Occured: {0}", e);
             }
+        }
+
+        private void EXITEDTORLO(object sender, EventArgs e)
+        {
+            //fileHelper.RemoveFile(tmpWOSpaces, true);
+            //fileHelper.RenameFile(tmpOutputPathForAudioTrack, TrackNameManager.Instance.DefaultTrackPath);
+            Debug.WriteLine("FINISHED FROM EXITED EVENT!!!");
+            OnffmpegFinished("I've just finished!");
+        }
+
+        private int currentLine = 0;
+        private void TROLOLO(object sender, DataReceivedEventArgs e)
+        {
+            Console.WriteLine("Input line: {0} ({1:m:s:fff})", currentLine++, DateTime.Now);
         }
 
         private bool CheckIfFileAlreadyExists(string FileName)
