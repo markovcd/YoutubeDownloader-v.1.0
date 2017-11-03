@@ -236,7 +236,15 @@ namespace YoutubeDownloader
         {
             DispatchService.Invoke(() =>
             {
-                longToastMessage.ShowSuccess(TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded");
+                var message = TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded";
+                if (message.Contains("- YouTube"))
+                {
+                    longToastMessage.ShowSuccess(message.Replace("- YouTube", string.Empty));
+                }
+                else
+                {
+                    longToastMessage.ShowSuccess(message);
+                }
             });
 
             fileHelper.RemoveFile(_trackName_TEMP, true);
