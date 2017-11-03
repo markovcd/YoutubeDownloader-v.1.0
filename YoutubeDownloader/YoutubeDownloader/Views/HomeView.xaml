@@ -9,5 +9,48 @@
     d:DesignWidth="300"
     Background="DeepSkyBlue"
     mc:Ignorable="d">
-    <Grid />
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid
+            Grid.ColumnSpan="2"
+            Width="220"
+            Margin="40">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="*" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Image
+                Grid.RowSpan="2"
+                Width="100"
+                Height="100"
+                RenderOptions.BitmapScalingMode="HighQuality"
+                Source="..\Assets\YoutubeLogo.png" />
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="1"
+                Width="100"
+                VerticalAlignment="Bottom"
+                FontSize="19"
+                Text="Downloader" />
+            <TextBlock
+                Grid.Row="1"
+                Grid.Column="1"
+                Width="100"
+                VerticalAlignment="Top"
+                FontSize="18"
+                FontWeight="DemiBold"
+                Text="By Rudnicki" />
+        </Grid>
+    </Grid>
 </UserControl>
