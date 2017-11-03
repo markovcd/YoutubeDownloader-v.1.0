@@ -213,16 +213,11 @@ namespace YoutubeDownloader
 
         private void BackgroundMainTask()
         {
-            TaskScheduler scheduler = TaskScheduler.FromCurrentSynchronizationContext();
             CancellationToken cancellationToken = new CancellationToken();
-
-            Task.Factory.StartNew(() => SaveVideoToDisk()).
-                ContinueWith(w =>
-                {
-                                // TODO: 
-                },
-                cancellationToken,
-                TaskContinuationOptions.None, scheduler);
+            Task.Factory.StartNew(() =>
+            {
+                SaveVideoToDisk();
+            }, cancellationToken);
         }
 
         private void BeforeConversion()
@@ -233,7 +228,7 @@ namespace YoutubeDownloader
 
             DispatchService.Invoke(() =>
             {
-                longToastMessage.ShowInformation("Converting...");
+                shortToastMessage.ShowInformation("Converting...");
             });
         }
 
