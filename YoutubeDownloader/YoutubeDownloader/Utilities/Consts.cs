@@ -2,6 +2,8 @@
 {
     public static class Consts
     {
+        public const string DefaultDirectoryName = "YouTubeDownloader";
+        public const string TemporaryDirectoryName = "YouTubeDownloaderTEMP";
         public const string ConvertingPleaseWait = "Converting please wait";
         public const string FileAlreadyExistsInfo = "File already exists";
         public const string DefaultTextBoxEntry = "Please enter your link here!";

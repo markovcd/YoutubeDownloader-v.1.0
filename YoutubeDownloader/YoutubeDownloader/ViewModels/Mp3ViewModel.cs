@@ -230,7 +230,6 @@ namespace YoutubeDownloader
             this.IsConvertingLabelVisible = Visibility.Visible;
             this.IsPercentLabelVisible = Visibility.Hidden;
             this.IsIndeterminate = true;
-            _cursor.Wait();
 
             DispatchService.Invoke(() =>
             {
@@ -248,7 +247,6 @@ namespace YoutubeDownloader
             fileHelper.RemoveFile(_trackName_TEMP, true);
             fileHelper.RenameFile(_outputPath_TEMP, TrackNameManager.Instance.DefaultTrackPath);
             DefaultSetup();
-            _cursor.Arrow();
         }
 
         private void SaveVideoToDisk()
@@ -289,8 +287,6 @@ namespace YoutubeDownloader
         public void ExtractAudioFromVideo(string videoToWorkWith)
         {
             string ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
-            const string _temporaryFolderName = "YouTubeDownloaderTEMP";
-            const string _defaultFolderName = "YouTubeDownloader";
 
             try
             {
@@ -298,7 +294,7 @@ namespace YoutubeDownloader
                 Process ffmpegProcess = new Process();
                 var inputFile = videoToWorkWith;
                 var tmp = videoToWorkWith.Replace(".mp4", ".mp3");
-                var outputFile = tmp.Replace(_temporaryFolderName, _defaultFolderName);
+                var outputFile = tmp.Replace(Consts.TemporaryDirectoryName, Consts.DefaultDirectoryName);
                 var mp3output = string.Empty;
 
                 // TIP! Refer to https://trac.ffmpeg.org/wiki/Encode/MP3 for more infor about arguments you get use

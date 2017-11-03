@@ -8,11 +8,9 @@ namespace YoutubeDownloader
     {
         #region Fields & Properties
         private static readonly string _folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-        private const string _folderNameHidden = "YouTubeDownloaderTEMP";
-        private const string _folderName = "YouTubeDownloader";
         private const string _youtubeLastPartString = " - YouTube";
-        public string Path = System.IO.Path.Combine(_folderPath, _folderName);
-        public string HiddenPath = System.IO.Path.Combine(_folderPath, _folderNameHidden);
+        public string Path = System.IO.Path.Combine(_folderPath, Consts.DefaultDirectoryName);
+        public string HiddenPath = System.IO.Path.Combine(_folderPath, Consts.TemporaryDirectoryName);
         private bool _isHidden = false;
         #endregion
 
