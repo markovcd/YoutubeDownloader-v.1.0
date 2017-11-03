@@ -43,9 +43,12 @@ namespace YoutubeDownloader
                 fe.IsVisibleChanged += new DependencyPropertyChangedEventHandler(fe_IsVisibleChanged);
             }
 
-            if ((bool)e.NewValue)
+            if (e.NewValue != null)
             {
-                fe.Focus();
+                if ((bool)e.NewValue)
+                {
+                    fe.Focus();
+                }
             }
         }
 

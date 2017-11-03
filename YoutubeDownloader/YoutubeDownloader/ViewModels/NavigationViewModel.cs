@@ -6,6 +6,12 @@ namespace YoutubeDownloader
     sealed class NavigationViewModel : BaseViewModel
     {
         #region Fields and Properties
+        private Mp3ViewModel _mp3ViewModelInstance;
+        public Mp3ViewModel Mp3ViewModelInstance
+        {
+            get { return _mp3ViewModelInstance ?? (_mp3ViewModelInstance = new Mp3ViewModel()); }
+        }
+
         private object _selectedViewModel;
         public object SelectedViewModel
         {
@@ -85,7 +91,7 @@ namespace YoutubeDownloader
 
         private void Mp3ButtonClicked()
         {
-            SelectedViewModel = new Mp3ViewModel();
+            SelectedViewModel = Mp3ViewModelInstance;
             Mp3BackgroundColor = Brushes.DeepSkyBlue;
             HomeBackgroundColor = Brushes.White;
         }
