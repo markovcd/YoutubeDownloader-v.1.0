@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,8 +18,23 @@ namespace YoutubeDownloader
         private ConnectionHelper _connectionHelper;
         private Converter _converter;
         private CursorControl _cursor;
+        private Mp3Model model;
         private string _outputPath_TEMP;
         private string _trackName_TEMP;
+
+        private ObservableCollection<Mp3Model> _mp3List;
+        public ObservableCollection<Mp3Model> Mp3List
+        {
+            get
+            {
+                return _mp3List;
+            }
+            set
+            {
+                _mp3List = value;
+                OnPropertyChanged("Mp3List");
+            }
+        }
 
         private string _youtubeLinkUrl;
         public string YoutubeLinkUrl
@@ -50,104 +67,8 @@ namespace YoutubeDownloader
                 }
             }
         }
-
-        private bool _isIndeterminate;
-        public bool IsIndeterminate
-        {
-            get
-            {
-                return _isIndeterminate;
-            }
-            set
-            {
-                _isIndeterminate = value;
-                OnPropertyChanged("IsIndeterminate");
-            }
-        }
-
-        private double _currentProgress;
-        public double CurrentProgress
-        {
-            get
-            {
-                return _currentProgress;
-            }
-            set
-            {
-                _currentProgress = value;
-                OnPropertyChanged("CurrentProgress");
-            }
-        }
-
-        private bool _isGoButtonEnabled = true;
-        public bool IsGoButtonEnabled
-        {
-            get
-            {
-                return _isGoButtonEnabled;
-            }
-            set
-            {
-                _isGoButtonEnabled = value;
-                OnPropertyChanged("IsGoButtonEnabled");
-            }
-        }
-
-        private string _convertingLabelText;
-        public string ConvertingLabelText
-        {
-            get
-            {
-                return _convertingLabelText;
-            }
-            set
-            {
-                _convertingLabelText = value;
-                OnPropertyChanged("ConvertingLabelText");
-            }
-        }
-
-        private Visibility _isProgressDownloadVisible;
-        public Visibility IsProgressDownloadVisible
-        {
-            get
-            {
-                return _isProgressDownloadVisible;
-            }
-            set
-            {
-                _isProgressDownloadVisible = value;
-                OnPropertyChanged("IsProgressDownloadVisible");
-            }
-        }
-
-        private Visibility _isPercentLabelVisible;
-        public Visibility IsPercentLabelVisible
-        {
-            get
-            {
-                return _isPercentLabelVisible;
-            }
-            set
-            {
-                _isPercentLabelVisible = value;
-                OnPropertyChanged("IsPercentLabelVisible");
-            }
-        }
-
-        private Visibility _isConvertingLabelVisible;
-        public Visibility IsConvertingLabelVisible
-        {
-            get
-            {
-                return _isConvertingLabelVisible;
-            }
-            set
-            {
-                _isConvertingLabelVisible = value;
-                OnPropertyChanged("IsConvertingLabelVisible");
-            }
-        }
+        
+        private double CurrentProgress;
         #endregion
 
         #region Commands
@@ -168,7 +89,7 @@ namespace YoutubeDownloader
         #endregion
 
         #region Events
-        private void GoButtonClicked()
+        private async void GoButtonClicked()
         {
             if (ValidateEditFieldString())
             {
@@ -189,24 +110,40 @@ namespace YoutubeDownloader
             this._connectionHelper = new ConnectionHelper();
             this._converter = new Converter();
             this._cursor = new CursorControl();
+            this.Mp3List = new ObservableCollection<Mp3Model>();
+            this.model = new Mp3Model();
 
             DefaultSetup();
         }
 
+        private void InitializeModel()
+        {
+            model = new Mp3Model()
+            {
+                Name = TrackNameManager.Instance.DefaultTrackName,
+                CurrentProgress = CurrentProgress,
+                IsProgressDownloadVisible = Visibility.Visible,
+                IsPercentLabelVisible = Visibility.Visible,
+                IsConvertingLabelVisible = Visibility.Hidden,
+                IsOperationDoneLabelVisible = Visibility.Hidden,
+                ConvertingLabelText = Consts.ConvertingPleaseWait
+            };
+        }
+
         private void DefaultSetup()
         {
-            this.IsProgressDownloadVisible = Visibility.Hidden;
-            this.IsPercentLabelVisible = Visibility.Hidden;
-            this.IsConvertingLabelVisible = Visibility.Hidden;
-            this.ConvertingLabelText = Consts.ConvertingPleaseWait;
-            this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
-            this.IsGoButtonEnabled = true;
-            this.IsIndeterminate = false;
-            this.CurrentProgress = 0;
+            model.IsProgressDownloadVisible = Visibility.Hidden;
+            model.IsPercentLabelVisible = Visibility.Hidden;
+            model.IsConvertingLabelVisible = Visibility.Hidden;
+            model.IsOperationDoneLabelVisible = Visibility.Visible;
+            model.ConvertingLabelText = Consts.ConvertingPleaseWait;
+            model.IsOperationDone = Consts.OperationDone;
+            model.IsIndeterminate = false;
 
+            this.CurrentProgress = 0;
+            this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
             this._outputPath_TEMP = string.Empty;
             this._trackName_TEMP = string.Empty;
-
             TrackNameManager.Instance.DefaultTrackPath = string.Empty;
             TrackNameManager.Instance.DefaultTrackName = string.Empty;
         }
@@ -222,9 +159,9 @@ namespace YoutubeDownloader
 
         private void BeforeConversion()
         {
-            this.IsConvertingLabelVisible = Visibility.Visible;
-            this.IsPercentLabelVisible = Visibility.Hidden;
-            this.IsIndeterminate = true;
+            model.IsConvertingLabelVisible = Visibility.Visible;
+            model.IsPercentLabelVisible = Visibility.Hidden;
+            model.IsIndeterminate = true;
 
             DispatchService.Invoke(() =>
             {
@@ -254,7 +191,6 @@ namespace YoutubeDownloader
 
         private void SaveVideoToDisk()
         {
-            this.IsGoButtonEnabled = false;
             using (var service = Client.For(YouTube.Default))
             {
                 using (var video = service.GetVideo(YoutubeLinkUrl))
@@ -263,8 +199,14 @@ namespace YoutubeDownloader
                     TrackNameManager.Instance.DefaultTrackPath = defaultTrackName;
                     TrackNameManager.Instance.DefaultTrackName = video.FullName;
                     _trackName_TEMP = video.FullName.Replace(" ", string.Empty);
-                    IsProgressDownloadVisible = Visibility.Visible;
-                    IsPercentLabelVisible = Visibility.Visible;
+
+                    InitializeModel();
+
+                    Application.Current.Dispatcher.Invoke(() =>
+                    {
+                        this.Mp3List.Add(model);
+                    });
+
                     using (var outFile = File.OpenWrite(fileHelper.HiddenPath + "\\" + _trackName_TEMP))
                     {
                         using (var progressStream = new ProgressStream(outFile))
@@ -273,7 +215,7 @@ namespace YoutubeDownloader
 
                             progressStream.BytesMoved += (sender, args) =>
                             {
-                                CurrentProgress = args.StreamLength * 100 / streamLength;
+                                model.CurrentProgress = args.StreamLength * 100 / streamLength;
                                 Debug.WriteLine($"{CurrentProgress}% of video downloaded");
                             };
 

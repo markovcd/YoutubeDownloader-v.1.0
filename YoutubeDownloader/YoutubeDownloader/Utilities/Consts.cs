@@ -2,6 +2,7 @@
 {
     public static class Consts
     {
+        public const string OperationDone = "Done";
         public const string DefaultDirectoryName = "YouTubeDownloader";
         public const string TemporaryDirectoryName = "YouTubeDownloaderTEMP";
         public const string ConvertingPleaseWait = "Converting please wait";

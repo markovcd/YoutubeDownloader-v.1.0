@@ -71,6 +71,7 @@
     </ApplicationDefinition>
     <Compile Include="Controls\CursorControl.cs" />
     <Compile Include="Helpers\ConnectionHelper.cs" />
+    <Compile Include="Models\Mp3Model.cs" />
     <Compile Include="Utilities\Converter.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Managers\TrackNameManager.cs" />
