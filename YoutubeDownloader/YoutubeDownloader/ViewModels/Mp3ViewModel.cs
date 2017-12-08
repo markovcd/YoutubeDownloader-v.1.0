@@ -19,6 +19,7 @@ namespace YoutubeDownloader
         private Converter _converter;
         private CursorControl _cursor;
         private Mp3Model model;
+        private Process process;
         private string _outputPath_TEMP;
         private string _trackName_TEMP;
 
@@ -173,15 +174,8 @@ namespace YoutubeDownloader
         {
             DispatchService.Invoke(() =>
             {
-                var message = TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded";
-                if (message.Contains("- YouTube"))
-                {
-                    longToastMessage.ShowSuccess(message.Replace("- YouTube", string.Empty));
-                }
-                else
-                {
-                    longToastMessage.ShowSuccess(message);
-                }
+                var message = fileHelper.GetToasttMessageAfterConversion();
+                longToastMessage.ShowSuccess(message);
             });
 
             fileHelper.RemoveFile(_trackName_TEMP, true);
@@ -231,38 +225,30 @@ namespace YoutubeDownloader
 
         public void ExtractAudioFromVideo(string videoToWorkWith)
         {
-            string ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
+            var ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
+            var output = fileHelper.CheckVideoFormat(videoToWorkWith);
+            var standardErrorOutput = string.Empty;
 
             try
             {
                 BeforeConversion();
-                Process ffmpegProcess = new Process();
-                var inputFile = videoToWorkWith;
-                var tmp = videoToWorkWith.Replace(".mp4", ".mp3");
-                var outputFile = tmp.Replace(Consts.TemporaryDirectoryName, Consts.DefaultDirectoryName);
-                var mp3output = string.Empty;
-
-                // TIP! Refer to https://trac.ffmpeg.org/wiki/Encode/MP3 for more infor about arguments you get use
-                // or https://gist.github.com/protrolium/e0dbd4bb0f1a396fcb55 
-                ffmpegProcess.StartInfo.Arguments = " -i " + inputFile + " -codec:a libmp3lame -qscale:a 2 " + outputFile;
-                ffmpegProcess.StartInfo.FileName = ffmpegExePath;
-                ffmpegProcess.StartInfo.UseShellExecute = false;
-                ffmpegProcess.StartInfo.RedirectStandardInput = true;
-                ffmpegProcess.StartInfo.RedirectStandardOutput = true;
-                ffmpegProcess.StartInfo.RedirectStandardError = true;
-                ffmpegProcess.StartInfo.CreateNoWindow = true;
-                ffmpegProcess.Start();
-                ffmpegProcess.BeginOutputReadLine();
-                ffmpegProcess.BeginErrorReadLine();
-
-                ffmpegProcess.EnableRaisingEvents = true;
-                ffmpegProcess.ErrorDataReceived += new DataReceivedEventHandler(OnErrorDataReceived);
-                ffmpegProcess.Exited += new EventHandler(OnConversionExited);
-
-                var tmpErrorOutput = ffmpegProcess.StandardError.ReadToEnd();
-                Debug.WriteLine(tmpErrorOutput);
-                ffmpegProcess.WaitForExit();
-                ffmpegProcess.Close();
+                process = new Process();
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardInput = true;
+                process.StartInfo.RedirectStandardOutput = true;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                process.StartInfo.FileName = ffmpegExePath;
+                process.StartInfo.Arguments = " -i " + videoToWorkWith + " -vn -f mp3 -ab 192k " + output;
+                process.Start();
+                process.EnableRaisingEvents = true;
+                process.ErrorDataReceived += new DataReceivedEventHandler(OnErrorDataReceived);
+                process.Exited += new EventHandler(OnConversionExited);
+                process.BeginOutputReadLine();
+                standardErrorOutput = process.StandardError.ReadToEnd();
+                process.WaitForExit();
+                process.Close();
             }
             catch (Exception e)
             {
@@ -272,13 +258,17 @@ namespace YoutubeDownloader
 
         private void OnConversionExited(object sender, EventArgs e)
         {
+            process.ErrorDataReceived -= OnErrorDataReceived;
+            process.Exited -= OnConversionExited;
+
             AfterConversion();
         }
 
         private int currentLine = 0;
         private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
-            Console.WriteLine("Input line: {0} ({1:m:s:fff})", currentLine++, DateTime.Now);
+            // TODO: implement logger
+            Debug.WriteLine("Input line: {0} ({1:m:s:fff})", currentLine++, DateTime.Now);
         }
 
         private bool CheckIfFileAlreadyExists(string FileName)

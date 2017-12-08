@@ -129,6 +129,40 @@ namespace YoutubeDownloader
                 return File.Exists(System.IO.Path.Combine(HiddenPath, fileName));
             }
         }
+
+        public string CheckVideoFormat(string path)
+        {
+            if (path.Contains(".webm"))
+            {
+                return path.Replace(".webm", ".mp3").Replace(Consts.TemporaryDirectoryName, Consts.DefaultDirectoryName);
+            }
+            else if (path.Contains(".mp4"))
+            {
+                return path.Replace(".mp4", ".mp3").Replace(Consts.TemporaryDirectoryName, Consts.DefaultDirectoryName);
+            }
+            return string.Empty;
+        }
+
+        public string GetToasttMessageAfterConversion()
+        {
+            var message = string.Empty;
+
+            if (TrackNameManager.Instance.DefaultTrackName.Contains(".webm"))
+            {
+                message = TrackNameManager.Instance.DefaultTrackName.Replace(".webm", string.Empty) + "\nDownloaded";
+            }
+            else if (TrackNameManager.Instance.DefaultTrackName.Contains(".mp4"))
+            {
+                message = TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded";
+            }
+
+            if (message.Contains("- YouTube"))
+            {
+                message.Replace("- YouTube", string.Empty);
+            }
+
+            return message;
+        }
         #endregion
     }
 }
