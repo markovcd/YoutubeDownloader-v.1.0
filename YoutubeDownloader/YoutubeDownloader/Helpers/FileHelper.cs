@@ -57,46 +57,40 @@ namespace YoutubeDownloader
             }
         }
 
-        public void RemoveFile(string fileName, bool isHidden)
+        public void RemoveContent(string path)
         {
-            _isHidden = isHidden;
             try
             {
-                if (CheckPossibleDuplicate(fileName))
+                DirectoryInfo directoryInfo = new DirectoryInfo(path);
+
+                foreach (FileInfo file in directoryInfo.GetFiles())
                 {
-                    if (!isHidden)
-                    {
-                        File.Delete(Path + "\\" + fileName);
-                    }
-                    else
-                    {
-                        File.Delete(HiddenPath + "\\" + fileName);
-                    }
+                    file.Delete();
                 }
             }
-            catch (Exception e)
+            catch (IOException e)
             {
-                Debug.WriteLine("Exception occured: {0}", e.ToString());
+
             }
-            _isHidden = false;
         }
 
         public void RenameFile(string oldNamePath, string newNamePath)
         {
             try
             {
-                if (newNamePath.Contains(_youtubeLastPartString))
+                var newPath = CheckVideoFormat(newNamePath);
+                if (newPath.Contains(_youtubeLastPartString))
                 {
-                    File.Move(oldNamePath, newNamePath.Replace(_youtubeLastPartString, string.Empty));
+                    File.Move(oldNamePath, newPath.Replace(_youtubeLastPartString, string.Empty));
                 }
                 else
                 {
-                    File.Move(oldNamePath, newNamePath);
+                    File.Move(oldNamePath, newPath);
                 }
             }
-            catch (Exception e)
+            catch (IOException e)
             {
-                Debug.WriteLine("Exception occured: {0}", e.ToString());
+
             }
         }
 
@@ -134,13 +128,20 @@ namespace YoutubeDownloader
         {
             if (path.Contains(".webm"))
             {
-                return path.Replace(".webm", ".mp3").Replace(Consts.TemporaryDirectoryName, Consts.DefaultDirectoryName);
+                return path.Replace(".webm", ".mp3")
+                    .Replace(Consts.TemporaryDirectoryName, Consts.DefaultDirectoryName);
             }
             else if (path.Contains(".mp4"))
             {
-                return path.Replace(".mp4", ".mp3").Replace(Consts.TemporaryDirectoryName, Consts.DefaultDirectoryName);
+                return path.Replace(".mp4", ".mp3")
+                    .Replace(Consts.TemporaryDirectoryName, Consts.DefaultDirectoryName);
             }
             return string.Empty;
+        }
+
+        public string PreparePathForFFmpeg(string path)
+        {
+            return path.Replace(" ", string.Empty);
         }
 
         public string GetToasttMessageAfterConversion()
