@@ -144,25 +144,25 @@ namespace YoutubeDownloader
             return path.Replace(" ", string.Empty);
         }
 
-        public string GetToasttMessageAfterConversion()
+        public string PrepareTrackForNotification(string trackName)
         {
-            var message = string.Empty;
-
-            if (TrackNameManager.Instance.DefaultTrackName.Contains(".webm"))
+            if (trackName.Contains(".mp3"))
             {
-                message = TrackNameManager.Instance.DefaultTrackName.Replace(".webm", string.Empty) + "\nDownloaded";
+                return trackName.Replace(".mp3", string.Empty);
             }
-            else if (TrackNameManager.Instance.DefaultTrackName.Contains(".mp4"))
+            else if (trackName.Contains(".webm"))
             {
-                message = TrackNameManager.Instance.DefaultTrackName.Replace(".mp4", string.Empty) + "\nDownloaded";
+                return trackName.Replace(".webm", string.Empty);
             }
-
-            if (message.Contains("- YouTube"))
+            else if (trackName.Contains(".mp4"))
             {
-                message.Replace("- YouTube", string.Empty);
+                return trackName.Replace(".mp4", string.Empty);
             }
-
-            return message;
+            else if (trackName.Contains("- YouTube"))
+            {
+                return trackName.Replace("- YouTube", string.Empty);
+            }
+            return trackName;
         }
         #endregion
     }

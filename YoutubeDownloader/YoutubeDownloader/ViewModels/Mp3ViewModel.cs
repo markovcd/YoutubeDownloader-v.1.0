@@ -2,8 +2,6 @@
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -16,19 +14,18 @@ namespace YoutubeDownloader
     {
         #region Fields and Properties
         private ConnectionHelper _connectionHelper;
-        private Converter _converter;
         private CursorControl _cursor;
-        private Mp3Model model;
-        private Process process;
-        private string _outputPath_TEMP;
-        private string _trackName_TEMP;
-        private string DefaultTrackPath;
-        private string DefaultTrackHiddenPath;
-        private string DefaultTrackName;
-        private string TmpTrackPath;
-        private string TmpTrackHiddenPath;
+        private Converter _converter;
+        private Mp3Model _model;
+        private Process _process;
 
-        private static Mutex mutex = new Mutex();
+        private string _defaultTrackPath;
+        private string _defaultTrackHiddenPath;
+        private string _defaultTrackName;
+        private string _tmpTrackPath;
+        private string _tmpTrackHiddenPath;
+        private double _currentProgress;
+        private int _currentLine;
 
         private ObservableCollection<Mp3Model> _mp3List;
         public ObservableCollection<Mp3Model> Mp3List
@@ -40,7 +37,7 @@ namespace YoutubeDownloader
             set
             {
                 _mp3List = value;
-                OnPropertyChanged("Mp3List");
+                OnPropertyChanged(nameof(Mp3List));
             }
         }
 
@@ -54,7 +51,7 @@ namespace YoutubeDownloader
             set
             {
                 _youtubeLinkUrl = value;
-                OnPropertyChanged("YoutubeLinkUrl");
+                OnPropertyChanged(nameof(YoutubeLinkUrl));
             }
         }
 
@@ -75,8 +72,6 @@ namespace YoutubeDownloader
                 }
             }
         }
-        
-        private double CurrentProgress;
         #endregion
 
         #region Commands
@@ -121,18 +116,18 @@ namespace YoutubeDownloader
             this._connectionHelper = new ConnectionHelper();
             this._converter = new Converter();
             this._cursor = new CursorControl();
-            this.Mp3List = new ObservableCollection<Mp3Model>();
-            this.model = new Mp3Model();
+            this._model = new Mp3Model();
+            this._mp3List = new ObservableCollection<Mp3Model>();
 
             DefaultSetup();
         }
 
         private void InitializeModel()
         {
-            model = new Mp3Model()
+            _model = new Mp3Model()
             {
-                Name = DefaultTrackName,
-                CurrentProgress = CurrentProgress,
+                Name = _defaultTrackName,
+                CurrentProgress = _currentProgress,
                 IsProgressDownloadVisible = Visibility.Visible,
                 IsPercentLabelVisible = Visibility.Visible,
                 IsConvertingLabelVisible = Visibility.Hidden,
@@ -143,20 +138,18 @@ namespace YoutubeDownloader
 
         private void DefaultSetup()
         {
-            model.IsProgressDownloadVisible = Visibility.Hidden;
-            model.IsPercentLabelVisible = Visibility.Hidden;
-            model.IsConvertingLabelVisible = Visibility.Hidden;
-            model.IsOperationDoneLabelVisible = Visibility.Visible;
-            model.ConvertingLabelText = Consts.ConvertingPleaseWait;
-            model.IsOperationDone = Consts.OperationDone;
-            model.IsIndeterminate = false;
+            _model.IsProgressDownloadVisible = Visibility.Hidden;
+            _model.IsPercentLabelVisible = Visibility.Hidden;
+            _model.IsConvertingLabelVisible = Visibility.Hidden;
+            _model.IsOperationDoneLabelVisible = Visibility.Visible;
+            _model.ConvertingLabelText = Consts.ConvertingPleaseWait;
+            _model.IsOperationDone = Consts.OperationDone;
+            _model.IsIndeterminate = false;
 
-            this.CurrentProgress = 0;
+            this._currentProgress = 0;
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
-            this._outputPath_TEMP = string.Empty;
-            this._trackName_TEMP = string.Empty;
-            this.DefaultTrackPath = string.Empty;
-            this.DefaultTrackName = string.Empty;
+            this._defaultTrackPath = string.Empty;
+            this._defaultTrackName = string.Empty;
         }
 
         private void BackgroundMainTask()
@@ -166,9 +159,9 @@ namespace YoutubeDownloader
 
         private void BeforeConversion()
         {
-            model.IsConvertingLabelVisible = Visibility.Visible;
-            model.IsPercentLabelVisible = Visibility.Hidden;
-            model.IsIndeterminate = true;
+            _model.IsConvertingLabelVisible = Visibility.Visible;
+            _model.IsPercentLabelVisible = Visibility.Hidden;
+            _model.IsIndeterminate = true;
 
             DispatchService.Invoke(() =>
             {
@@ -180,11 +173,10 @@ namespace YoutubeDownloader
         {
             DispatchService.Invoke(() =>
             {
-                var message = fileHelper.GetToasttMessageAfterConversion();
-                longToastMessage.ShowSuccess(message);
+                longToastMessage.ShowSuccess(fileHelper.PrepareTrackForNotification(_defaultTrackName));
             });
             
-            fileHelper.RenameFile(TmpTrackPath, DefaultTrackPath);
+            fileHelper.RenameFile(_tmpTrackPath, _defaultTrackPath);
             fileHelper.RemoveContent(fileHelper.HiddenPath);
 
             DefaultSetup();
@@ -196,19 +188,19 @@ namespace YoutubeDownloader
             {
                 using (var video = service.GetVideo(YoutubeLinkUrl))
                 {
-                    DefaultTrackName = video.FullName;
-                    DefaultTrackPath = fileHelper.Path + "\\" + DefaultTrackName;
-                    DefaultTrackHiddenPath = fileHelper.HiddenPath + "\\" + DefaultTrackName;
-                    TmpTrackPath = fileHelper.PreparePathForFFmpeg(DefaultTrackHiddenPath);
+                    _defaultTrackName = video.FullName;
+                    _defaultTrackPath = fileHelper.Path + "\\" + _defaultTrackName;
+                    _defaultTrackHiddenPath = fileHelper.HiddenPath + "\\" + _defaultTrackName;
+                    _tmpTrackPath = fileHelper.PreparePathForFFmpeg(_defaultTrackHiddenPath);
 
                     InitializeModel();
 
                     Application.Current.Dispatcher.BeginInvoke(new Action(() =>
                     {
-                        this.Mp3List.Add(model);
+                        this._mp3List.Add(_model);
                     }));
 
-                    using (var outFile = File.OpenWrite(TmpTrackPath))
+                    using (var outFile = File.OpenWrite(_tmpTrackPath))
                     {
                         using (var progressStream = new ProgressStream(outFile))
                         {
@@ -216,46 +208,45 @@ namespace YoutubeDownloader
 
                             progressStream.BytesMoved += (sender, args) =>
                             {
-                                model.CurrentProgress = args.StreamLength * 100 / streamLength;
-                                Debug.WriteLine($"{model.CurrentProgress}% of video downloaded");
+                                _model.CurrentProgress = args.StreamLength * 100 / streamLength;
+                                Debug.WriteLine($"{_model.CurrentProgress}% of video downloaded");
                             };
 
                             video.Stream().CopyTo(progressStream);
                         }
                     }
-                    ExtractAudioFromVideo(TmpTrackPath);
+                    ExtractAudioFromVideo(_tmpTrackPath);
                 }
             }
         }
 
-        //public task
         public void ExtractAudioFromVideo(string videoToWorkWith)
         {
             var ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
             var output = fileHelper.CheckVideoFormat(videoToWorkWith);
             var standardErrorOutput = string.Empty;
-            TmpTrackPath = output;
+            _tmpTrackPath = output;
 
             try
             {
                 BeforeConversion();
-                process = new Process();
-                process.StartInfo.UseShellExecute = false;
-                process.StartInfo.RedirectStandardInput = true;
-                process.StartInfo.RedirectStandardOutput = true;
-                process.StartInfo.RedirectStandardError = true;
-                process.StartInfo.CreateNoWindow = true;
-                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                process.StartInfo.FileName = ffmpegExePath;
-                process.StartInfo.Arguments = " -i " + videoToWorkWith + " -vn -f mp3 -ab 192k " + output;
-                process.Start();
-                process.EnableRaisingEvents = true;
-                process.ErrorDataReceived += new DataReceivedEventHandler(OnErrorDataReceived);
-                process.Exited += new EventHandler(OnConversionExited);
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
-                process.WaitForExit();
-                process.Close();
+                _process = new Process();
+                _process.StartInfo.UseShellExecute = false;
+                _process.StartInfo.RedirectStandardInput = true;
+                _process.StartInfo.RedirectStandardOutput = true;
+                _process.StartInfo.RedirectStandardError = true;
+                _process.StartInfo.CreateNoWindow = true;
+                _process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                _process.StartInfo.FileName = ffmpegExePath;
+                _process.StartInfo.Arguments = " -i " + videoToWorkWith + " -vn -f mp3 -ab 192k " + output;
+                _process.Start();
+                _process.EnableRaisingEvents = true;
+                _process.ErrorDataReceived += new DataReceivedEventHandler(OnErrorDataReceived);
+                _process.Exited += new EventHandler(OnConversionExited);
+                _process.BeginOutputReadLine();
+                _process.BeginErrorReadLine();
+                _process.WaitForExit();
+                _process.Close();
             }
             catch (Exception e)
             {
@@ -265,17 +256,16 @@ namespace YoutubeDownloader
 
         private void OnConversionExited(object sender, EventArgs e)
         {
-            process.ErrorDataReceived -= OnErrorDataReceived;
-            process.Exited -= OnConversionExited;
+            _process.ErrorDataReceived -= OnErrorDataReceived;
+            _process.Exited -= OnConversionExited;
 
             AfterConversion();
         }
 
-        private int currentLine = 0;
         private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             // TODO: implement logger
-            Debug.WriteLine("Input line: {0} ({1:m:s:fff})", currentLine++, DateTime.Now);
+            Debug.WriteLine("Input line: {0} ({1:m:s:fff})", _currentLine++, DateTime.Now);
         }
 
         private bool CheckIfFileAlreadyExists(string FileName)
