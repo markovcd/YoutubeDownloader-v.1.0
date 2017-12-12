@@ -24,7 +24,6 @@ namespace YoutubeDownloader
         private string _defaultTrackName;
         private string _tmpTrackPath;
         private string _tmpTrackHiddenPath;
-        private double _currentProgress;
         private int _currentLine;
 
         private ObservableCollection<Mp3Model> _mp3List;
@@ -127,7 +126,7 @@ namespace YoutubeDownloader
             _model = new Mp3Model()
             {
                 Name = _defaultTrackName,
-                CurrentProgress = _currentProgress,
+                CurrentProgress = 0,
                 IsProgressDownloadVisible = Visibility.Visible,
                 IsPercentLabelVisible = Visibility.Visible,
                 IsConvertingLabelVisible = Visibility.Hidden,
@@ -146,7 +145,6 @@ namespace YoutubeDownloader
             _model.IsOperationDone = Consts.OperationDone;
             _model.IsIndeterminate = false;
 
-            this._currentProgress = 0;
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
             this._defaultTrackPath = string.Empty;
             this._defaultTrackName = string.Empty;
@@ -177,7 +175,7 @@ namespace YoutubeDownloader
             });
             
             fileHelper.RenameFile(_tmpTrackPath, _defaultTrackPath);
-            fileHelper.RemoveContent(fileHelper.HiddenPath);
+            fileHelper.RemoveFile(_defaultTrackHiddenPath);
 
             DefaultSetup();
         }
@@ -225,6 +223,7 @@ namespace YoutubeDownloader
             var ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
             var output = fileHelper.CheckVideoFormat(videoToWorkWith);
             var standardErrorOutput = string.Empty;
+            _defaultTrackHiddenPath = videoToWorkWith;
             _tmpTrackPath = output;
 
             try

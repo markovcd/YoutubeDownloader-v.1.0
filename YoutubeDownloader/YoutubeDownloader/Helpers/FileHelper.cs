@@ -57,6 +57,18 @@ namespace YoutubeDownloader
             }
         }
 
+        internal void RemoveFile(string path)
+        {
+            try
+            {
+                File.Delete(path);
+            }
+            catch (IOException e)
+            {
+
+            }
+        }
+
         public void RemoveContent(string path)
         {
             try
