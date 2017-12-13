@@ -16,14 +16,8 @@ namespace YoutubeDownloader
         private ConnectionHelper _connectionHelper;
         private CursorControl _cursor;
         private Converter _converter;
-        private Mp3Model _model;
+        private FileHelper _fileHelper;
         private Process _process;
-
-        private string _defaultTrackPath;
-        private string _defaultTrackHiddenPath;
-        private string _defaultTrackName;
-        private string _tmpTrackPath;
-        private string _tmpTrackHiddenPath;
         private int _currentLine;
 
         private ObservableCollection<Mp3Model> _mp3List;
@@ -93,19 +87,16 @@ namespace YoutubeDownloader
         #region Events
         private void GoButtonClicked()
         {
-            Task.Factory.StartNew(() =>
+            if (ValidateEditFieldString())
             {
-                if (ValidateEditFieldString())
+                if (!CheckIfFileAlreadyExists(YoutubeLinkUrl))
                 {
-                    if (!CheckIfFileAlreadyExists(YoutubeLinkUrl))
+                    if (CheckIfInternetConnectivityIsOn())
                     {
-                        if (CheckIfInternetConnectivityIsOn())
-                        {
-                            BackgroundMainTask();
-                        }
+                        SaveVideoToDisk();
                     }
                 }
-            });
+            }
         }
         #endregion
 
@@ -115,120 +106,79 @@ namespace YoutubeDownloader
             this._connectionHelper = new ConnectionHelper();
             this._converter = new Converter();
             this._cursor = new CursorControl();
-            this._model = new Mp3Model();
             this._mp3List = new ObservableCollection<Mp3Model>();
-
-            DefaultSetup();
-        }
-
-        private void InitializeModel()
-        {
-            _model = new Mp3Model()
-            {
-                Name = _defaultTrackName,
-                CurrentProgress = 0,
-                IsProgressDownloadVisible = Visibility.Visible,
-                IsPercentLabelVisible = Visibility.Visible,
-                IsConvertingLabelVisible = Visibility.Hidden,
-                IsOperationDoneLabelVisible = Visibility.Hidden,
-                ConvertingLabelText = Consts.ConvertingPleaseWait
-            };
-        }
-
-        private void DefaultSetup()
-        {
-            _model.IsProgressDownloadVisible = Visibility.Hidden;
-            _model.IsPercentLabelVisible = Visibility.Hidden;
-            _model.IsConvertingLabelVisible = Visibility.Hidden;
-            _model.IsOperationDoneLabelVisible = Visibility.Visible;
-            _model.ConvertingLabelText = Consts.ConvertingPleaseWait;
-            _model.IsOperationDone = Consts.OperationDone;
-            _model.IsIndeterminate = false;
+            this._fileHelper = new FileHelper();
 
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
-            this._defaultTrackPath = string.Empty;
-            this._defaultTrackName = string.Empty;
-        }
-
-        private void BackgroundMainTask()
-        {
-            SaveVideoToDisk();
-        }
-
-        private void BeforeConversion()
-        {
-            _model.IsConvertingLabelVisible = Visibility.Visible;
-            _model.IsPercentLabelVisible = Visibility.Hidden;
-            _model.IsIndeterminate = true;
-
-            DispatchService.Invoke(() =>
-            {
-                shortToastMessage.ShowInformation("Converting...");
-            });
-        }
-
-        private void AfterConversion()
-        {
-            DispatchService.Invoke(() =>
-            {
-                longToastMessage.ShowSuccess(fileHelper.PrepareTrackForNotification(_defaultTrackName));
-            });
-            
-            fileHelper.RenameFile(_tmpTrackPath, _defaultTrackPath);
-            fileHelper.RemoveFile(_defaultTrackHiddenPath);
-
-            DefaultSetup();
         }
 
         private void SaveVideoToDisk()
         {
-            using (var service = Client.For(YouTube.Default))
+            Task.Factory.StartNew(() =>
             {
-                using (var video = service.GetVideo(YoutubeLinkUrl))
+                var CurrentFile = new FileHelper();
+                var Mp3Model = new Mp3Model();
+
+                using (var service = Client.For(YouTube.Default))
                 {
-                    _defaultTrackName = video.FullName;
-                    _defaultTrackPath = fileHelper.Path + "\\" + _defaultTrackName;
-                    _defaultTrackHiddenPath = fileHelper.HiddenPath + "\\" + _defaultTrackName;
-                    _tmpTrackPath = fileHelper.PreparePathForFFmpeg(_defaultTrackHiddenPath);
-
-                    InitializeModel();
-
-                    Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                    using (var video = service.GetVideo(YoutubeLinkUrl))
                     {
-                        this._mp3List.Add(_model);
-                    }));
+                        CurrentFile.DefaultTrackName = video.FullName;
+                        CurrentFile.DefaultTrackPath = CurrentFile.Path + "\\" + CurrentFile.DefaultTrackName;
+                        CurrentFile.DefaultTrackHiddenPath = CurrentFile.HiddenPath + "\\" + CurrentFile.DefaultTrackName;
+                        CurrentFile.TmpTrackPath = CurrentFile.PreparePathForFFmpeg(CurrentFile.DefaultTrackHiddenPath);
 
-                    using (var outFile = File.OpenWrite(_tmpTrackPath))
-                    {
-                        using (var progressStream = new ProgressStream(outFile))
+                        Mp3Model = new Mp3Model()
                         {
-                            var streamLength = (long)video.StreamLength();
+                            Name = CurrentFile.DefaultTrackName,
+                            IsProgressDownloadVisible = Visibility.Visible,
+                            IsPercentLabelVisible = Visibility.Visible,
+                            IsConvertingLabelVisible = Visibility.Hidden,
+                            IsOperationDoneLabelVisible = Visibility.Hidden,
+                            ConvertingLabelText = Consts.ConvertingPleaseWait,
+                            CurrentProgress = 0,
+                        };
 
-                            progressStream.BytesMoved += (sender, args) =>
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                        {
+                            this._mp3List.Add(Mp3Model);
+                        }));
+
+                        using (var outFile = File.OpenWrite(CurrentFile.TmpTrackPath))
+                        {
+                            using (var progressStream = new ProgressStream(outFile))
                             {
-                                _model.CurrentProgress = args.StreamLength * 100 / streamLength;
-                                Debug.WriteLine($"{_model.CurrentProgress}% of video downloaded");
-                            };
+                                var streamLength = (long)video.StreamLength();
 
-                            video.Stream().CopyTo(progressStream);
+                                progressStream.BytesMoved += (sender, args) =>
+                                {
+                                    Mp3Model.CurrentProgress = args.StreamLength * 100 / streamLength;
+                                    Debug.WriteLine($"{Mp3Model.CurrentProgress}% of video downloaded");
+                                };
+
+                                video.Stream().CopyTo(progressStream);
+                            }
                         }
+                        BeforeConversion(Mp3Model);
+                        ExtractAudioFromVideo(CurrentFile);
+                        AfterConversion(Mp3Model, CurrentFile);
                     }
-                    ExtractAudioFromVideo(_tmpTrackPath);
                 }
-            }
+            });
         }
 
-        public void ExtractAudioFromVideo(string videoToWorkWith)
+        public void ExtractAudioFromVideo(FileHelper fileHelper)
         {
+            var videoToWorkWith = fileHelper.TmpTrackPath;
             var ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
             var output = fileHelper.CheckVideoFormat(videoToWorkWith);
             var standardErrorOutput = string.Empty;
-            _defaultTrackHiddenPath = videoToWorkWith;
-            _tmpTrackPath = output;
+
+            fileHelper.DefaultTrackHiddenPath = videoToWorkWith;
+            fileHelper.TmpTrackPath = output;
 
             try
             {
-                BeforeConversion();
                 _process = new Process();
                 _process.StartInfo.UseShellExecute = false;
                 _process.StartInfo.RedirectStandardInput = true;
@@ -257,14 +207,45 @@ namespace YoutubeDownloader
         {
             _process.ErrorDataReceived -= OnErrorDataReceived;
             _process.Exited -= OnConversionExited;
-
-            AfterConversion();
         }
 
         private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
         {
             // TODO: implement logger
             Debug.WriteLine("Input line: {0} ({1:m:s:fff})", _currentLine++, DateTime.Now);
+        }
+
+        private void BeforeConversion(Mp3Model model)
+        {
+            model.IsConvertingLabelVisible = Visibility.Visible;
+            model.IsPercentLabelVisible = Visibility.Hidden;
+            model.IsIndeterminate = true;
+
+            DispatchService.Invoke(() =>
+            {
+                shortToastMessage.ShowInformation("Converting...");
+            });
+        }
+
+        private void AfterConversion(Mp3Model model, FileHelper fileHelper)
+        {
+            DispatchService.Invoke(() =>
+            {
+                longToastMessage.ShowSuccess(fileHelper.PrepareTrackForNotification(fileHelper.DefaultTrackName));
+            });
+
+            fileHelper.RenameFile(fileHelper.TmpTrackPath, fileHelper.DefaultTrackPath);
+            fileHelper.RemoveFile(fileHelper.DefaultTrackHiddenPath);
+
+            model.IsProgressDownloadVisible = Visibility.Hidden;
+            model.IsPercentLabelVisible = Visibility.Hidden;
+            model.IsConvertingLabelVisible = Visibility.Hidden;
+            model.IsOperationDoneLabelVisible = Visibility.Visible;
+            model.ConvertingLabelText = Consts.ConvertingPleaseWait;
+            model.IsOperationDone = Consts.OperationDone;
+            model.IsIndeterminate = false;
+
+            this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
         }
 
         private bool CheckIfFileAlreadyExists(string FileName)

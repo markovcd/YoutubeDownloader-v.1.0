@@ -9,9 +9,16 @@ namespace YoutubeDownloader
         #region Fields & Properties
         private static readonly string _folderPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
         private const string _youtubeLastPartString = " - YouTube";
+        private bool _isHidden = false;
         public string Path = System.IO.Path.Combine(_folderPath, Consts.DefaultDirectoryName);
         public string HiddenPath = System.IO.Path.Combine(_folderPath, Consts.TemporaryDirectoryName);
-        private bool _isHidden = false;
+
+        public string DefaultTrackPath { get; set; }
+        public string DefaultTrackHiddenPath { get; set; }
+        public string DefaultTrackName { get; set; }
+        public string TmpTrackHiddenPath { get; set; }
+        public string TmpTrackPath { get; set; }
+
         #endregion
 
         #region Ctor
