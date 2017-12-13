@@ -247,7 +247,9 @@ namespace YoutubeDownloader
 
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
         }
+        #endregion
 
+        #region Validators
         private bool CheckIfFileAlreadyExists(string FileName)
         {
             var youTube = YouTube.Default;

@@ -8,6 +8,8 @@
     Title="MainWindow"
     Width="825"
     Height="550"
+    Background="{StaticResource GrafitSoftColor}"
+    FocusManager.FocusedElement="{Binding ElementName=Mp3Button}"
     mc:Ignorable="d">
     <Window.Resources>
         <DataTemplate DataType="{x:Type local:HomeViewModel}">
@@ -41,6 +43,7 @@
                     Content="Home"
                     Style="{StaticResource DockPanelButtonStyle}" />
                 <Button
+                    x:Name="Mp3Button"
                     Grid.Row="1"
                     Command="{Binding Mp3ButtonCommand}"
                     Content="Mp3"

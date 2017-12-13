@@ -1,4 +1,5 @@
-﻿using System.Windows.Input;
+﻿using System.Windows;
+using System.Windows.Input;
 using System.Windows.Media;
 
 namespace YoutubeDownloader
@@ -26,8 +27,8 @@ namespace YoutubeDownloader
             }
         }
 
-        private Brush _homeBackgroundColor;
-        public Brush HomeBackgroundColor
+        private SolidColorBrush _homeBackgroundColor;
+        public SolidColorBrush HomeBackgroundColor
         {
             get
             {
@@ -40,8 +41,8 @@ namespace YoutubeDownloader
             }
         }
 
-        private Brush _mp3BackgroundColor;
-        public Brush Mp3BackgroundColor
+        private SolidColorBrush _mp3BackgroundColor;
+        public SolidColorBrush Mp3BackgroundColor
         {
             get
             {
@@ -76,8 +77,8 @@ namespace YoutubeDownloader
         #region Ctor
         public NavigationViewModel()
         {
-            SelectedViewModel = new HomeViewModel();
-            HomeBackgroundColor = Brushes.DeepSkyBlue;
+            SelectedViewModel = Mp3ViewModelInstance;
+            Mp3BackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitColor"];
         }
         #endregion
 
@@ -85,15 +86,15 @@ namespace YoutubeDownloader
         private void HomeButtonClicked()
         {
             SelectedViewModel = new HomeViewModel();
-            HomeBackgroundColor = Brushes.DeepSkyBlue;
-            Mp3BackgroundColor = Brushes.White;
+            HomeBackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitColor"];
+            Mp3BackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitSoftColor"];
         }
 
         private void Mp3ButtonClicked()
         {
             SelectedViewModel = Mp3ViewModelInstance;
-            Mp3BackgroundColor = Brushes.DeepSkyBlue;
-            HomeBackgroundColor = Brushes.White;
+            Mp3BackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitColor"];
+            HomeBackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitSoftColor"];
         }
         #endregion
 
