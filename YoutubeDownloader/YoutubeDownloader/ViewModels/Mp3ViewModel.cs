@@ -63,6 +63,10 @@ namespace YoutubeDownloader
                 {
                     YoutubeLinkUrl = string.Empty;
                 }
+                else if (!_isFocused && YoutubeLinkUrl == string.Empty)
+                {
+                    YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
+                }
             }
         }
         #endregion
@@ -244,8 +248,6 @@ namespace YoutubeDownloader
             model.ConvertingLabelText = Consts.ConvertingPleaseWait;
             model.IsOperationDone = Consts.OperationDone;
             model.IsIndeterminate = false;
-
-            this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
         }
         #endregion
 
@@ -289,7 +291,7 @@ namespace YoutubeDownloader
             else if (!YoutubeLinkUrl.Contains(Consts.LinkPartValidation))
             {
                 shortToastMessage.ShowWarning(Consts.LinkValidatorIsNotValid);
-                YoutubeLinkUrl = string.Empty;
+                YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
                 return false;
             }
             return true;
