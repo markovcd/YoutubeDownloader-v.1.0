@@ -12,5 +12,11 @@ namespace YoutubeDownloader
             InitializeComponent();
             this.DataContext = new NavigationViewModel();
         }
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            this.MinWidth = this.Width;
+            this.MinHeight = this.Height;
+        }
     }
 }

@@ -20,8 +20,8 @@
         </Grid.RowDefinitions>
         <Grid Margin="0,0,20,0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="5*" />
-                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="4*" />
+                <ColumnDefinition Width="70" />
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
@@ -36,6 +36,8 @@
             <Button
                 Grid.Row="0"
                 Grid.Column="1"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
                 Command="{Binding GoButtonCommand}"
                 Content="Go!"
                 Style="{StaticResource GoButtonStyle}" />
@@ -51,7 +53,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid>
-                <ListView ItemsSource="{Binding Mp3List}">
+                <ListView Background="{StaticResource GrafitSoftColor}" ItemsSource="{Binding Mp3List}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn

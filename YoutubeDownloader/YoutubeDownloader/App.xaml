@@ -17,6 +17,7 @@
                 <Setter Property="Width" Value="80" />
                 <Setter Property="Height" Value="60" />
                 <Setter Property="Margin" Value="5" />
+                <Setter Property="FontSize" Value="12" />
                 <Setter Property="Background" Value="Transparent" />
                 <Setter Property="Foreground" Value="{StaticResource SnowColor}" />
                 <Setter Property="BorderBrush" Value="Transparent" />
@@ -41,6 +42,7 @@
                         </MultiTrigger.Conditions>
                         <MultiTrigger.Setters>
                             <Setter Property="Foreground" Value="{StaticResource CyanColor}" />
+                            <Setter Property="FontSize" Value="13" />
                         </MultiTrigger.Setters>
                     </MultiTrigger>
                 </Style.Triggers>
@@ -49,17 +51,18 @@
                 <Setter Property="Margin" Value="10,5,5,5" />
                 <Setter Property="Height" Value="50" />
                 <Setter Property="Width" Value="50" />
+                <Setter Property="FontSize" Value="12" />
                 <Setter Property="Background" Value="{StaticResource GrafitSoftColor}" />
                 <Setter Property="Foreground" Value="{StaticResource CyanColor}" />
-                <Setter Property="HorizontalAlignment" Value="Left" />
                 <Setter Property="Template">
                     <Setter.Value>
                         <ControlTemplate TargetType="{x:Type Button}">
                             <Border
+                                x:Name="border"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="25">
+                                BorderThickness="0"
+                                CornerRadius="30">
                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" />
                             </Border>
                         </ControlTemplate>
@@ -68,10 +71,48 @@
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
                         <Setter Property="Foreground" Value="{StaticResource SnowColor}" />
+                        <Setter Property="FontSize" Value="13" />
                     </Trigger>
                     <Trigger Property="IsPressed" Value="True">
                         <Setter Property="Background" Value="{StaticResource GrafitMediumColor}" />
+                        <Setter Property="FontSize" Value="13" />
                     </Trigger>
+                    <EventTrigger RoutedEvent="MouseEnter">
+                        <EventTrigger.Actions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation
+                                        Storyboard.TargetProperty="Height"
+                                        From="50"
+                                        To="55"
+                                        Duration="0:0:0.300" />
+                                    <DoubleAnimation
+                                        Storyboard.TargetProperty="Width"
+                                        From="50"
+                                        To="55"
+                                        Duration="0:0:0.300" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger.Actions>
+                    </EventTrigger>
+                    <EventTrigger RoutedEvent="MouseLeave">
+                        <EventTrigger.Actions>
+                            <BeginStoryboard>
+                                <Storyboard>
+                                    <DoubleAnimation
+                                        Storyboard.TargetProperty="Height"
+                                        From="55"
+                                        To="50"
+                                        Duration="0:0:0.300" />
+                                    <DoubleAnimation
+                                        Storyboard.TargetProperty="Width"
+                                        From="55"
+                                        To="50"
+                                        Duration="0:0:0.300" />
+                                </Storyboard>
+                            </BeginStoryboard>
+                        </EventTrigger.Actions>
+                    </EventTrigger>
                 </Style.Triggers>
             </Style>
             <!--  TextBox Template Style  -->
