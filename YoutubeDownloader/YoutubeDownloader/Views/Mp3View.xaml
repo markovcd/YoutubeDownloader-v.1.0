@@ -53,7 +53,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid>
-                <ListView Background="{StaticResource GrafitSoftColor}" ItemsSource="{Binding Mp3List}">
+                <ListView ItemsSource="{Binding Mp3List}" Style="{StaticResource Mp3ListViewStyle}">
                     <ListView.View>
                         <GridView>
                             <GridViewColumn
@@ -63,7 +63,7 @@
                             <GridViewColumn Width="300" Header="Progress">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <Grid Width="320">
+                                        <Grid Width="280">
                                             <ProgressBar
                                                 Height="40"
                                                 Margin="10"
@@ -73,18 +73,15 @@
                                                 Visibility="{Binding IsProgressDownloadVisible}"
                                                 Value="{Binding CurrentProgress, Mode=OneWay}" />
                                             <TextBlock
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
+                                                Style="{StaticResource Mp3ListTextBlockStyle}"
                                                 Text="{Binding CurrentProgress, StringFormat={}{0:0}%}"
                                                 Visibility="{Binding IsPercentLabelVisible}" />
                                             <TextBlock
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
+                                                Style="{StaticResource Mp3ListTextBlockStyle}"
                                                 Text="{Binding ConvertingLabelText}"
                                                 Visibility="{Binding IsConvertingLabelVisible}" />
                                             <TextBlock
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
+                                                Style="{StaticResource Mp3ListTextBlockStyle}"
                                                 Text="{Binding IsOperationDone}"
                                                 Visibility="{Binding IsOperationDoneLabelVisible}" />
                                         </Grid>
