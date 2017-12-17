@@ -54,18 +54,43 @@
             </Grid.RowDefinitions>
             <Grid>
                 <ListView ItemsSource="{Binding Mp3List}" Style="{StaticResource Mp3ListViewStyle}">
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="{x:Type ListViewItem}">
+                            <Setter Property="Background" Value="Transparent" />
+                            <Setter Property="Template">
+                                <Setter.Value>
+                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
+                                        <Border
+                                            Background="{TemplateBinding Background}"
+                                            BorderBrush="Transparent"
+                                            BorderThickness="0">
+                                            <GridViewRowPresenter
+                                                Width="Auto"
+                                                Margin="0"
+                                                HorizontalAlignment="Stretch"
+                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                Content="{TemplateBinding Content}" />
+                                        </Border>
+                                    </ControlTemplate>
+                                </Setter.Value>
+                            </Setter>
+                        </Style>
+                    </ListView.ItemContainerStyle>
                     <ListView.View>
                         <GridView>
-                            <GridViewColumn
-                                Width="140"
-                                DisplayMemberBinding="{Binding Name}"
-                                Header="Track Name" />
+                            <GridViewColumn Width="250" Header="Track Name">
+                                <GridViewColumn.CellTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Foreground="{StaticResource SnowColor}" Text="{Binding Name}" />
+                                    </DataTemplate>
+                                </GridViewColumn.CellTemplate>
+                            </GridViewColumn>
                             <GridViewColumn Width="300" Header="Progress">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <Grid Width="280">
                                             <ProgressBar
-                                                Height="40"
+                                                Height="30"
                                                 Margin="10"
                                                 IsIndeterminate="{Binding IsIndeterminate}"
                                                 Maximum="100"

@@ -212,7 +212,11 @@
                         </ControlTemplate>
                     </Setter.Value>
                 </Setter>
-
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource CyanColor}" />
+                    </Trigger>
+                </Style.Triggers>
             </Style>
             <!--  Toast Resource  -->
             <ResourceDictionary.MergedDictionaries>

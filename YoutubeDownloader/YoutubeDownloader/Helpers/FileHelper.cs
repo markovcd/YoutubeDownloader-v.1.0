@@ -18,7 +18,6 @@ namespace YoutubeDownloader
         public string DefaultTrackName { get; set; }
         public string TmpTrackHiddenPath { get; set; }
         public string TmpTrackPath { get; set; }
-
         #endregion
 
         #region Ctor

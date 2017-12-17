@@ -134,7 +134,7 @@ namespace YoutubeDownloader
 
                         Mp3Model = new Mp3Model()
                         {
-                            Name = CurrentFile.DefaultTrackName,
+                            Name = CurrentFile.CheckVideoFormat(video.FullName),
                             IsProgressDownloadVisible = Visibility.Visible,
                             IsPercentLabelVisible = Visibility.Visible,
                             IsConvertingLabelVisible = Visibility.Hidden,
