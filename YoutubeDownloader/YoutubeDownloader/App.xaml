@@ -155,7 +155,7 @@
                 <Setter Property="FontSize" Value="12" />
                 <Setter Property="HorizontalAlignment" Value="Center" />
                 <Setter Property="VerticalAlignment" Value="Center" />
-                <Setter Property="Foreground" Value="{StaticResource SnowColor}" />
+                <Setter Property="Foreground" Value="{StaticResource GrafitColor}" />
             </Style>
             <!--  ListView Style  -->
             <Style x:Key="Mp3ListViewStyle" TargetType="{x:Type ListView}">
@@ -214,6 +214,19 @@
                 </Setter>
                 <Style.Triggers>
                     <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="Foreground" Value="{StaticResource CyanColor}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            <!--  Progressbar Style  -->
+            <Style x:Key="ProgressBarStyle" TargetType="{x:Type ProgressBar}">
+                <Setter Property="Height" Value="30" />
+                <Setter Property="Margin" Value="10" />
+                <Setter Property="Foreground" Value="{StaticResource CyanColor}" />
+                <Setter Property="Maximum" Value="100" />
+                <Setter Property="Minimum" Value="0" />
+                <Style.Triggers>
+                    <Trigger Property="IsIndeterminate" Value="False">
                         <Setter Property="Foreground" Value="{StaticResource CyanColor}" />
                     </Trigger>
                 </Style.Triggers>

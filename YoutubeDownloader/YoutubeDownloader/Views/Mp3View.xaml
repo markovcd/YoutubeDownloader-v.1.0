@@ -90,11 +90,9 @@
                                     <DataTemplate>
                                         <Grid Width="280">
                                             <ProgressBar
-                                                Height="30"
-                                                Margin="10"
+                                                Foreground="{StaticResource CyanColor}"
                                                 IsIndeterminate="{Binding IsIndeterminate}"
-                                                Maximum="100"
-                                                Minimum="0"
+                                                Style="{StaticResource ProgressBarStyle}"
                                                 Visibility="{Binding IsProgressDownloadVisible}"
                                                 Value="{Binding CurrentProgress, Mode=OneWay}" />
                                             <TextBlock
