@@ -19,6 +19,9 @@
         <DataTemplate DataType="{x:Type local:Mp3ViewModel}">
             <local:Mp3View />
         </DataTemplate>
+        <DataTemplate DataType="{x:Type local:Mp4ViewModel}">
+            <local:Mp4View />
+        </DataTemplate>
     </Window.Resources>
     <DockPanel LastChildFill="True">
         <StackPanel
@@ -38,6 +41,7 @@
                 </Grid.RowDefinitions>
                 <Grid Grid.Row="0" Background="{Binding HomeBackgroundColor}" />
                 <Grid Grid.Row="1" Background="{Binding Mp3BackgroundColor}" />
+                <Grid Grid.Row="2" Background="{Binding Mp4BackgroundColor}" />
                 <Button
                     Grid.Row="0"
                     Command="{Binding HomeButtonCommand}"
@@ -48,6 +52,12 @@
                     Grid.Row="1"
                     Command="{Binding Mp3ButtonCommand}"
                     Content="Mp3"
+                    Style="{StaticResource DockPanelButtonStyle}" />
+                <Button
+                    x:Name="Mpp4Button"
+                    Grid.Row="2"
+                    Command="{Binding Mp4ButtonCommand}"
+                    Content="Mp4"
                     Style="{StaticResource DockPanelButtonStyle}" />
             </Grid>
         </StackPanel>
