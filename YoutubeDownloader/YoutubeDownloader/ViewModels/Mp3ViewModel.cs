@@ -81,7 +81,7 @@ namespace YoutubeDownloader
         }
         #endregion
 
-        #region Ctor
+        #region Constructor
         public Mp3ViewModel()
         {
             Initialize();
@@ -104,7 +104,7 @@ namespace YoutubeDownloader
         }
         #endregion
 
-        #region Methods
+        #region Methods Private
         private void Initialize()
         {
             this._connectionHelper = new ConnectionHelper();
@@ -171,12 +171,13 @@ namespace YoutubeDownloader
             });
         }
 
-        public void ExtractAudioFromVideo(FileHelper fileHelper)
+        private void ExtractAudioFromVideo(FileHelper fileHelper)
         {
             var videoToWorkWith = fileHelper.TmpTrackPath;
             var ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
             var output = fileHelper.CheckVideoFormat(videoToWorkWith);
             var standardErrorOutput = string.Empty;
+            var quality = "8k";
 
             fileHelper.DefaultTrackHiddenPath = videoToWorkWith;
             fileHelper.TmpTrackPath = output;
@@ -191,7 +192,7 @@ namespace YoutubeDownloader
                 _process.StartInfo.CreateNoWindow = true;
                 _process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
                 _process.StartInfo.FileName = ffmpegExePath;
-                _process.StartInfo.Arguments = " -i " + videoToWorkWith + " -vn -f mp3 -ab 192k " + output;
+                _process.StartInfo.Arguments = " -i " + videoToWorkWith + " -codec:a libmp3lame -b:a " + quality + " " + output;
                 _process.Start();
                 _process.EnableRaisingEvents = true;
                 _process.ErrorDataReceived += new DataReceivedEventHandler(OnErrorDataReceived);
