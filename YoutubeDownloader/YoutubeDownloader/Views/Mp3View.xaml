@@ -9,7 +9,7 @@
     d:DesignWidth="400"
     Background="{StaticResource GrafitColor}"
     mc:Ignorable="d">
-    <Grid>
+    <Grid Margin="50,0,20,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
@@ -41,6 +41,54 @@
                 Command="{Binding GoButtonCommand}"
                 Content="Go!"
                 Style="{StaticResource GoButtonStyle}" />
+            <GroupBox
+                Grid.Row="1"
+                Width="300"
+                Margin="20,0,0,20"
+                Padding="2"
+                BorderThickness="0.5"
+                Foreground="AliceBlue"
+                Header="Settings">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Label
+                        Grid.Row="0"
+                        Grid.Column="0"
+                        Margin="25,0,0,0"
+                        Content="Format:"
+                        FontSize="12"
+                        Foreground="AliceBlue" />
+                    <Label
+                        Grid.Row="1"
+                        Grid.Column="0"
+                        Margin="25,0,0,0"
+                        Content="Quality:"
+                        FontSize="12"
+                        Foreground="AliceBlue" />
+                    <ComboBox
+                        Grid.Row="0"
+                        Grid.Column="1"
+                        Width="90"
+                        Margin="2"
+                        HorizontalAlignment="Right" />
+                    <ComboBox
+                        Grid.Row="1"
+                        Grid.Column="1"
+                        Width="90"
+                        Margin="2"
+                        HorizontalAlignment="Right"
+                        DisplayMemberPath="Quality"
+                        ItemsSource="{Binding QualityList}"
+                        SelectedItem="{Binding QualityModel}" />
+                </Grid>
+            </GroupBox>
         </Grid>
         <Grid
             Grid.Row="1"

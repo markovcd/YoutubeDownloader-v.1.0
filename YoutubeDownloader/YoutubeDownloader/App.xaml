@@ -160,7 +160,7 @@
             <!--  ListView Style  -->
             <Style x:Key="Mp3ListViewStyle" TargetType="{x:Type ListView}">
                 <Setter Property="FontSize" Value="12" />
-                <Setter Property="Margin" Value="5,0,5,0" />
+                <Setter Property="Margin" Value="5,0,50,50" />
                 <Setter Property="Background" Value="{StaticResource GrafitSoftColor}" />
             </Style>
             <!--  ListView Header Style  -->

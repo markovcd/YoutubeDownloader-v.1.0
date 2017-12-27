@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     Title="MainWindow"
     Width="800"
-    Height="550"
+    Height="620"
     Background="{StaticResource GrafitSoftColor}"
     FocusManager.FocusedElement="{Binding ElementName=Mp3Button}"
     Loaded="Window_Loaded"

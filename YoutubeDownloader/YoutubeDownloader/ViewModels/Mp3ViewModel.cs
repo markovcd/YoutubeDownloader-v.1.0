@@ -34,6 +34,34 @@ namespace YoutubeDownloader
             }
         }
 
+        private ObservableCollection<QualityModel> _qualityList;
+        public ObservableCollection<QualityModel> QualityList
+        {
+            get
+            {
+                return _qualityList;
+            }
+            set
+            {
+                _qualityList = value;
+                OnPropertyChanged(nameof(QualityList));
+            }
+        }
+
+        private QualityModel _qualityModel;
+        public QualityModel QualityModel
+        {
+            get
+            {
+                return _qualityModel;
+            }
+            set
+            {
+                _qualityModel = value;
+                OnPropertyChanged(nameof(QualityModel));
+            }
+        }
+
         private string _youtubeLinkUrl;
         public string YoutubeLinkUrl
         {
@@ -85,6 +113,7 @@ namespace YoutubeDownloader
         public Mp3ViewModel()
         {
             Initialize();
+            InitializeQualityCollection();
         }
         #endregion
 
@@ -114,6 +143,19 @@ namespace YoutubeDownloader
             this._fileHelper = new FileHelper();
 
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
+        }
+
+        private void InitializeQualityCollection()
+        {
+            QualityList = new ObservableCollection<QualityModel>
+            {
+                new QualityModel() { Quality = "128k" },
+                new QualityModel() { Quality = "192k" },
+                new QualityModel() { Quality = "256k" },
+                new QualityModel() { Quality = "320k" },
+            };
+
+            QualityModel = QualityList[3];
         }
 
         private void SaveVideoToDisk()
@@ -177,7 +219,7 @@ namespace YoutubeDownloader
             var ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
             var output = fileHelper.CheckVideoFormat(videoToWorkWith);
             var standardErrorOutput = string.Empty;
-            var quality = "8k";
+            var quality = QualityModel.Quality;
 
             fileHelper.DefaultTrackHiddenPath = videoToWorkWith;
             fileHelper.TmpTrackPath = output;
