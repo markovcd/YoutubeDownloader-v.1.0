@@ -104,29 +104,8 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid>
-                <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}">
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="{x:Type ListViewItem}">
-                            <Setter Property="Background" Value="Transparent" />
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="{x:Type ListViewItem}">
-                                        <Border
-                                            Background="{TemplateBinding Background}"
-                                            BorderBrush="Transparent"
-                                            BorderThickness="0">
-                                            <GridViewRowPresenter
-                                                Width="Auto"
-                                                Margin="0"
-                                                HorizontalAlignment="Stretch"
-                                                VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                Content="{TemplateBinding Content}" />
-                                        </Border>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </ListView.ItemContainerStyle>
+                <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}" ItemContainerStyle="{DynamicResource Mp3ListViewItemStyle}">
+                    
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Width="250" Header="Track Name">
