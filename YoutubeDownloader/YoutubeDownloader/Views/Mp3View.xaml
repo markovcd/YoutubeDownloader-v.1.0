@@ -73,12 +73,15 @@
                         FontSize="12"
                         Foreground="AliceBlue" />
                     <ComboBox
+                        Style="{StaticResource ComboBoxStyle}"
                         Grid.Row="0"
                         Grid.Column="1"
                         Width="90"
                         Margin="2"
-                        HorizontalAlignment="Right" />
+                        HorizontalAlignment="Right" >
+                    </ComboBox>
                     <ComboBox
+                        Style="{StaticResource ComboBoxStyle}"
                         Grid.Row="1"
                         Grid.Column="1"
                         Width="90"

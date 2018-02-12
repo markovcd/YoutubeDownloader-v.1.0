@@ -1,0 +1,12 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:YoutubeDownloader.Styles">
+    
+    <SolidColorBrush x:Key="GrafitColor">#333333</SolidColorBrush>
+    <SolidColorBrush x:Key="GrafitSoftColor">#666666</SolidColorBrush>
+    <SolidColorBrush x:Key="GrafitMediumColor">#918f8f</SolidColorBrush>
+    <SolidColorBrush x:Key="CloudColor">#b7d7e8</SolidColorBrush>
+    <SolidColorBrush x:Key="SnowColor">#f0f8ff</SolidColorBrush>
+    <SolidColorBrush x:Key="DarkerSnowColor">#abadb3</SolidColorBrush>
+    <SolidColorBrush x:Key="CyanColor">#00ffff</SolidColorBrush>
+</ResourceDictionary>
