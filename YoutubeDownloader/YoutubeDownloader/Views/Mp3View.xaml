@@ -104,7 +104,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid>
-                <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}" ItemContainerStyle="{DynamicResource Mp3ListViewItemStyle}">
+                <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}">
                     
                     <ListView.View>
                         <GridView>
