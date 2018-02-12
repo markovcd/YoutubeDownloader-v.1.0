@@ -6,19 +6,8 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-
-                <ResourceDictionary Source="Styles/Colors.xaml" />
-                
-                <ResourceDictionary Source="Styles/Button.xaml" />
-                <ResourceDictionary Source="Styles/ComboBox.xaml" />
-                <ResourceDictionary Source="Styles/ListView.xaml" />
-                <ResourceDictionary Source="Styles/ProgressBar.xaml" />
-                <ResourceDictionary Source="Styles/ScrollBar.xaml" />
-                <ResourceDictionary Source="Styles/TextBlock.xaml" />
-                <ResourceDictionary Source="Styles/TextBox.xaml" />
-
-                <!--  Toast Resource  -->
-                <ResourceDictionary Source="pack://application:,,,/Styles/Button.xaml"/>
+                <!--<ResourceDictionary Source="Styles/Default/Default.xaml" />-->
+                <ResourceDictionary Source="/Styles/Default.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

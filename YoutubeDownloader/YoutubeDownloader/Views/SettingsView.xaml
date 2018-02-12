@@ -6,6 +6,6 @@
              xmlns:local="clr-namespace:YoutubeDownloader"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
-             Background="{StaticResource GrafitColor}">
+             Background="{DynamicResource GrafitColor}">
     <Grid/>
 </UserControl>

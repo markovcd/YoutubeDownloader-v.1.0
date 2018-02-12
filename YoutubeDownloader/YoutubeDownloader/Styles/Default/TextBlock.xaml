@@ -1,11 +1,11 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:local="clr-namespace:YoutubeDownloader.Styles">
+                    xmlns:local="clr-namespace:YoutubeDownloader">
 
     <Style x:Key="Mp3ListTextBlockStyle" TargetType="{x:Type TextBlock}">
         <Setter Property="FontSize" Value="12" />
         <Setter Property="HorizontalAlignment" Value="Center" />
         <Setter Property="VerticalAlignment" Value="Center" />
-        <Setter Property="Foreground" Value="{StaticResource GrafitColor}" />
+        <Setter Property="Foreground" Value="{DynamicResource GrafitColor}" />
     </Style>
 </ResourceDictionary>

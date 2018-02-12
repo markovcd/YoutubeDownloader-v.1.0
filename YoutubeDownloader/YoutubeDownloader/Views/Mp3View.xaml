@@ -7,7 +7,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     d:DesignHeight="300"
     d:DesignWidth="400"
-    Background="{StaticResource GrafitColor}"
+    Background="{DynamicResource GrafitColor}"
     mc:Ignorable="d">
     <Grid Margin="50,0,20,0">
         <Grid.ColumnDefinitions>
@@ -31,7 +31,7 @@
                 Grid.Row="0"
                 Grid.Column="0"
                 local:FocusExtension.IsFocused="{Binding IsFocused, Mode=TwoWay}"
-                Style="{StaticResource TextBoxStyle}"
+                Style="{DynamicResource TextBoxStyle}"
                 Text="{Binding YoutubeLinkUrl}" />
             <Button
                 Grid.Row="0"
@@ -40,7 +40,7 @@
                 VerticalAlignment="Center"
                 Command="{Binding GoButtonCommand}"
                 Content="Go!"
-                Style="{StaticResource GoButtonStyle}" />
+                Style="{DynamicResource GoButtonStyle}" />
             <GroupBox
                 Grid.Row="1"
                 Width="300"
@@ -73,7 +73,7 @@
                         FontSize="12"
                         Foreground="AliceBlue" />
                     <ComboBox
-                        Style="{StaticResource ComboBoxStyle}"
+                        Style="{DynamicResource ComboBoxStyle}"
                         Grid.Row="0"
                         Grid.Column="1"
                         Width="90"
@@ -81,7 +81,7 @@
                         HorizontalAlignment="Right" >
                     </ComboBox>
                     <ComboBox
-                        Style="{StaticResource ComboBoxStyle}"
+                        Style="{DynamicResource ComboBoxStyle}"
                         Grid.Row="1"
                         Grid.Column="1"
                         Width="90"
@@ -104,7 +104,7 @@
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <Grid>
-                <ListView ItemsSource="{Binding Mp3List}" Style="{StaticResource Mp3ListViewStyle}">
+                <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}">
                     <ListView.ItemContainerStyle>
                         <Style TargetType="{x:Type ListViewItem}">
                             <Setter Property="Background" Value="Transparent" />
@@ -132,7 +132,7 @@
                             <GridViewColumn Width="250" Header="Track Name">
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
-                                        <TextBlock Foreground="{StaticResource SnowColor}" Text="{Binding Name}" />
+                                        <TextBlock Foreground="{DynamicResource SnowColor}" Text="{Binding Name}" />
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -141,21 +141,21 @@
                                     <DataTemplate>
                                         <Grid Width="280">
                                             <ProgressBar
-                                                Foreground="{StaticResource CyanColor}"
+                                                Foreground="{DynamicResource CyanColor}"
                                                 IsIndeterminate="{Binding IsIndeterminate}"
-                                                Style="{StaticResource ProgressBarStyle}"
+                                                Style="{DynamicResource ProgressBarStyle}"
                                                 Visibility="{Binding IsProgressDownloadVisible}"
                                                 Value="{Binding CurrentProgress, Mode=OneWay}" />
                                             <TextBlock
-                                                Style="{StaticResource Mp3ListTextBlockStyle}"
+                                                Style="{DynamicResource Mp3ListTextBlockStyle}"
                                                 Text="{Binding CurrentProgress, StringFormat={}{0:0}%}"
                                                 Visibility="{Binding IsPercentLabelVisible}" />
                                             <TextBlock
-                                                Style="{StaticResource Mp3ListTextBlockStyle}"
+                                                Style="{DynamicResource Mp3ListTextBlockStyle}"
                                                 Text="{Binding ConvertingLabelText}"
                                                 Visibility="{Binding IsConvertingLabelVisible}" />
                                             <TextBlock
-                                                Style="{StaticResource Mp3ListTextBlockStyle}"
+                                                Style="{DynamicResource Mp3ListTextBlockStyle}"
                                                 Text="{Binding IsOperationDone}"
                                                 Visibility="{Binding IsOperationDoneLabelVisible}" />
                                         </Grid>

@@ -8,7 +8,7 @@
     Title="MainWindow"
     Width="800"
     Height="620"
-    Background="{StaticResource GrafitSoftColor}"
+    Background="{DynamicResource GrafitSoftColor}"
     FocusManager.FocusedElement="{Binding ElementName=Mp3Button}"
     Loaded="Window_Loaded"
     mc:Ignorable="d">
@@ -50,25 +50,25 @@
                     Grid.Row="0"
                     Command="{Binding HomeButtonCommand}"
                     Content="Home"
-                    Style="{StaticResource DockPanelButtonStyle}" />
+                    Style="{DynamicResource DockPanelButtonStyle}" />
                 <Button
                     x:Name="Mp3Button"
                     Grid.Row="1"
                     Command="{Binding Mp3ButtonCommand}"
                     Content="Mp3"
-                    Style="{StaticResource DockPanelButtonStyle}" />
+                    Style="{DynamicResource DockPanelButtonStyle}" />
                 <Button
                     x:Name="Mpp4Button"
                     Grid.Row="2"
                     Command="{Binding Mp4ButtonCommand}"
                     Content="Mp4"
-                    Style="{StaticResource DockPanelButtonStyle}" />
+                    Style="{DynamicResource DockPanelButtonStyle}" />
                 <Button
                     x:Name="SettingsButton"
                     Grid.Row="3"
                     Command="{Binding SettingsButtonCommand}"
                     Content="Settings"
-                    Style="{StaticResource DockPanelButtonStyle}" />
+                    Style="{DynamicResource DockPanelButtonStyle}" />
             </Grid>
         </StackPanel>
         <ContentControl
