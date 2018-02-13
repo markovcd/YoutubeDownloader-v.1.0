@@ -39,6 +39,7 @@
                     <Condition Property="Selector.IsSelectionActive" Value="true" />
                 </MultiTrigger.Conditions>
                 <Setter Property="Background" Value="{DynamicResource GrafitColor}" />
+                <Setter Property="Foreground" Value="{DynamicResource SnowColor}" />
             </MultiTrigger>
             <MultiTrigger>
                 <MultiTrigger.Conditions>

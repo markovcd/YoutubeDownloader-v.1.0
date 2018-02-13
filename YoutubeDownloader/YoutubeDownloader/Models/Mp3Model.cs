@@ -125,5 +125,25 @@ namespace YoutubeDownloader
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public System.Windows.Input.ICommand Mp3DoubleClickedCommand
+        {
+            get
+            {
+                return new RelayCommand(Mp3DoubleClicked, CanExecute);
+            }
+        }
+
+        private void Mp3DoubleClicked()
+        {
+            var helper = new FileHelper();
+            System.Diagnostics.Process.Start(helper.Path);
+            
+        }
+
+        private bool CanExecute()
+        {
+            return true;
+        }
     }
 }

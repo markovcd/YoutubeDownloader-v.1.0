@@ -9,4 +9,11 @@
         <Setter Property="VerticalAlignment" Value="Center" />
         <Setter Property="Foreground" Value="{DynamicResource GrafitColor}" />
     </Style>
+
+    <Style x:Key="Mp3ListTextBlockStyleLight" TargetType="{x:Type TextBlock}">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="HorizontalAlignment" Value="Center" />
+        <Setter Property="VerticalAlignment" Value="Center" />
+        <Setter Property="Foreground" Value="{DynamicResource SnowColor}" />
+    </Style>
 </ResourceDictionary>

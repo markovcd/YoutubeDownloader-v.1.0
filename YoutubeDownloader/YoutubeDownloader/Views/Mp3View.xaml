@@ -104,13 +104,21 @@
             </Grid.RowDefinitions>
             <Grid>
                 <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}">
-
+                    
                     <ListView.View>
                         <GridView>
+
                             <GridViewColumn Width="250" Header="Track Name">
+
                                 <GridViewColumn.CellTemplate>
+
                                     <DataTemplate>
-                                        <TextBlock Foreground="{DynamicResource SnowColor}" Text="{Binding Name}" />
+                                        <Grid>
+                                            <Grid.InputBindings>
+                                                <MouseBinding Command="{Binding Mp3DoubleClickedCommand}" Gesture="LeftDoubleClick" />
+                                            </Grid.InputBindings>
+                                            <TextBlock Foreground="{DynamicResource SnowColor}" Text="{Binding Name}" />
+                                        </Grid>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>
                             </GridViewColumn>
@@ -118,6 +126,7 @@
                                 <GridViewColumn.CellTemplate>
                                     <DataTemplate>
                                         <Grid Width="280">
+
                                             <ProgressBar
                                                 Foreground="{DynamicResource CyanColor}"
                                                 IsIndeterminate="{Binding IsIndeterminate}"
@@ -125,6 +134,7 @@
                                                 Visibility="{Binding IsProgressDownloadVisible}"
                                                 Value="{Binding CurrentProgress, Mode=OneWay}" />
                                             <TextBlock
+                                          
                                                 Style="{DynamicResource Mp3ListTextBlockStyle}"
                                                 Text="{Binding CurrentProgress, StringFormat={}{0:0}%}"
                                                 Visibility="{Binding IsPercentLabelVisible}" />
@@ -133,7 +143,7 @@
                                                 Text="{Binding ConvertingLabelText}"
                                                 Visibility="{Binding IsConvertingLabelVisible}" />
                                             <TextBlock
-                                                Style="{DynamicResource Mp3ListTextBlockStyle}"
+                                                Style="{DynamicResource Mp3ListTextBlockStyleLight}"
                                                 Text="{Binding IsOperationDone}"
                                                 Visibility="{Binding IsOperationDoneLabelVisible}" />
                                         </Grid>
