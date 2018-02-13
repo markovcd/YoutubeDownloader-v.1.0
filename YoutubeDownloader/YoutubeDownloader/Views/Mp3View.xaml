@@ -73,15 +73,13 @@
                         FontSize="12"
                         Foreground="AliceBlue" />
                     <ComboBox
-                        Style="{DynamicResource ComboBoxStyle}"
                         Grid.Row="0"
                         Grid.Column="1"
                         Width="90"
                         Margin="2"
-                        HorizontalAlignment="Right" >
-                    </ComboBox>
+                        HorizontalAlignment="Right"
+                        Style="{DynamicResource ComboBoxStyle}" />
                     <ComboBox
-                        Style="{DynamicResource ComboBoxStyle}"
                         Grid.Row="1"
                         Grid.Column="1"
                         Width="90"
@@ -89,7 +87,8 @@
                         HorizontalAlignment="Right"
                         DisplayMemberPath="Quality"
                         ItemsSource="{Binding QualityList}"
-                        SelectedItem="{Binding QualityModel}" />
+                        SelectedItem="{Binding QualityModel}"
+                        Style="{DynamicResource ComboBoxStyle}" />
                 </Grid>
             </GroupBox>
         </Grid>
@@ -105,7 +104,7 @@
             </Grid.RowDefinitions>
             <Grid>
                 <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}">
-                    
+
                     <ListView.View>
                         <GridView>
                             <GridViewColumn Width="250" Header="Track Name">

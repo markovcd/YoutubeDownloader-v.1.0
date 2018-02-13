@@ -73,6 +73,7 @@
     <Compile Include="Helpers\ConnectionHelper.cs" />
     <Compile Include="Models\Mp3Model.cs" />
     <Compile Include="Models\QualityModel.cs" />
+    <Compile Include="Models\SettingsModel.cs" />
     <Compile Include="Utilities\Converter.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Managers\TrackNameManager.cs" />
@@ -137,6 +138,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Styles\Default\ScrollBar.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Styles\Default\TabControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
