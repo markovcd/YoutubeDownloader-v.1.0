@@ -11,6 +11,7 @@
         <Setter Property="Background" Value="{DynamicResource GrafitSoftColor}" />
     </Style>
 
+
     <!--  ListViewItem Style  -->
     <Style x:Key="Mp3ListViewItemStyle" TargetType="{x:Type ListViewItem}">
         <Setter Property="Background" Value="Transparent" />
@@ -31,6 +32,22 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Style.Triggers>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsSelected" Value="true" />
+                    <Condition Property="Selector.IsSelectionActive" Value="true" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{DynamicResource GrafitColor}" />
+            </MultiTrigger>
+            <MultiTrigger>
+                <MultiTrigger.Conditions>
+                    <Condition Property="IsMouseOver" Value="true" />
+                    <Condition Property="IsSelected" Value="False" />
+                </MultiTrigger.Conditions>
+                <Setter Property="Background" Value="{DynamicResource DarkerSnowColor}" />
+            </MultiTrigger>
+        </Style.Triggers>
     </Style>
 
     <!--  ListView Header Style  -->
