@@ -34,71 +34,36 @@ namespace YoutubeDownloader
         private object _selectedViewModel;
         public object SelectedViewModel
         {
-            get
-            {
-                return _selectedViewModel;
-            }
-            set
-            {
-                _selectedViewModel = value;
-                OnPropertyChanged("SelectedViewModel");
-            }
+            get { return _selectedViewModel; }
+            set { SetProperty(ref _selectedViewModel, value); }
         }
 
         private SolidColorBrush _homeBackgroundColor;
         public SolidColorBrush HomeBackgroundColor
         {
-            get
-            {
-                return _homeBackgroundColor;
-            }
-            set
-            {
-                _homeBackgroundColor = value;
-                OnPropertyChanged("HomeBackgroundColor");
-            }
+            get { return _homeBackgroundColor; }
+            set { SetProperty(ref _homeBackgroundColor, value); }
         }
 
         private SolidColorBrush _mp3BackgroundColor;
         public SolidColorBrush Mp3BackgroundColor
         {
-            get
-            {
-                return _mp3BackgroundColor;
-            }
-            set
-            {
-                _mp3BackgroundColor = value;
-                OnPropertyChanged("Mp3BackgroundColor");
-            }
+            get { return _mp3BackgroundColor; }
+            set { SetProperty(ref _mp3BackgroundColor, value); }
         }
 
         private SolidColorBrush _mp4BackgroundColor;
         public SolidColorBrush Mp4BackgroundColor
         {
-            get
-            {
-                return _mp4BackgroundColor;
-            }
-            set
-            {
-                _mp4BackgroundColor = value;
-                OnPropertyChanged("Mp4BackgroundColor");
-            }
+            get { return _mp4BackgroundColor; }
+            set { SetProperty(ref _mp4BackgroundColor, value); }
         }
 
         private SolidColorBrush _settingsBackgroundColor;
         public SolidColorBrush SettingsBackgroundColor
         {
-            get
-            {
-                return _settingsBackgroundColor;
-            }
-            set
-            {
-                _settingsBackgroundColor = value;
-                OnPropertyChanged("SettingsBackgroundColor");
-            }
+            get { return _settingsBackgroundColor; }
+            set { SetProperty(ref _settingsBackgroundColor, value); }
         }
         #endregion
 

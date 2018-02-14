@@ -23,70 +23,39 @@ namespace YoutubeDownloader
         private ObservableCollection<Mp3Model> _mp3List;
         public ObservableCollection<Mp3Model> Mp3List
         {
-            get
-            {
-                return _mp3List;
-            }
-            set
-            {
-                _mp3List = value;
-                OnPropertyChanged(nameof(Mp3List));
-            }
+            get { return _mp3List; }
+            set { SetProperty(ref _mp3List, value); }
         }
 
         private ObservableCollection<QualityModel> _qualityList;
         public ObservableCollection<QualityModel> QualityList
         {
-            get
-            {
-                return _qualityList;
-            }
-            set
-            {
-                _qualityList = value;
-                OnPropertyChanged(nameof(QualityList));
-            }
+            get { return _qualityList; }
+            set { SetProperty(ref _qualityList, value); }
         }
 
         private QualityModel _qualityModel;
         public QualityModel QualityModel
         {
-            get
-            {
-                return _qualityModel;
-            }
-            set
-            {
-                _qualityModel = value;
-                OnPropertyChanged(nameof(QualityModel));
-            }
+            get { return _qualityModel; }
+            set { SetProperty(ref _qualityModel, value); }
         }
 
         private string _youtubeLinkUrl;
         public string YoutubeLinkUrl
         {
-            get
-            {
-                return _youtubeLinkUrl;
-            }
-            set
-            {
-                _youtubeLinkUrl = value;
-                OnPropertyChanged(nameof(YoutubeLinkUrl));
-            }
+            get { return _youtubeLinkUrl; }
+            set { SetProperty(ref _youtubeLinkUrl, value); }
         }
 
         private bool _isFocused;
         public bool IsFocused
         {
-            get
-            {
-                return _isFocused;
-            }
+            get { return _isFocused; }
             set
             {
-                _isFocused = value;
-                OnPropertyChanged("IsYouTubeTextBoxFocused");
+                SetProperty(ref _isFocused, value);
+
                 if (_isFocused)
                 {
                     YoutubeLinkUrl = string.Empty;
@@ -97,6 +66,7 @@ namespace YoutubeDownloader
                 }
             }
         }
+        
         #endregion
 
         #region Commands
