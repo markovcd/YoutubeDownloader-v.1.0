@@ -7,6 +7,12 @@ namespace YoutubeDownloader
     sealed class NavigationViewModel : BaseViewModel
     {
         #region Fields and Properties
+        private HomeViewModel _homeViewModelInstance;
+        public HomeViewModel HomeViewModelInstance
+        {
+            get { return _homeViewModelInstance ?? (_homeViewModelInstance = new HomeViewModel()); }
+        }
+
         private Mp3ViewModel _mp3ViewModelInstance;
         public Mp3ViewModel Mp3ViewModelInstance
         {
@@ -141,7 +147,7 @@ namespace YoutubeDownloader
         #region Events
         private void HomeButtonClicked()
         {
-            SelectedViewModel = new HomeViewModel();
+            SelectedViewModel = HomeViewModelInstance;
             HomeBackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitColor"];
             Mp4BackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitSoftColor"];
             Mp3BackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitSoftColor"];
