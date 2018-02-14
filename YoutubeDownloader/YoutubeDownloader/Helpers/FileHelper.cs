@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Reflection;
 
 namespace YoutubeDownloader
 {
@@ -110,6 +111,11 @@ namespace YoutubeDownloader
             {
 
             }
+        }
+
+        public static string GetApplicationFolder()
+        {
+            return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
         }
 
         private void CreateHiddenFolder()

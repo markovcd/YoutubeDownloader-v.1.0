@@ -74,6 +74,7 @@
     <Compile Include="Models\Mp3Model.cs" />
     <Compile Include="Models\QualityModel.cs" />
     <Compile Include="Models\SettingsModel.cs" />
+    <Compile Include="Utilities\SettingsSingleton.cs" />
     <Compile Include="Utilities\Converter.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Managers\TrackNameManager.cs" />
