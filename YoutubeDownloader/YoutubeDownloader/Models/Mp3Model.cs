@@ -64,22 +64,6 @@ namespace YoutubeDownloader
             set { SetProperty(ref _isIndeterminate, value); }
         }
 
-  
-        public System.Windows.Input.ICommand Mp3DoubleClickedCommand
-        {
-            get
-            {
-                return new RelayCommand(Mp3DoubleClicked, CanExecute);
-            }
-        }
-
-        private void Mp3DoubleClicked()
-        {
-            var helper = new FileHelper();
-            System.Diagnostics.Process.Start(helper.Path);
-            
-        }
-
         private bool CanExecute()
         {
             return true;

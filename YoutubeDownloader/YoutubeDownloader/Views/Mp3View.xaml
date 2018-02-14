@@ -104,7 +104,7 @@
             </Grid.RowDefinitions>
             <Grid>
                 <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}">
-                    
+
                     <ListView.View>
                         <GridView>
 
@@ -115,7 +115,10 @@
                                     <DataTemplate>
                                         <Grid>
                                             <Grid.InputBindings>
-                                                <MouseBinding Command="{Binding Mp3DoubleClickedCommand}" Gesture="LeftDoubleClick" />
+                                                <!--<MouseBinding Command="{Binding Mp3DoubleClickedCommand}" Gesture="LeftDoubleClick" />-->
+                                                <MouseBinding
+                                                    Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=DataContext.Mp3DoubleClickedCommand}"
+                                                    Gesture="LeftDoubleClick" />
                                             </Grid.InputBindings>
                                             <TextBlock Foreground="{DynamicResource SnowColor}" Text="{Binding Name}" />
                                         </Grid>
@@ -134,7 +137,6 @@
                                                 Visibility="{Binding IsProgressDownloadVisible}"
                                                 Value="{Binding CurrentProgress, Mode=OneWay}" />
                                             <TextBlock
-                                          
                                                 Style="{DynamicResource Mp3ListTextBlockStyle}"
                                                 Text="{Binding CurrentProgress, StringFormat={}{0:0}%}"
                                                 Visibility="{Binding IsPercentLabelVisible}" />

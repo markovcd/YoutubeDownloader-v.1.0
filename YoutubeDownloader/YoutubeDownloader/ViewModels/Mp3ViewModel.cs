@@ -77,6 +77,14 @@ namespace YoutubeDownloader
                 return new RelayCommand(GoButtonClicked, CanExecute);
             }
         }
+
+        public ICommand Mp3DoubleClickedCommand
+        {
+            get
+            {
+                return new RelayCommand(Mp3DoubleClicked, CanExecute);
+            }
+        }
         #endregion
 
         #region Constructor
@@ -100,6 +108,13 @@ namespace YoutubeDownloader
                     }
                 }
             }
+        }
+
+        private void Mp3DoubleClicked()
+        {
+            var helper = new FileHelper();
+            System.Diagnostics.Process.Start(helper.Path);
+
         }
         #endregion
 
