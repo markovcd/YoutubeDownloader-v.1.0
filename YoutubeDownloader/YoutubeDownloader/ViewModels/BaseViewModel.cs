@@ -7,24 +7,17 @@ using ToastNotifications.Position;
 
 namespace YoutubeDownloader
 {
-    class BaseViewModel : INotifyPropertyChanged
+    class BaseViewModel : BindableBase
     {
         protected Notifier shortToastMessage;
         protected Notifier longToastMessage;
         protected FileHelper fileHelper;
-
-        public event PropertyChangedEventHandler PropertyChanged;
 
         public BaseViewModel()
         {
             SetToastMessages();
             SetLongToastMessages();
             CreateDirectoryIfNotExists();
-        }
-
-        protected void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void SetToastMessages()

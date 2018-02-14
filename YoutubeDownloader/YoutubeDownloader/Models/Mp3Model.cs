@@ -3,129 +3,68 @@ using System.Windows;
 
 namespace YoutubeDownloader
 {
-    sealed public class Mp3Model : INotifyPropertyChanged
+    sealed public class Mp3Model : BindableBase
     {
         public string Name { get; set; }
 
         private double _currentProgress;
         public double CurrentProgress
         {
-            get
-            {
-                return _currentProgress;
-            }
-            set
-            {
-                _currentProgress = value;
-                OnPropertyChanged("CurrentProgress");
-            }
+            get { return _currentProgress; }
+            set { SetProperty(ref _currentProgress, value); }
         }
 
         private Visibility _isConvertingLabelVisible;
         public Visibility IsConvertingLabelVisible
         {
-            get
-            {
-                return _isConvertingLabelVisible;
-            }
-            set
-            {
-                _isConvertingLabelVisible = value;
-                OnPropertyChanged("IsConvertingLabelVisible");
-            }
+            get { return _isConvertingLabelVisible; }
+            set { SetProperty(ref _isConvertingLabelVisible, value); }
         }
+
 
         private Visibility _isPercentLabelVisible;
         public Visibility IsPercentLabelVisible
         {
-            get
-            {
-                return _isPercentLabelVisible;
-            }
-            set
-            {
-                _isPercentLabelVisible = value;
-                OnPropertyChanged("IsPercentLabelVisible");
-            }
+            get { return _isPercentLabelVisible; }
+            set { SetProperty(ref _isPercentLabelVisible, value); }
         }
 
         private Visibility _isProgressDownloadVisible;
         public Visibility IsProgressDownloadVisible
         {
-            get
-            {
-                return _isProgressDownloadVisible;
-            }
-            set
-            {
-                _isProgressDownloadVisible = value;
-                OnPropertyChanged("IsProgressDownloadVisible");
-            }
+            get { return _isProgressDownloadVisible; }
+            set { SetProperty(ref _isProgressDownloadVisible, value); }
         }
 
         private Visibility _isOperationDoneLabelVisible;
         public Visibility IsOperationDoneLabelVisible
         {
-            get
-            {
-                return _isOperationDoneLabelVisible;
-            }
-            set
-            {
-                _isOperationDoneLabelVisible = value;
-                OnPropertyChanged("IsOperationDoneLabelVisible");
-            }
+            get { return _isOperationDoneLabelVisible; }
+            set { SetProperty(ref _isOperationDoneLabelVisible, value); }
         }
 
         private string _isOperationDone;
         public string IsOperationDone
         {
-            get
-            {
-                return _isOperationDone;
-            }
-            set
-            {
-                _isOperationDone = value;
-                OnPropertyChanged("IsOperationDone");
-            }
+            get { return _isOperationDone; }
+            set { SetProperty(ref _isOperationDone, value); }
         }
 
         private string _convertingLabelText;
         public string ConvertingLabelText
         {
-            get
-            {
-                return _convertingLabelText;
-            }
-            set
-            {
-                _convertingLabelText = value;
-                OnPropertyChanged("ConvertingLabelText");
-            }
+            get { return _convertingLabelText; }
+            set { SetProperty(ref _convertingLabelText, value); }
         }
 
         private bool _isIndeterminate;
         public bool IsIndeterminate
         {
-            get
-            {
-                return _isIndeterminate;
-            }
-            set
-            {
-                _isIndeterminate = value;
-                OnPropertyChanged("IsIndeterminate");
-            }
+            get { return _isIndeterminate; }
+            set { SetProperty(ref _isIndeterminate, value); }
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public void OnPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
+  
         public System.Windows.Input.ICommand Mp3DoubleClickedCommand
         {
             get
