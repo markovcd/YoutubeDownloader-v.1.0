@@ -9,7 +9,7 @@ using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.IO;
 
-namespace YoutubeDownloader.Utilities
+namespace YoutubeDownloader
 {
     public sealed class SettingsSingleton
     {
@@ -17,9 +17,9 @@ namespace YoutubeDownloader.Utilities
 
         public static string FilePath { get { return Path.Combine(FileHelper.GetApplicationFolder(), FileName); } }
 
-        private static SettingsSingleton _instance = new SettingsSingleton();
+        private static SettingsSingleton _instance;
 
-        public static SettingsSingleton Instance { get { return _instance; } }
+        public static SettingsSingleton Instance { get { return _instance ?? (_instance = new SettingsSingleton()); } }
 
         public SettingsModel Model { get; private set; }
 
@@ -40,6 +40,8 @@ namespace YoutubeDownloader.Utilities
 
         public static SettingsModel Deserialize(string filePath)
         {
+            if (!File.Exists(filePath)) return SettingsModel.GetDefault();
+
             var serializer = new XmlSerializer(typeof(SettingsModel));
 
             using (var fileStream = new FileStream(filePath, FileMode.Open))

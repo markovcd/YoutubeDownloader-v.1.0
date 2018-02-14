@@ -34,6 +34,14 @@ namespace YoutubeDownloader
         {
             return null;
         }
+
+        public static SettingsModel GetDefault()
+        {
+            return new SettingsModel
+            {
+                Mp3DestinationPath = ""
+            };
+        }
     }
 
     

@@ -8,6 +8,9 @@ namespace YoutubeDownloader
 {
     sealed class SettingsViewModel : BaseViewModel
     {
-
+        public SettingsViewModel()
+        {
+            System.Diagnostics.Debug.Print(SettingsSingleton.Instance.Model.Mp3DestinationPath);
+        }
     }
 }

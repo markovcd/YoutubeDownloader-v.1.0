@@ -11,10 +11,16 @@
     mc:Ignorable="d">
     <Grid>
         <TabControl Style="{DynamicResource TabControlStyle}">
-            <TabItem Header="TabItem" Style="{DynamicResource TabItemStyle}">
-                <Label>aaaa</Label>
+            <TabItem Header="Mp3" Style="{DynamicResource TabItemStyle}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="40" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <TextBox Style="{DynamicResource TextBoxStyle}" />
+                </Grid>
             </TabItem>
-            <TabItem Header="TabItem2" Style="{DynamicResource TabItemStyle}">
+            <TabItem Header="Mp4" Style="{DynamicResource TabItemStyle}">
                 <Label>bbbb</Label>
             </TabItem>
         </TabControl>

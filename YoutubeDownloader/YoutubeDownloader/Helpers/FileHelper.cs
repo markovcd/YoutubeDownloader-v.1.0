@@ -115,7 +115,7 @@ namespace YoutubeDownloader
 
         public static string GetApplicationFolder()
         {
-            return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().CodeBase);
+            return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
         private void CreateHiddenFolder()
