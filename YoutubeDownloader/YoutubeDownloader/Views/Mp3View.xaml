@@ -116,9 +116,7 @@
                                         <Grid>
                                             <Grid.InputBindings>
                                                 <!--<MouseBinding Command="{Binding Mp3DoubleClickedCommand}" Gesture="LeftDoubleClick" />-->
-                                                <MouseBinding
-                                                    Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=DataContext.Mp3DoubleClickedCommand}"
-                                                    Gesture="LeftDoubleClick" />
+                                                <MouseBinding Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=DataContext.Mp3DoubleClickedCommand}" Gesture="LeftDoubleClick" />
                                             </Grid.InputBindings>
                                             <TextBlock Foreground="{DynamicResource SnowColor}" Text="{Binding Name}" />
                                         </Grid>
