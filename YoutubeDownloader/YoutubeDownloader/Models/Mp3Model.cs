@@ -42,25 +42,5 @@ namespace YoutubeDownloader
             get { return _currentProgress; }
             set { SetProperty(ref _currentProgress, value); }
         }
-
-
-        private string _isOperationDone;
-        public string IsOperationDone
-        {
-            get { return _isOperationDone; }
-            set { SetProperty(ref _isOperationDone, value); }
-        }
-
-        private string _convertingLabelText;
-        public string ConvertingLabelText
-        {
-            get { return _convertingLabelText; }
-            set { SetProperty(ref _convertingLabelText, value); }
-        }
-
-        private bool CanExecute()
-        {
-            return true;
-        }
     }
 }

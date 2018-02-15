@@ -163,7 +163,6 @@ namespace YoutubeDownloader
                         {
                             Name = CurrentFile.CheckVideoFormat(video.FullName),
                             State = Mp3ModelState.Downloading,
-                            ConvertingLabelText = Consts.ConvertingPleaseWait,
                             CurrentProgress = 0,
                         };
 
@@ -266,8 +265,6 @@ namespace YoutubeDownloader
             fileHelper.RenameFile(fileHelper.TmpTrackPath, fileHelper.DefaultTrackPath);
             fileHelper.RemoveFile(fileHelper.DefaultTrackHiddenPath);
 
-            model.ConvertingLabelText = Consts.ConvertingPleaseWait;
-            model.IsOperationDone = Consts.OperationDone;
             model.State = Mp3ModelState.Done;
         }
         #endregion

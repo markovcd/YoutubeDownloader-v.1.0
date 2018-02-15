@@ -148,11 +148,11 @@
                                                 Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToPercentLabelVisibilityConverter}}" />
                                             <TextBlock
                                                 Style="{DynamicResource Mp3ListTextBlockStyle}"
-                                                Text="{Binding ConvertingLabelText}"
+                                                Text="Converting please wait"
                                                 Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToConvertingLabelVisibilityConverter}}" />
                                             <TextBlock
                                                 Style="{DynamicResource Mp3ListTextBlockStyleLight}"
-                                                Text="{Binding IsOperationDone}"
+                                                Text="Done"
                                                 Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToOperationDoneVisibilityConverter}}" />
                                         </Grid>
                                     </DataTemplate>
