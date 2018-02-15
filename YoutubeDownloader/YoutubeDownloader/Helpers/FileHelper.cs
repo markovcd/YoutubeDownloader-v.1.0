@@ -29,20 +29,11 @@ namespace YoutubeDownloader
         #endregion
 
         #region Methods
-        public void CheckIfDirectoryExists()
+        
+
+        public static void EnsureDirectoryExist(string filePath)
         {
-            try
-            {
-                if (!Directory.Exists(Path))
-                {
-                    DirectoryInfo directoryInfo = Directory.CreateDirectory(Path);
-                }
-                CreateHiddenFolder();
-            }
-            catch (IOException e)
-            {
-                Debug.WriteLine("Exception occured: {0}", e.ToString());
-            }
+            Directory.CreateDirectory(System.IO.Path.GetDirectoryName(filePath));
         }
 
         public void WriteToFile(string fileName, byte[] bytes, bool isHidden)
@@ -130,36 +121,6 @@ namespace YoutubeDownloader
             Process.Start(cmd, arg);
         }
 
-        private void CreateHiddenFolder()
-        {
-            try
-            {
-                if (!Directory.Exists(HiddenPath))
-                {
-                    DirectoryInfo directoryInfo = Directory.CreateDirectory(HiddenPath);
-                    directoryInfo.Attributes = FileAttributes.Directory | FileAttributes.Hidden;
-                }
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Exception occured: {0}", e.ToString());
-            }
-        }
-
-        public bool CheckPossibleDuplicate(string fileName)
-        {
-            if (!_isHidden)
-            {
-                var firstReplace = fileName.Replace(".mp4", ".mp3");
-                var finalReplace = firstReplace.Replace(_youtubeLastPartString, string.Empty);
-                return File.Exists(System.IO.Path.Combine(Path, finalReplace));
-            }
-            else
-            {
-                return File.Exists(System.IO.Path.Combine(HiddenPath, fileName));
-            }
-        }
-
         public string CheckVideoFormat(string path)
         {
             if (path.Contains(".webm"))
@@ -173,11 +134,6 @@ namespace YoutubeDownloader
                     .Replace(Consts.TemporaryDirectoryName, Consts.DefaultDirectoryName);
             }
             return string.Empty;
-        }
-
-        public string PreparePathForFFmpeg(string path)
-        {
-            return path.Replace(" ", string.Empty);
         }
 
         public string PrepareTrackForNotification(string trackName)

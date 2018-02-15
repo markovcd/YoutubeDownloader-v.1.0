@@ -84,15 +84,10 @@ namespace YoutubeDownloader
         #region Events
         private void StartMp3Download(string youtubeLinkUrl)
         {
-            if (ValidateEditFieldString())
+            if (ValidateEditFieldString(youtubeLinkUrl) && CheckIfInternetConnectivityIsOn())
             {
-                if (!CheckIfFileAlreadyExists(youtubeLinkUrl))
-                {
-                    if (CheckIfInternetConnectivityIsOn())
-                    {
-                        SaveVideoToDisk(youtubeLinkUrl);
-                    }
-                }
+
+                SaveVideoToDisk(youtubeLinkUrl);   
             }
         }
 
@@ -132,7 +127,6 @@ namespace YoutubeDownloader
         {
             Task.Factory.StartNew(() =>
             {
-                var CurrentFile = new FileHelper();
 
                 var tempPath = FileHelper.GetTempFileName();
 
@@ -145,13 +139,21 @@ namespace YoutubeDownloader
 
                         mp3Model = new Mp3Model
                         {
-                            Name = videoDownloader.CurrentVideo.FullName,
+                            Name = videoDownloader.CurrentVideo.Title,
                             Path = Path.Combine(SettingsSingleton.Instance.Model.Mp3DestinationDirectory, 
                                                 Path.ChangeExtension(videoDownloader.CurrentVideo.FullName, ".mp3")),
 
                             State = Mp3ModelState.Downloading,
                             CurrentProgress = 0
                         };
+
+                        if (File.Exists(mp3Model.Path))
+                        {
+                            shortToastMessage.ShowInformation(Consts.FileAlreadyExistsInfo);
+                            return;
+                        }
+
+                        FileHelper.EnsureDirectoryExist(mp3Model.Path);
 
                         Application.Current.Dispatcher.BeginInvoke(new Action(() => _mp3List.Add(mp3Model)));
 
@@ -191,18 +193,6 @@ namespace YoutubeDownloader
         #endregion
 
         #region Validators
-        private bool CheckIfFileAlreadyExists(string FileName)
-        {
-            var youTube = YouTube.Default;
-            var video = youTube.GetVideo(FileName);
-
-            if (fileHelper.CheckPossibleDuplicate(video.FullName))
-            {
-                shortToastMessage.ShowInformation(Consts.FileAlreadyExistsInfo);
-                return true;
-            }
-            return false;
-        }
 
         private bool CheckIfInternetConnectivityIsOn()
         {
@@ -220,14 +210,14 @@ namespace YoutubeDownloader
             return false;
         }
 
-        private bool ValidateEditFieldString()
+        private bool ValidateEditFieldString(string youtubeLinkUrl)
         {
-            if (YoutubeLinkUrl == string.Empty)
+            if (youtubeLinkUrl == string.Empty)
             {
                 shortToastMessage.ShowWarning(Consts.LinkValidatorEmpty);
                 return false;
             }
-            else if (!YoutubeLinkUrl.Contains(Consts.LinkPartValidation))
+            else if (!youtubeLinkUrl.Contains(Consts.LinkPartValidation))
             {
                 shortToastMessage.ShowWarning(Consts.LinkValidatorIsNotValid);
                 YoutubeLinkUrl = Consts.DefaultTextBoxEntry;

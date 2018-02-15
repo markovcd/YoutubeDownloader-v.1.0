@@ -17,7 +17,6 @@ namespace YoutubeDownloader
         {
             SetToastMessages();
             SetLongToastMessages();
-            CreateDirectoryIfNotExists();
         }
 
         private void SetToastMessages()
@@ -54,15 +53,6 @@ namespace YoutubeDownloader
 
                 cfg.Dispatcher = Application.Current.Dispatcher;
             });
-        }
-
-        private void CreateDirectoryIfNotExists()
-        {
-            fileHelper = new FileHelper();
-            if (fileHelper != null)
-            {
-                fileHelper.CheckIfDirectoryExists();
-            }
         }
 
         protected bool CanExecute()
