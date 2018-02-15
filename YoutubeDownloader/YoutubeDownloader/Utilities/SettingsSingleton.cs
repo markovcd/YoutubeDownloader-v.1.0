@@ -1,21 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using System.Text;
-using System.Threading.Tasks;
-using System.Xml;
-using System.Xml.Schema;
 using System.Xml.Serialization;
 using System.IO;
 
 namespace YoutubeDownloader
 {
-    public sealed class SettingsSingleton
+    sealed class SettingsSingleton : BaseViewModel
     {
-        public static readonly string FileName = "settings.xml";
-
-        public static string FilePath { get { return Path.Combine(FileHelper.GetApplicationFolder(), FileName); } }
+        public string FilePath { get { return Path.Combine(FileHelper.GetApplicationFolder(), Consts.SettingsFilename); } }
 
         private static SettingsSingleton _instance;
 
@@ -26,6 +17,11 @@ namespace YoutubeDownloader
         private SettingsSingleton()
         {
             Deserialize();
+        }
+
+        ~SettingsSingleton()
+        {
+            Serialize();
         }
 
         public void Deserialize()
@@ -40,14 +36,20 @@ namespace YoutubeDownloader
 
         public static SettingsModel Deserialize(string filePath)
         {
-            if (!File.Exists(filePath)) return SettingsModel.GetDefault();
-
             var serializer = new XmlSerializer(typeof(SettingsModel));
 
-            using (var fileStream = new FileStream(filePath, FileMode.Open))
+            try
             {
-                return serializer.Deserialize(fileStream) as SettingsModel;
+                using (var fileStream = new FileStream(filePath, FileMode.Open))
+                {
+                    return serializer.Deserialize(fileStream) as SettingsModel;
+                }
             }
+            catch (Exception)
+            {
+                return SettingsModel.GetDefault();
+            }
+            
         }
 
         public static void Serialize(string filePath, SettingsModel settings)

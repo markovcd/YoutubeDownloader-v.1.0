@@ -87,6 +87,7 @@
     <Compile Include="Utilities\FocusExtension.cs" />
     <Compile Include="Utilities\ProgressStream.cs" />
     <Compile Include="Utilities\RelayCommand.cs" />
+    <Compile Include="Utilities\VideoDownloader.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="ViewModels\Mp3ViewModel.cs" />

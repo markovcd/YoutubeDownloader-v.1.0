@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
@@ -18,17 +13,17 @@ namespace YoutubeDownloader
 
         }
 
-        public string Mp3DestinationPath { get; set; }
+        public string Mp3DestinationDirectory { get; set; }
 
 
         public void ReadXml(XmlReader reader)
         {
-            throw new NotImplementedException();
+            Mp3DestinationDirectory = reader.ReadString();
         }
 
         public void WriteXml(XmlWriter writer)
         {
-            throw new NotImplementedException();
+            writer.WriteString(Mp3DestinationDirectory);
         }
         public XmlSchema GetSchema()
         {
@@ -39,7 +34,7 @@ namespace YoutubeDownloader
         {
             return new SettingsModel
             {
-                Mp3DestinationPath = ""
+                Mp3DestinationDirectory = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), Consts.DefaultDirectoryName)
             };
         }
     }

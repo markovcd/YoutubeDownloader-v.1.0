@@ -118,6 +118,18 @@ namespace YoutubeDownloader
             return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
+        public static string GetTempFileName()
+        {
+            return System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetRandomFileName());
+        }
+
+        public static void OpenInExplorer(string path)
+        {
+            string cmd = "explorer.exe";
+            string arg = "/select, " + path;
+            Process.Start(cmd, arg);
+        }
+
         private void CreateHiddenFolder()
         {
             try

@@ -17,8 +17,6 @@ namespace YoutubeDownloader
         private CursorControl _cursor;
         private Converter _converter;
         private FileHelper _fileHelper;
-        private Process _process;
-        private int _currentLine;
 
         private ObservableCollection<Mp3Model> _mp3List;
         public ObservableCollection<Mp3Model> Mp3List
@@ -70,21 +68,9 @@ namespace YoutubeDownloader
         #endregion
 
         #region Commands
-        public ICommand GoButtonCommand
-        {
-            get
-            {
-                return new RelayCommand(GoButtonClicked, CanExecute);
-            }
-        }
+        public ICommand StartMp3DownloadCommand { get { return new RelayCommand<string>(StartMp3Download); } }
 
-        public ICommand Mp3DoubleClickedCommand
-        {
-            get
-            {
-                return new RelayCommand(Mp3DoubleClicked, CanExecute);
-            }
-        }
+        public ICommand OpenMp3LocationCommand { get { return new RelayCommand<Mp3Model>(OpenMp3Location); } }
         #endregion
 
         #region Constructor
@@ -96,24 +82,23 @@ namespace YoutubeDownloader
         #endregion
 
         #region Events
-        private void GoButtonClicked()
+        private void StartMp3Download(string youtubeLinkUrl)
         {
             if (ValidateEditFieldString())
             {
-                if (!CheckIfFileAlreadyExists(YoutubeLinkUrl))
+                if (!CheckIfFileAlreadyExists(youtubeLinkUrl))
                 {
                     if (CheckIfInternetConnectivityIsOn())
                     {
-                        SaveVideoToDisk();
+                        SaveVideoToDisk(youtubeLinkUrl);
                     }
                 }
             }
         }
 
-        private void Mp3DoubleClicked()
+        private void OpenMp3Location(Mp3Model mp3Model)
         {
-            var helper = new FileHelper();
-            System.Diagnostics.Process.Start(helper.Path);
+            FileHelper.OpenInExplorer(mp3Model.Path);
 
         }
         #endregion
@@ -143,130 +128,66 @@ namespace YoutubeDownloader
             QualityModel = QualityList[3];
         }
 
-        private void SaveVideoToDisk()
+        private void SaveVideoToDisk(string youtubeLinkUrl)
         {
             Task.Factory.StartNew(() =>
             {
                 var CurrentFile = new FileHelper();
-                var Mp3Model = new Mp3Model();
 
-                using (var service = Client.For(YouTube.Default))
+                var tempPath = FileHelper.GetTempFileName();
+
+                Mp3Model mp3Model;
+
+                using (var outFile = File.OpenWrite(tempPath))
                 {
-                    using (var video = service.GetVideo(YoutubeLinkUrl))
+                    using (var videoDownloader = new VideoDownloader(youtubeLinkUrl, outFile))
                     {
-                        CurrentFile.DefaultTrackName = video.FullName;
-                        CurrentFile.DefaultTrackPath = CurrentFile.Path + "\\" + CurrentFile.DefaultTrackName;
-                        CurrentFile.DefaultTrackHiddenPath = CurrentFile.HiddenPath + "\\" + CurrentFile.DefaultTrackName;
-                        CurrentFile.TmpTrackPath = CurrentFile.PreparePathForFFmpeg(CurrentFile.DefaultTrackHiddenPath);
 
-                        Mp3Model = new Mp3Model()
+                        mp3Model = new Mp3Model
                         {
-                            Name = CurrentFile.CheckVideoFormat(video.FullName),
+                            Name = videoDownloader.CurrentVideo.FullName,
+                            Path = Path.Combine(SettingsSingleton.Instance.Model.Mp3DestinationDirectory, 
+                                                Path.ChangeExtension(videoDownloader.CurrentVideo.FullName, ".mp3")),
+
                             State = Mp3ModelState.Downloading,
-                            CurrentProgress = 0,
+                            CurrentProgress = 0
                         };
 
-                        Application.Current.Dispatcher.BeginInvoke(new Action(() =>
+                        Application.Current.Dispatcher.BeginInvoke(new Action(() => _mp3List.Add(mp3Model)));
+
+                        videoDownloader.ProgressChanged += (s, a) =>
                         {
-                            this._mp3List.Add(Mp3Model);
-                        }));
+                            mp3Model.CurrentProgress = a.CurrentProgress;
+                            Debug.WriteLine($"{a.CurrentProgress}% of video downloaded");
+                        };
 
+                        videoDownloader.Download();
 
-
-                        using (var outFile = File.OpenWrite(CurrentFile.TmpTrackPath))
-                        {
-                            using (var progressStream = new ProgressStream(outFile))
-                            {
-                                var streamLength = (long)video.StreamLength();
-
-                                progressStream.BytesMoved += (sender, args) =>
-                                {
-                                    Mp3Model.CurrentProgress = args.StreamLength * 100 / streamLength;
-                                    Debug.WriteLine($"{Mp3Model.CurrentProgress}% of video downloaded");
-                                };
-
-                                video.Stream().CopyTo(progressStream);
-                            }
-                        }
-                        BeforeConversion(Mp3Model);
-                        ExtractAudioFromVideo(CurrentFile);
-                        AfterConversion(Mp3Model, CurrentFile);
+                        File.Move(tempPath, tempPath + videoDownloader.CurrentVideo.FileExtension);
+                        tempPath += videoDownloader.CurrentVideo.FileExtension;
                     }
                 }
+
+
+                mp3Model.State = Mp3ModelState.Converting;             
+                DispatchService.Invoke(() => shortToastMessage.ShowInformation("Converting..."));
+
+                var converter = new Converter();
+                converter.ExtractAudioMp3FromVideo(tempPath, mp3Model.Path, QualityModel.Quality);
+
+                File.Delete(tempPath);
+
+                DispatchService.Invoke(() =>
+                {
+                    longToastMessage.ShowSuccess(mp3Model.FileNameWithoutExtension);
+                });
+
+                mp3Model.State = Mp3ModelState.Done;
+
             });
         }
 
-        private void ExtractAudioFromVideo(FileHelper fileHelper)
-        {
-            var videoToWorkWith = fileHelper.TmpTrackPath;
-            var ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
-            var output = fileHelper.CheckVideoFormat(videoToWorkWith);
-            var standardErrorOutput = string.Empty;
-            var quality = QualityModel.Quality;
 
-            fileHelper.DefaultTrackHiddenPath = videoToWorkWith;
-            fileHelper.TmpTrackPath = output;
-
-            try
-            {
-                _process = new Process();
-                _process.StartInfo.UseShellExecute = false;
-                _process.StartInfo.RedirectStandardInput = true;
-                _process.StartInfo.RedirectStandardOutput = true;
-                _process.StartInfo.RedirectStandardError = true;
-                _process.StartInfo.CreateNoWindow = true;
-                _process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                _process.StartInfo.FileName = ffmpegExePath;
-                _process.StartInfo.Arguments = " -i " + videoToWorkWith + " -codec:a libmp3lame -b:a " + quality + " " + output;
-                _process.Start();
-                _process.EnableRaisingEvents = true;
-                _process.ErrorDataReceived += new DataReceivedEventHandler(OnErrorDataReceived);
-                _process.Exited += new EventHandler(OnConversionExited);
-                _process.BeginOutputReadLine();
-                _process.BeginErrorReadLine();
-                _process.WaitForExit();
-                _process.Close();
-            }
-            catch (Exception e)
-            {
-                Debug.WriteLine("Exception Occured: {0}", e);
-            }
-        }
-
-        private void OnConversionExited(object sender, EventArgs e)
-        {
-            _process.ErrorDataReceived -= OnErrorDataReceived;
-            _process.Exited -= OnConversionExited;
-        }
-
-        private void OnErrorDataReceived(object sender, DataReceivedEventArgs e)
-        {
-            // TODO: implement logger
-            Debug.WriteLine("Input line: {0} ({1:m:s:fff})", _currentLine++, DateTime.Now);
-        }
-
-        private void BeforeConversion(Mp3Model model)
-        {
-            model.State = Mp3ModelState.Converting;
-            
-            DispatchService.Invoke(() =>
-            {
-                shortToastMessage.ShowInformation("Converting...");
-            });
-        }
-
-        private void AfterConversion(Mp3Model model, FileHelper fileHelper)
-        {
-            DispatchService.Invoke(() =>
-            {
-                longToastMessage.ShowSuccess(fileHelper.PrepareTrackForNotification(fileHelper.DefaultTrackName));
-            });
-
-            fileHelper.RenameFile(fileHelper.TmpTrackPath, fileHelper.DefaultTrackPath);
-            fileHelper.RemoveFile(fileHelper.DefaultTrackHiddenPath);
-
-            model.State = Mp3ModelState.Done;
-        }
         #endregion
 
         #region Validators

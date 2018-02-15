@@ -12,5 +12,6 @@
         public const string LinkValidatorIsNotValid = "Please correct edit field";
         public const string InternetConnectionError = "There's no internet access. Please check your connection";
         public const string LinkPartValidation = "https://www.youtube.com/watch?v=";
+        public const string SettingsFilename = "settings.xml";
     }
 }

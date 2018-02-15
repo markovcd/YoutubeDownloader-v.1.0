@@ -72,7 +72,7 @@ namespace YoutubeDownloader
         {
             get
             {
-                return new RelayCommand(HomeButtonClicked, CanExecute);
+                return new RelayCommand(HomeButtonClicked);
             }
         }
 
@@ -80,7 +80,7 @@ namespace YoutubeDownloader
         {
             get
             {
-                return new RelayCommand(Mp3ButtonClicked, CanExecute);
+                return new RelayCommand(Mp3ButtonClicked);
             }
         }
 
@@ -88,7 +88,7 @@ namespace YoutubeDownloader
         {
             get
             {
-                return new RelayCommand(Mp4ButtonClicked, CanExecute);
+                return new RelayCommand(Mp4ButtonClicked);
             }
         }
 
@@ -96,7 +96,7 @@ namespace YoutubeDownloader
         {
             get
             {
-                return new RelayCommand(SettingsButtonClicked, CanExecute);
+                return new RelayCommand(SettingsButtonClicked);
             }
         }
         #endregion
@@ -110,7 +110,7 @@ namespace YoutubeDownloader
         #endregion
 
         #region Events
-        private void HomeButtonClicked()
+        private void HomeButtonClicked(object param)
         {
             SelectedViewModel = HomeViewModelInstance;
             HomeBackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitColor"];
@@ -119,7 +119,7 @@ namespace YoutubeDownloader
             SettingsBackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitSoftColor"];
         }
 
-        private void Mp3ButtonClicked()
+        private void Mp3ButtonClicked(object param)
         {
             SelectedViewModel = Mp3ViewModelInstance;
             Mp3BackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitColor"];
@@ -128,7 +128,7 @@ namespace YoutubeDownloader
             SettingsBackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitSoftColor"];
         }
 
-        private void Mp4ButtonClicked()
+        private void Mp4ButtonClicked(object param)
         {
             SelectedViewModel = Mp4ViewModelInstance;
             Mp4BackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitColor"];
@@ -137,7 +137,7 @@ namespace YoutubeDownloader
             SettingsBackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitSoftColor"];
         }
 
-        private void SettingsButtonClicked()
+        private void SettingsButtonClicked(object param)
         {
             SelectedViewModel = SettingsViewModelInstance;
             Mp4BackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitSoftColor"];

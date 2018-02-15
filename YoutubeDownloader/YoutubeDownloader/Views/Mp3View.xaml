@@ -47,7 +47,8 @@
                 Grid.Column="1"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Command="{Binding GoButtonCommand}"
+                Command="{Binding StartMp3DownloadCommand}"
+                CommandParameter="{Binding YoutubeLinkUrl}"
                 Content="Go!"
                 Style="{DynamicResource GoButtonStyle}" />
             <GroupBox
@@ -111,57 +112,62 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <Grid>
-                <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}">
 
-                    <ListView.View>
-                        <GridView>
+            <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}">
 
-                            <GridViewColumn Width="250" Header="Track Name">
+                <ListView.View>
+                    <GridView>
 
-                                <GridViewColumn.CellTemplate>
+                        <GridViewColumn Width="250" Header="Track Name">
 
-                                    <DataTemplate>
-                                        <Grid>
-                                            <Grid.InputBindings>
-                                                <MouseBinding Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=DataContext.Mp3DoubleClickedCommand}" Gesture="LeftDoubleClick" />
-                                            </Grid.InputBindings>
-                                            <TextBlock Foreground="{DynamicResource SnowColor}" Text="{Binding Name}" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                            <GridViewColumn Width="300" Header="Progress">
-                                <GridViewColumn.CellTemplate>
-                                    <DataTemplate>
-                                        <Grid Width="280">
+                            <GridViewColumn.CellTemplate>
 
-                                            <ProgressBar
-                                                Foreground="{DynamicResource CyanColor}"
-                                                IsIndeterminate="{Binding State, Converter={StaticResource Mp3ModelStateToProgressDownloadIsIndeterminateConverter}}"
-                                                Style="{DynamicResource ProgressBarStyle}"
-                                                Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressDownloadVisibilityConverter}}"
-                                                Value="{Binding CurrentProgress, Mode=OneWay}" />
-                                            <TextBlock
-                                                Style="{DynamicResource Mp3ListTextBlockStyle}"
-                                                Text="{Binding CurrentProgress, StringFormat={}{0:0}%}"
-                                                Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToPercentLabelVisibilityConverter}}" />
-                                            <TextBlock
-                                                Style="{DynamicResource Mp3ListTextBlockStyle}"
-                                                Text="Converting please wait"
-                                                Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToConvertingLabelVisibilityConverter}}" />
-                                            <TextBlock
-                                                Style="{DynamicResource Mp3ListTextBlockStyleLight}"
-                                                Text="Done"
-                                                Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToOperationDoneVisibilityConverter}}" />
-                                        </Grid>
-                                    </DataTemplate>
-                                </GridViewColumn.CellTemplate>
-                            </GridViewColumn>
-                        </GridView>
-                    </ListView.View>
-                </ListView>
-            </Grid>
+                                <DataTemplate>
+                                    <Grid>
+                                        <Grid.InputBindings>
+                                            <MouseBinding
+                                                Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=DataContext.OpenMp3LocationCommand}"
+                                                CommandParameter="{Binding}"
+                                                Gesture="LeftDoubleClick" />
+                                        </Grid.InputBindings>
+                                        <TextBlock Foreground="{DynamicResource SnowColor}" Text="{Binding Name}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Width="300" Header="Progress">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Grid Width="280">
+
+                                        <ProgressBar
+                                            Foreground="{DynamicResource CyanColor}"
+                                            IsIndeterminate="{Binding State, Converter={StaticResource Mp3ModelStateToProgressDownloadIsIndeterminateConverter}}"
+                                            Style="{DynamicResource ProgressBarStyle}"
+                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressDownloadVisibilityConverter}}"
+                                            Value="{Binding CurrentProgress, Mode=OneWay}" />
+                                        <TextBlock
+                                            Style="{DynamicResource Mp3ListTextBlockStyle}"
+                                            Text="{Binding CurrentProgress, StringFormat={}{0:0}%}"
+                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToPercentLabelVisibilityConverter}}" />
+                                        <TextBlock
+                                            Style="{DynamicResource Mp3ListTextBlockStyle}"
+                                            Text="Converting please wait"
+                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToConvertingLabelVisibilityConverter}}" />
+                                        <TextBlock
+                                            Style="{DynamicResource Mp3ListTextBlockStyleLight}"
+                                            Text="Done"
+                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToOperationDoneVisibilityConverter}}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+
+
         </Grid>
+
     </Grid>
 </UserControl>

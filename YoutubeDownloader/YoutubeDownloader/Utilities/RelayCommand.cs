@@ -3,41 +3,38 @@ using System.Windows.Input;
 
 namespace YoutubeDownloader
 {
-    class RelayCommand : ICommand
+    public class RelayCommand<TParam> : ICommand
     {
-        private readonly Func<Boolean> _canExecute;
-        private readonly Action _execute;
+        private Action<TParam> _execute;
+        private Func<TParam, bool> _canExecute;
 
-        public RelayCommand(Action execute, Func<Boolean> canExecute)
+        public event EventHandler CanExecuteChanged
         {
-            //_execute = execute ?? throw new ArgumentNullException("execute");
-            if (execute == null) throw new ArgumentNullException("execute");
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public RelayCommand(Action<TParam> execute, Func<TParam, bool> canExecute = null)
+        {
+            if (execute == null) throw new ArgumentNullException(nameof(execute));
+
             _execute = execute;
             _canExecute = canExecute;
         }
 
-        public event EventHandler CanExecuteChanged
+        public bool CanExecute(object parameter)
         {
-            add
-            {
-                if (_canExecute != null)
-                    CommandManager.RequerySuggested += value;
-            }
-            remove
-            {
-                if (_canExecute != null)
-                    CommandManager.RequerySuggested -= value;
-            }
-        }
-
-        public Boolean CanExecute(object parameter)
-        {
-            return _canExecute == null ? true : _canExecute();
+            return _canExecute == null || _canExecute((TParam)parameter);
         }
 
         public void Execute(object parameter)
         {
-            _execute();
+            _execute((TParam)parameter);
         }
+    }
+
+    public class RelayCommand : RelayCommand<object>
+    {
+        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null) : base(execute, canExecute) { }
     }
 }

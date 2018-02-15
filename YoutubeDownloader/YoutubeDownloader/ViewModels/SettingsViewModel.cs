@@ -10,7 +10,9 @@ namespace YoutubeDownloader
     {
         public SettingsViewModel()
         {
-            System.Diagnostics.Debug.Print(SettingsSingleton.Instance.Model.Mp3DestinationPath);
+            
         }
+
+        public SettingsModel Model { get { return SettingsSingleton.Instance.Model; } }
     }
 }
