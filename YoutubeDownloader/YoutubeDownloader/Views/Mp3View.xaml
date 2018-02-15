@@ -9,6 +9,15 @@
     d:DesignWidth="400"
     Background="{DynamicResource GrafitColor}"
     mc:Ignorable="d">
+    <UserControl.Resources>
+        <local:Mp3ModelStateToConvertingLabelVisibilityConverter x:Key="Mp3ModelStateToConvertingLabelVisibilityConverter" />
+        <local:Mp3ModelStateToOperationDoneVisibilityConverter x:Key="Mp3ModelStateToOperationDoneVisibilityConverter" />
+        <local:Mp3ModelStateToPercentLabelVisibilityConverter x:Key="Mp3ModelStateToPercentLabelVisibilityConverter" />
+        <local:Mp3ModelStateToProgressDownloadIsIndeterminateConverter x:Key="Mp3ModelStateToProgressDownloadIsIndeterminateConverter" />
+        <local:Mp3ModelStateToProgressDownloadVisibilityConverter x:Key="Mp3ModelStateToProgressDownloadVisibilityConverter" />
+
+    </UserControl.Resources>
+
     <Grid Margin="50,0,20,0">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
@@ -115,7 +124,6 @@
                                     <DataTemplate>
                                         <Grid>
                                             <Grid.InputBindings>
-                                                <!--<MouseBinding Command="{Binding Mp3DoubleClickedCommand}" Gesture="LeftDoubleClick" />-->
                                                 <MouseBinding Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=DataContext.Mp3DoubleClickedCommand}" Gesture="LeftDoubleClick" />
                                             </Grid.InputBindings>
                                             <TextBlock Foreground="{DynamicResource SnowColor}" Text="{Binding Name}" />
@@ -130,22 +138,22 @@
 
                                             <ProgressBar
                                                 Foreground="{DynamicResource CyanColor}"
-                                                IsIndeterminate="{Binding IsIndeterminate}"
+                                                IsIndeterminate="{Binding State, Converter={StaticResource Mp3ModelStateToProgressDownloadIsIndeterminateConverter}}"
                                                 Style="{DynamicResource ProgressBarStyle}"
-                                                Visibility="{Binding IsProgressDownloadVisible}"
+                                                Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressDownloadVisibilityConverter}}"
                                                 Value="{Binding CurrentProgress, Mode=OneWay}" />
                                             <TextBlock
                                                 Style="{DynamicResource Mp3ListTextBlockStyle}"
                                                 Text="{Binding CurrentProgress, StringFormat={}{0:0}%}"
-                                                Visibility="{Binding IsPercentLabelVisible}" />
+                                                Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToPercentLabelVisibilityConverter}}" />
                                             <TextBlock
                                                 Style="{DynamicResource Mp3ListTextBlockStyle}"
                                                 Text="{Binding ConvertingLabelText}"
-                                                Visibility="{Binding IsConvertingLabelVisible}" />
+                                                Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToConvertingLabelVisibilityConverter}}" />
                                             <TextBlock
                                                 Style="{DynamicResource Mp3ListTextBlockStyleLight}"
                                                 Text="{Binding IsOperationDone}"
-                                                Visibility="{Binding IsOperationDoneLabelVisible}" />
+                                                Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToOperationDoneVisibilityConverter}}" />
                                         </Grid>
                                     </DataTemplate>
                                 </GridViewColumn.CellTemplate>

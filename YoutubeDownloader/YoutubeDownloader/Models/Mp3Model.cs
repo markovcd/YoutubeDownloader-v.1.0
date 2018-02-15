@@ -8,8 +8,6 @@ namespace YoutubeDownloader
         None, Downloading, Converting, Done, Error
     }
 
-    // TODO: obsłużyć Mp3ModelState i zrobić convertery do tego
-
     sealed public class Mp3Model : BindableBase
     {
         public string Name { get; set; }

@@ -162,6 +162,7 @@ namespace YoutubeDownloader
                         Mp3Model = new Mp3Model()
                         {
                             Name = CurrentFile.CheckVideoFormat(video.FullName),
+                            State = Mp3ModelState.Downloading,
                             IsProgressDownloadVisible = Visibility.Visible,
                             IsPercentLabelVisible = Visibility.Visible,
                             IsConvertingLabelVisible = Visibility.Hidden,
@@ -174,6 +175,8 @@ namespace YoutubeDownloader
                         {
                             this._mp3List.Add(Mp3Model);
                         }));
+
+
 
                         using (var outFile = File.OpenWrite(CurrentFile.TmpTrackPath))
                         {
@@ -252,7 +255,8 @@ namespace YoutubeDownloader
             model.IsConvertingLabelVisible = Visibility.Visible;
             model.IsPercentLabelVisible = Visibility.Hidden;
             model.IsIndeterminate = true;
-
+            model.State = Mp3ModelState.Converting;
+            
             DispatchService.Invoke(() =>
             {
                 shortToastMessage.ShowInformation("Converting...");
@@ -276,6 +280,7 @@ namespace YoutubeDownloader
             model.ConvertingLabelText = Consts.ConvertingPleaseWait;
             model.IsOperationDone = Consts.OperationDone;
             model.IsIndeterminate = false;
+            model.State = Mp3ModelState.Done;
         }
         #endregion
 

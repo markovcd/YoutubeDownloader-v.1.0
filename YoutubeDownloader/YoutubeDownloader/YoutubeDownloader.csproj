@@ -70,6 +70,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controls\CursorControl.cs" />
+    <Compile Include="Converters\OneWayConverter.cs" />
+    <Compile Include="Converters\Mp3ModelStateConverters.cs" />
     <Compile Include="Helpers\ConnectionHelper.cs" />
     <Compile Include="Models\Mp3Model.cs" />
     <Compile Include="Models\QualityModel.cs" />
