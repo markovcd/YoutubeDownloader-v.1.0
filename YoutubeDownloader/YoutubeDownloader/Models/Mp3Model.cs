@@ -43,34 +43,6 @@ namespace YoutubeDownloader
             set { SetProperty(ref _currentProgress, value); }
         }
 
-        private Visibility _isConvertingLabelVisible;
-        public Visibility IsConvertingLabelVisible
-        {
-            get { return _isConvertingLabelVisible; }
-            set { SetProperty(ref _isConvertingLabelVisible, value); }
-        }
-
-
-        private Visibility _isPercentLabelVisible;
-        public Visibility IsPercentLabelVisible
-        {
-            get { return _isPercentLabelVisible; }
-            set { SetProperty(ref _isPercentLabelVisible, value); }
-        }
-
-        private Visibility _isProgressDownloadVisible;
-        public Visibility IsProgressDownloadVisible
-        {
-            get { return _isProgressDownloadVisible; }
-            set { SetProperty(ref _isProgressDownloadVisible, value); }
-        }
-
-        private Visibility _isOperationDoneLabelVisible;
-        public Visibility IsOperationDoneLabelVisible
-        {
-            get { return _isOperationDoneLabelVisible; }
-            set { SetProperty(ref _isOperationDoneLabelVisible, value); }
-        }
 
         private string _isOperationDone;
         public string IsOperationDone
@@ -84,13 +56,6 @@ namespace YoutubeDownloader
         {
             get { return _convertingLabelText; }
             set { SetProperty(ref _convertingLabelText, value); }
-        }
-
-        private bool _isIndeterminate;
-        public bool IsIndeterminate
-        {
-            get { return _isIndeterminate; }
-            set { SetProperty(ref _isIndeterminate, value); }
         }
 
         private bool CanExecute()
