@@ -2,7 +2,7 @@
 
 namespace YoutubeDownloader
 {
-    enum YoutubeUrlType { None, Video, Playlist, VideoAndPlaylist }
+    enum YoutubeUrlType { Empty, Error, Video, Playlist, VideoAndPlaylist }
 
     class YoutubeUrlParser
     {
@@ -21,7 +21,7 @@ namespace YoutubeDownloader
             get { return _url; }
             set
             {
-                _url = value;
+                _url = value.Trim();
 
                 var matchVideoAndPlaylist = Regex.Match(_url, _regexVideoAndPlaylist);
                 var matchVideo = Regex.Match(_url, _regexVideo);
@@ -47,7 +47,7 @@ namespace YoutubeDownloader
                 }
                 else
                 {
-                    UrlType = YoutubeUrlType.None;
+                    UrlType = _url == string.Empty ? YoutubeUrlType.Empty : YoutubeUrlType.Error;
                     VideoId = string.Empty;
                     PlaylistId = string.Empty;
                 }

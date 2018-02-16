@@ -207,12 +207,15 @@ namespace YoutubeDownloader
 
         private bool ValidateEditFieldString(string youtubeLinkUrl)
         {
-            if (youtubeLinkUrl == string.Empty)
+            var urlParser = new YoutubeUrlParser { Url = youtubeLinkUrl };
+            
+
+            if (urlParser.UrlType == YoutubeUrlType.Empty)
             {
                 shortToastMessage.ShowWarning(Consts.LinkValidatorEmpty);
                 return false;
             }
-            else if (!youtubeLinkUrl.Contains(Consts.LinkPartValidation))
+            else if (urlParser.UrlType == YoutubeUrlType.Playlist || urlParser.UrlType == YoutubeUrlType.Error)
             {
                 shortToastMessage.ShowWarning(Consts.LinkValidatorIsNotValid);
                 YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
