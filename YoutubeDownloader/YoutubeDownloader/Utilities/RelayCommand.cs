@@ -24,7 +24,7 @@ namespace YoutubeDownloader
 
         public bool CanExecute(object parameter)
         {
-            return _canExecute == null || _canExecute((TParam)parameter);
+            return _canExecute == null || parameter == null || _canExecute((TParam)parameter);
         }
 
         public void Execute(object parameter)

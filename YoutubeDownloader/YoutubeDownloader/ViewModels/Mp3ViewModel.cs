@@ -37,38 +37,25 @@ namespace YoutubeDownloader
             set { SetProperty(ref _qualityModel, value); }
         }
 
-        private string _youtubeLinkUrl;
-        public string YoutubeLinkUrl
+        private YoutubeUrl _youtubeUrl;
+        public YoutubeUrl YoutubeUrl
         {
-            get { return _youtubeLinkUrl; }
-            set { SetProperty(ref _youtubeLinkUrl, value); }
-        }
-
-        private bool _isFocused;
-        public bool IsFocused
-        {
-            get { return _isFocused; }
-            set
-            {
-                SetProperty(ref _isFocused, value);
-
-                if (_isFocused)
-                {
-                    YoutubeLinkUrl = string.Empty;
-                }
-                else if (!_isFocused && YoutubeLinkUrl == string.Empty)
-                {
-                    YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
-                }
-            }
+            get { return _youtubeUrl; }
+            set { SetProperty(ref _youtubeUrl, value); }
         }
         
         #endregion
 
         #region Commands
-        public ICommand StartMp3DownloadCommand { get { return new RelayCommand<string>(StartMp3Download); } }
+        public ICommand StartMp3DownloadCommand
+        {
+            get { return new RelayCommand<YoutubeUrl>(StartMp3Download, CanStartMp3Download); }
+        }
 
-        public ICommand OpenMp3LocationCommand { get { return new RelayCommand<Mp3Model>(OpenMp3Location); } }
+        public ICommand OpenMp3LocationCommand
+        {
+            get { return new RelayCommand<Mp3Model>(OpenMp3Location, CanOpenMp3Location); }
+        } 
         #endregion
 
         #region Constructor
@@ -80,18 +67,28 @@ namespace YoutubeDownloader
         #endregion
 
         #region Events
-        private void StartMp3Download(string youtubeLinkUrl)
+        private void StartMp3Download(YoutubeUrl youtubeUrl)
         {
-            if (ValidateEditFieldString(youtubeLinkUrl) && CheckIfInternetConnectivityIsOn())
+            if (CheckIfInternetConnectivityIsOn())
             {
-                SaveVideoToDisk(youtubeLinkUrl);   
+                SaveVideoToDisk(youtubeUrl.Url);   
             }
+        }
+
+        private bool CanStartMp3Download(YoutubeUrl youtubeUrl)
+        {
+            return youtubeUrl.UrlType != YoutubeUrlType.Empty && youtubeUrl.UrlType != YoutubeUrlType.Error;
         }
 
         private void OpenMp3Location(Mp3Model mp3Model)
         {
             FileHelper.OpenInExplorer(mp3Model.Path);
 
+        }
+
+        private bool CanOpenMp3Location(Mp3Model mp3Model)
+        {
+            return mp3Model.State == Mp3ModelState.Done;
         }
         #endregion
 
@@ -101,8 +98,6 @@ namespace YoutubeDownloader
             _connectionHelper = new ConnectionHelper();
             _cursor = new CursorControl();
             _mp3List = new ObservableCollection<Mp3Model>();
-
-            YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
         }
 
         private void InitializeQualityCollection()
@@ -118,11 +113,18 @@ namespace YoutubeDownloader
             QualityModel = QualityList[3];
         }
 
+        private void SavePlaylistToDisk(YoutubeUrl youtubeUrl)
+        {
+            foreach (var url in YoutubePlaylist.GetVideosFromPlaylist(youtubeUrl.PlaylistId))
+            {
+                SaveVideoToDisk(url);
+            }
+        }
+
         private void SaveVideoToDisk(string youtubeLinkUrl)
         {
             Task.Factory.StartNew(() =>
             {
-
                 var tempPath = FileHelper.GetTempFileName();
 
                 Mp3Model mp3Model;
@@ -166,10 +168,10 @@ namespace YoutubeDownloader
                 DispatchService.Invoke(() => shortToastMessage.ShowInformation("Converting..."));
 
                 var converter = new Converter();
-                
+
+                mp3Model.CurrentProgress = 0;
                 converter.ProgressChanged += (s, a) =>  mp3Model.CurrentProgress = a.CurrentProgress;
                 
-
                 converter.ExtractAudioMp3FromVideo(tempPath, mp3Model.Path, QualityModel.Quality);
 
                 File.Delete(tempPath);
@@ -205,24 +207,6 @@ namespace YoutubeDownloader
             return false;
         }
 
-        private bool ValidateEditFieldString(string youtubeLinkUrl)
-        {
-            var urlParser = new YoutubeUrlParser { Url = youtubeLinkUrl };
-            
-
-            if (urlParser.UrlType == YoutubeUrlType.Empty)
-            {
-                shortToastMessage.ShowWarning(Consts.LinkValidatorEmpty);
-                return false;
-            }
-            else if (urlParser.UrlType == YoutubeUrlType.Playlist || urlParser.UrlType == YoutubeUrlType.Error)
-            {
-                shortToastMessage.ShowWarning(Consts.LinkValidatorIsNotValid);
-                YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
-                return false;
-            }
-            return true;
-        }
         #endregion
     }
 }

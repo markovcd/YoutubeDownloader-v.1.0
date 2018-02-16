@@ -4,7 +4,7 @@ using Newtonsoft.Json.Linq;
 using System.Net;
 
 
-namespace YoutubeDownloader.Utilities
+namespace YoutubeDownloader
 {
 
     class YoutubePlaylist
@@ -15,24 +15,24 @@ namespace YoutubeDownloader.Utilities
         private const string _apiUrl = "https://www.googleapis.com/youtube/v3/playlistItems?part=contentDetails&playlistId={0}&key={1}&pageToken={2}&maxResults={3}";
 
        
-        private string FormatApiUrl(string playlistId, string pageToken, int maxResults = 20)
+        private static string FormatApiUrl(string playlistId, string pageToken, int maxResults = 20)
         {
             return string.Format(_apiUrl, playlistId, _apiKey, pageToken, maxResults);
         }
 
-        private string FormatYoutubeUrl(string videoId)
+        private static string FormatYoutubeUrl(string videoId)
         {
             return string.Format(_youtubeUrl, videoId);
         }
 
-        public JObject GetPlaylistData(string playlistId, string pageToken, int maxResults = 20)
+        public static JObject GetPlaylistData(string playlistId, string pageToken, int maxResults = 20)
         {
             var http = new WebClient();
             var data = http.DownloadString(FormatApiUrl(playlistId, pageToken, maxResults));
             return JObject.Parse(data);
         }
 
-        private IEnumerable<JObject> GetPlaylistDataRecursive(string playlistId, string pageToken, int maxResults = 20)
+        private static IEnumerable<JObject> GetPlaylistDataRecursive(string playlistId, string pageToken, int maxResults = 20)
         {
             var data = GetPlaylistData(playlistId, pageToken, maxResults);
 
@@ -49,9 +49,9 @@ namespace YoutubeDownloader.Utilities
             }
         }
 
-        public IEnumerable<JObject> GetAllPlaylistData(string playlistId, int maxResults = 20) => GetPlaylistDataRecursive(playlistId, "", maxResults);
+        public static IEnumerable<JObject> GetAllPlaylistData(string playlistId, int maxResults = 20) => GetPlaylistDataRecursive(playlistId, "", maxResults);
 
-        public IEnumerable<string> GetVideosFromPlaylist(string playlistId)
+        public static IEnumerable<string> GetVideosFromPlaylist(string playlistId)
         {
             var data = GetAllPlaylistData(playlistId, 50);
 

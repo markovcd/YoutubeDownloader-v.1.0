@@ -17,7 +17,14 @@
                         <RowDefinition Height="40" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
-                    <TextBox Style="{DynamicResource TextBoxStyle}" Text="{Binding Model.Mp3DestinationDirectory}" />
+                    
+                    
+                        <TextBox Style="{DynamicResource TextBoxStyle}" Text="{Binding Model.Mp3DestinationDirectory}">
+                            <local:WatermarkService.Watermark>
+                                <TextBlock>Type here to search text</TextBlock>
+                            </local:WatermarkService.Watermark>
+                        </TextBox>
+                    
                 </Grid>
             </TabItem>
             <TabItem Header="Mp4" Style="{DynamicResource TabItemStyle}">
