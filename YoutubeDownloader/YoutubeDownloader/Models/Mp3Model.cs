@@ -8,14 +8,6 @@ namespace YoutubeDownloader
 
     sealed public class Mp3Model : BindableBase
     {
-        public Mp3Model(string name, string path)
-        {
-            Name = name;
-            Path = path;
-        }
-
-        public Mp3Model(string path) : this(System.IO.Path.GetFileNameWithoutExtension(path), path) { }
-
         private string _name;
         public string Name
         {
@@ -28,6 +20,13 @@ namespace YoutubeDownloader
         {
             get { return _path; }
             set { SetProperty(ref _path, value); }
+        }
+
+        private string _url;
+        public string Url
+        {
+            get { return _url; }
+            set { SetProperty(ref _url, value); }
         }
 
         private Mp3ModelState _state;

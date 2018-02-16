@@ -131,8 +131,15 @@ namespace YoutubeDownloader
                 {
                     using (var videoDownloader = new VideoDownloader(youtubeLinkUrl, outFile))
                     {
-                        mp3Model = new Mp3Model(FileHelper.GetMp3FilePath(videoDownloader.CurrentVideo.FullName));
-                        mp3Model.State = Mp3ModelState.Downloading;
+                        var destPath = FileHelper.GetMp3FilePath(videoDownloader.CurrentVideo.FullName);
+
+                        mp3Model = new Mp3Model
+                        {
+                            Name = Path.GetFileNameWithoutExtension(destPath),
+                            Path = destPath,
+                            Url = youtubeLinkUrl,
+                            State = Mp3ModelState.Downloading,
+                        };
 
                         if (File.Exists(mp3Model.Path))
                         {
