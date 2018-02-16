@@ -111,24 +111,25 @@
             </Grid.RowDefinitions>
 
             <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}">
-
                 <ListView.View>
                     <GridView>
 
                         <GridViewColumn Width="250" Header="Track Name">
 
                             <GridViewColumn.CellTemplate>
-
                                 <DataTemplate>
-                                    <Grid>
-                                        <Grid.InputBindings>
+                                    <Border Background="Transparent">
+                                        <Border.InputBindings>
                                             <MouseBinding
                                                 Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=DataContext.OpenMp3LocationCommand}"
                                                 CommandParameter="{Binding}"
                                                 Gesture="LeftDoubleClick" />
-                                        </Grid.InputBindings>
-                                        <TextBlock Foreground="{DynamicResource SnowColor}" Text="{Binding Name}" />
-                                    </Grid>
+                                        </Border.InputBindings>
+                                        <TextBlock
+                                            VerticalAlignment="Center"
+                                            Foreground="{DynamicResource SnowColor}"
+                                            Text="{Binding Name}" />
+                                    </Border>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
                         </GridViewColumn>
@@ -136,27 +137,20 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate>
                                     <Grid Width="280">
-                                        <Grid.InputBindings>
-                                            <MouseBinding
-                                                Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=DataContext.OpenMp3LocationCommand}"
-                                                CommandParameter="{Binding}"
-                                                Gesture="LeftDoubleClick" />
-                                        </Grid.InputBindings>
                                         <ProgressBar
                                             Foreground="{DynamicResource CyanColor}"
                                             Style="{DynamicResource ProgressBarStyle}"
                                             Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressVisibilityConverter}}"
                                             Value="{Binding CurrentProgress, Mode=OneWay}" />
-                                        <TextBlock
-                                            Style="{DynamicResource Mp3ListTextBlockStyle}"          
-                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressVisibilityConverter}}" >
+                                        <TextBlock Style="{DynamicResource Mp3ListTextBlockStyle}" Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressVisibilityConverter}}">
                                             <Run Text="{Binding State}" />
                                             <Run Text="{Binding CurrentProgress, StringFormat={}{0:0}%}" />
-                                        </TextBlock> 
+                                        </TextBlock>
                                         <TextBlock
                                             Style="{DynamicResource Mp3ListTextBlockStyleLight}"
                                             Text="{Binding State}"
                                             Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToOperationDoneVisibilityConverter}}" />
+
                                     </Grid>
                                 </DataTemplate>
                             </GridViewColumn.CellTemplate>
