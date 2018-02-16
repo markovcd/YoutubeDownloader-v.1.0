@@ -1,6 +1,4 @@
-﻿using System.ComponentModel;
-using System.Windows;
-
+﻿
 namespace YoutubeDownloader
 {
     public enum Mp3ModelState
@@ -10,23 +8,26 @@ namespace YoutubeDownloader
 
     sealed public class Mp3Model : BindableBase
     {
-        public string Name { get; set; }
+        public Mp3Model(string name, string path)
+        {
+            Name = name;
+            Path = path;
+        }
+
+        public Mp3Model(string path) : this(System.IO.Path.GetFileNameWithoutExtension(path), path) { }
+
+        private string _name;
+        public string Name
+        {
+            get { return _name; }
+            set { SetProperty(ref _name, value); }
+        }
 
         private string _path;
         public string Path
         {
             get { return _path; }
             set { SetProperty(ref _path, value); }
-        }
-
-        public string FileName
-        {
-            get { return System.IO.Path.GetFileName(Path); }
-        }
-
-        public string FileNameWithoutExtension
-        {
-            get { return System.IO.Path.GetFileNameWithoutExtension(Path); }
         }
 
         private Mp3ModelState _state;
@@ -42,5 +43,6 @@ namespace YoutubeDownloader
             get { return _currentProgress; }
             set { SetProperty(ref _currentProgress, value); }
         }
+
     }
 }

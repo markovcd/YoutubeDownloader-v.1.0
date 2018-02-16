@@ -11,7 +11,6 @@ namespace YoutubeDownloader
     {
         protected Notifier shortToastMessage;
         protected Notifier longToastMessage;
-        protected FileHelper fileHelper;
 
         public BaseViewModel()
         {

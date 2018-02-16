@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 using ToastNotifications.Messages;
-using VideoLibrary;
 
 namespace YoutubeDownloader
 {
@@ -15,8 +14,7 @@ namespace YoutubeDownloader
         #region Fields and Properties
         private ConnectionHelper _connectionHelper;
         private CursorControl _cursor;
-        private Converter _converter;
-        private FileHelper _fileHelper;
+
 
         private ObservableCollection<Mp3Model> _mp3List;
         public ObservableCollection<Mp3Model> Mp3List
@@ -86,7 +84,6 @@ namespace YoutubeDownloader
         {
             if (ValidateEditFieldString(youtubeLinkUrl) && CheckIfInternetConnectivityIsOn())
             {
-
                 SaveVideoToDisk(youtubeLinkUrl);   
             }
         }
@@ -102,10 +99,8 @@ namespace YoutubeDownloader
         private void Initialize()
         {
             this._connectionHelper = new ConnectionHelper();
-            this._converter = new Converter();
             this._cursor = new CursorControl();
             this._mp3List = new ObservableCollection<Mp3Model>();
-            this._fileHelper = new FileHelper();
 
             this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
         }
@@ -136,16 +131,8 @@ namespace YoutubeDownloader
                 {
                     using (var videoDownloader = new VideoDownloader(youtubeLinkUrl, outFile))
                     {
-
-                        mp3Model = new Mp3Model
-                        {
-                            Name = videoDownloader.CurrentVideo.Title,
-                            Path = Path.Combine(SettingsSingleton.Instance.Model.Mp3DestinationDirectory, 
-                                                Path.ChangeExtension(videoDownloader.CurrentVideo.FullName, ".mp3")),
-
-                            State = Mp3ModelState.Downloading,
-                            CurrentProgress = 0
-                        };
+                        mp3Model = new Mp3Model(FileHelper.GetMp3FilePath(videoDownloader.CurrentVideo.FullName));
+                        mp3Model.State = Mp3ModelState.Downloading;
 
                         if (File.Exists(mp3Model.Path))
                         {
@@ -164,9 +151,6 @@ namespace YoutubeDownloader
                         };
 
                         videoDownloader.Download();
-
-                        File.Move(tempPath, tempPath + videoDownloader.CurrentVideo.FileExtension);
-                        tempPath += videoDownloader.CurrentVideo.FileExtension;
                     }
                 }
 
@@ -181,7 +165,7 @@ namespace YoutubeDownloader
 
                 DispatchService.Invoke(() =>
                 {
-                    longToastMessage.ShowSuccess(mp3Model.FileNameWithoutExtension);
+                    longToastMessage.ShowSuccess(mp3Model.Name);
                 });
 
                 mp3Model.State = Mp3ModelState.Done;
