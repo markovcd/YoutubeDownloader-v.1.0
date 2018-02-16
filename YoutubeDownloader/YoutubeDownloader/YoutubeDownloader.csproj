@@ -39,6 +39,10 @@
     <Reference Include="libvideo, Version=1.4.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>packages\Nefarius-VideoLibrary.1.4.0\lib\portable-net45+win+wpa81+MonoAndroid10+xamarinios10+MonoTouch10\libvideo.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=10.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>packages\Newtonsoft.Json.10.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
@@ -88,6 +92,7 @@
     <Compile Include="Utilities\ProgressStream.cs" />
     <Compile Include="Utilities\RelayCommand.cs" />
     <Compile Include="Utilities\VideoDownloader.cs" />
+    <Compile Include="Utilities\YoutubePlaylist.cs" />
     <Compile Include="ViewModels\BaseViewModel.cs" />
     <Compile Include="ViewModels\HomeViewModel.cs" />
     <Compile Include="ViewModels\Mp3ViewModel.cs" />
@@ -193,7 +198,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <None Include="packages.config" />
+    <None Include="packages.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
