@@ -10,11 +10,8 @@
     Background="{DynamicResource GrafitColor}"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <local:Mp3ModelStateToConvertingLabelVisibilityConverter x:Key="Mp3ModelStateToConvertingLabelVisibilityConverter" />
         <local:Mp3ModelStateToOperationDoneVisibilityConverter x:Key="Mp3ModelStateToOperationDoneVisibilityConverter" />
-        <local:Mp3ModelStateToPercentLabelVisibilityConverter x:Key="Mp3ModelStateToPercentLabelVisibilityConverter" />
-        <local:Mp3ModelStateToProgressDownloadIsIndeterminateConverter x:Key="Mp3ModelStateToProgressDownloadIsIndeterminateConverter" />
-        <local:Mp3ModelStateToProgressDownloadVisibilityConverter x:Key="Mp3ModelStateToProgressDownloadVisibilityConverter" />
+        <local:Mp3ModelStateToProgressVisibilityConverter x:Key="Mp3ModelStateToProgressVisibilityConverter" />
 
     </UserControl.Resources>
 
@@ -147,21 +144,18 @@
                                         </Grid.InputBindings>
                                         <ProgressBar
                                             Foreground="{DynamicResource CyanColor}"
-                                            IsIndeterminate="{Binding State, Converter={StaticResource Mp3ModelStateToProgressDownloadIsIndeterminateConverter}}"
                                             Style="{DynamicResource ProgressBarStyle}"
-                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressDownloadVisibilityConverter}}"
+                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressVisibilityConverter}}"
                                             Value="{Binding CurrentProgress, Mode=OneWay}" />
                                         <TextBlock
-                                            Style="{DynamicResource Mp3ListTextBlockStyle}"
-                                            Text="{Binding CurrentProgress, StringFormat={}{0:0}%}"
-                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToPercentLabelVisibilityConverter}}" />
-                                        <TextBlock
-                                            Style="{DynamicResource Mp3ListTextBlockStyle}"
-                                            Text="Converting please wait"
-                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToConvertingLabelVisibilityConverter}}" />
+                                            Style="{DynamicResource Mp3ListTextBlockStyle}"          
+                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressVisibilityConverter}}" >
+                                            <Run Text="{Binding State}" />
+                                            <Run Text="{Binding CurrentProgress, StringFormat={}{0:0}%}" />
+                                        </TextBlock> 
                                         <TextBlock
                                             Style="{DynamicResource Mp3ListTextBlockStyleLight}"
-                                            Text="Done"
+                                            Text="{Binding State}"
                                             Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToOperationDoneVisibilityConverter}}" />
                                     </Grid>
                                 </DataTemplate>

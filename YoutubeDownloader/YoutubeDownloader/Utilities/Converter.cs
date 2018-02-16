@@ -68,12 +68,6 @@ namespace YoutubeDownloader
             return Regex.Match(data, @"(size=\s+)(\d+kB)( time=)(\d+:\d+:\d+.\d+)( bitrate=\s+)(\d+.\d+kbits/s)( speed=)(\d+.\d+x)(\s+)");
         }
 
-        private string ExtractDuration(string data)
-        {
-            var match = ParseTotalDurationLine(data);
-            return match.Groups[1].Value;
-        }
-
         #endregion
 
         #region Events
