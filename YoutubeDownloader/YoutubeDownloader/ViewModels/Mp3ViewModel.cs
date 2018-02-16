@@ -98,11 +98,11 @@ namespace YoutubeDownloader
         #region Methods Private
         private void Initialize()
         {
-            this._connectionHelper = new ConnectionHelper();
-            this._cursor = new CursorControl();
-            this._mp3List = new ObservableCollection<Mp3Model>();
+            _connectionHelper = new ConnectionHelper();
+            _cursor = new CursorControl();
+            _mp3List = new ObservableCollection<Mp3Model>();
 
-            this.YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
+            YoutubeLinkUrl = Consts.DefaultTextBoxEntry;
         }
 
         private void InitializeQualityCollection()
@@ -159,6 +159,10 @@ namespace YoutubeDownloader
                 DispatchService.Invoke(() => shortToastMessage.ShowInformation("Converting..."));
 
                 var converter = new Converter();
+                
+                converter.ProgressChanged += (s, a) =>  mp3Model.CurrentProgress = a.CurrentProgress;
+                
+
                 converter.ExtractAudioMp3FromVideo(tempPath, mp3Model.Path, QualityModel.Quality);
 
                 File.Delete(tempPath);

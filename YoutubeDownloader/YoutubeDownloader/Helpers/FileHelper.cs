@@ -25,17 +25,17 @@ namespace YoutubeDownloader
 
         public static void EnsureDirectoryExist(string filePath)
         {
-            Directory.CreateDirectory(System.IO.Path.GetDirectoryName(filePath));
+            Directory.CreateDirectory(Path.GetDirectoryName(filePath));
         }
 
         public static string GetApplicationFolder()
         {
-            return System.IO.Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
+            return Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
         }
 
         public static string GetTempFileName()
         {
-            return System.IO.Path.Combine(System.IO.Path.GetTempPath(), System.IO.Path.GetRandomFileName());
+            return Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
         }
 
         public static void OpenInExplorer(string path)

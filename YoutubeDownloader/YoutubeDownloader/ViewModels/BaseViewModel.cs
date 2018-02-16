@@ -1,5 +1,4 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Windows;
 using ToastNotifications;
 using ToastNotifications.Lifetime;
@@ -54,10 +53,5 @@ namespace YoutubeDownloader
             });
         }
 
-        protected bool CanExecute()
-        {
-            // TODO: some logic
-            return true;
-        }
     }
 }

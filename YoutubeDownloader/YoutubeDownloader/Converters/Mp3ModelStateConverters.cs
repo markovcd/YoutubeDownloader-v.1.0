@@ -114,7 +114,7 @@ namespace YoutubeDownloader
                 case Mp3ModelState.Downloading:
                     return false;
                 case Mp3ModelState.Converting:
-                    return true;
+                    return false;
                 case Mp3ModelState.Done:
                     return false;
                 case Mp3ModelState.Error:
