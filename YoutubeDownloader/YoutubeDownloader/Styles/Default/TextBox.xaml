@@ -31,6 +31,17 @@
                 </ControlTemplate>
             </Setter.Value>
         </Setter>
+        <Setter Property="Validation.ErrorTemplate">
+            <Setter.Value>
+                <ControlTemplate>
+                    <StackPanel>
+                        <!-- Placeholder for the TextBox itself -->
+                        <AdornedElementPlaceholder x:Name="textBox"/>
+                        <TextBlock Margin="5,5,0,0" Text="{Binding ErrorContent}" Foreground="{DynamicResource CyanColor}"/>
+                    </StackPanel>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="true">
                 <Setter Property="BorderBrush" Value="{DynamicResource CyanColor}" />

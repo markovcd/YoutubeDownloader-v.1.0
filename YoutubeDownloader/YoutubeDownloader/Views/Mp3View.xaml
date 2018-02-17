@@ -37,11 +37,12 @@
                 Grid.Row="0"
                 Grid.Column="0"
                 Style="{DynamicResource TextBoxStyle}"
-                Text="{Binding YoutubeUrl, Converter={StaticResource YoutubeUrlToStringConverter}}">
+                Text="{Binding YoutubeUrl, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, Converter={StaticResource YoutubeUrlToStringConverter}}">
                 <local:WatermarkService.Watermark>
-                    <TextBlock>Please enter your link here!</TextBlock>
+                    <TextBlock VerticalAlignment="Center" Margin="7,0,0,0" HorizontalAlignment="Left">Please enter your link here!</TextBlock>
                 </local:WatermarkService.Watermark>
             </TextBox>
+            
             <Button
                 Grid.Row="0"
                 Grid.Column="1"

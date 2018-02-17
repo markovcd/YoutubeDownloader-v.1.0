@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using ToastNotifications.Messages;
 
 namespace YoutubeDownloader
 {
-    class Mp3ViewModel : BaseViewModel
+    class Mp3ViewModel : BaseViewModel, IDataErrorInfo
     {
         #region Fields and Properties
         private ConnectionHelper _connectionHelper;
@@ -43,7 +44,7 @@ namespace YoutubeDownloader
             get { return _youtubeUrl; }
             set { SetProperty(ref _youtubeUrl, value); }
         }
-        
+
         #endregion
 
         #region Commands
@@ -55,7 +56,10 @@ namespace YoutubeDownloader
         public ICommand OpenMp3LocationCommand
         {
             get { return new RelayCommand<Mp3Model>(OpenMp3Location, CanOpenMp3Location); }
-        } 
+        }
+
+        
+
         #endregion
 
         #region Constructor
@@ -190,6 +194,23 @@ namespace YoutubeDownloader
         #endregion
 
         #region Validators
+
+        string IDataErrorInfo.Error { get { return string.Empty; } }
+
+        string IDataErrorInfo.this[string columnName]
+        {
+            get
+            {
+                if (columnName == nameof(YoutubeUrl)) return ValidateYoutubeUrl(YoutubeUrl);
+                return string.Empty;
+            }
+        }
+
+        private string ValidateYoutubeUrl(YoutubeUrl youtubeUrl)
+        {
+            if (youtubeUrl.UrlType == YoutubeUrlType.Error) return "⚠Invalid url";
+            return string.Empty;
+        }
 
         private bool CheckIfInternetConnectivityIsOn()
         {

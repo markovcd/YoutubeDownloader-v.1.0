@@ -68,6 +68,9 @@
                 <Setter Property="Background" Value="{DynamicResource GrafitMediumColor}" />
                 <Setter Property="FontSize" Value="13" />
             </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter Property="Visibility" Value="Collapsed" />
+            </Trigger>
             <EventTrigger RoutedEvent="MouseEnter">
                 <EventTrigger.Actions>
                     <BeginStoryboard>
