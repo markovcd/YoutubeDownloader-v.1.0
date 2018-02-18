@@ -13,5 +13,6 @@
         public const string InternetConnectionError = "There's no internet access. Please check your connection";
         public const string LinkPartValidation = "https://www.youtube.com/watch?v=";
         public const string SettingsFilename = "settings.xml";
+        public const string InvalidUrlMessage = "⚠Invalid url";
     }
 }

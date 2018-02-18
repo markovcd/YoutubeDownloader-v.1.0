@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using ToastNotifications;
 using ToastNotifications.Lifetime;
@@ -6,16 +8,34 @@ using ToastNotifications.Position;
 
 namespace YoutubeDownloader
 {
-    class BaseViewModel : BindableBase
+    abstract class BaseViewModel : BindableBase, IDataErrorInfo
     {
         protected Notifier shortToastMessage;
         protected Notifier longToastMessage;
 
-        public BaseViewModel()
+        private readonly Dictionary<string, Func<object, string>> _validationDictionary;
+
+        public virtual string Error { get { return string.Empty; } }
+
+        public abstract string this[string columnName]
+        {
+            get
+            {
+                if ()
+                if (columnName == nameof(YoutubeUrl)) return ValidateYoutubeUrl(YoutubeUrl);
+                return string.Empty;
+            }
+        }
+
+        protected BaseViewModel()
         {
             SetToastMessages();
             SetLongToastMessages();
+
+            _validationDictionary = new Dictionary<string, Func<object, string>>();
         }
+
+        protected abstract void AddValidationMapping(string propertyName, Func<object, string> validationFunc);
 
         private void SetToastMessages()
         {

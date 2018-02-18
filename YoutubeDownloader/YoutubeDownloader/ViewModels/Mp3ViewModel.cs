@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -10,7 +11,7 @@ using ToastNotifications.Messages;
 
 namespace YoutubeDownloader
 {
-    class Mp3ViewModel : BaseViewModel, IDataErrorInfo
+    class Mp3ViewModel : BaseViewModel
     {
         #region Fields and Properties
         private ConnectionHelper _connectionHelper;
@@ -63,7 +64,7 @@ namespace YoutubeDownloader
         #endregion
 
         #region Constructor
-        public Mp3ViewModel()
+        public Mp3ViewModel() : base()
         {
             Initialize();
             InitializeQualityCollection();
@@ -195,9 +196,15 @@ namespace YoutubeDownloader
 
         #region Validators
 
-        string IDataErrorInfo.Error { get { return string.Empty; } }
+        private void ValidationMapping()
+        {
+            var d = new Dictionary<string, Func<object, string>>
+            {
+                {nameof(YoutubeUrl), ValidateYoutubeUrl}
+            };
+        }
 
-        string IDataErrorInfo.this[string columnName]
+        public override string this[string columnName]
         {
             get
             {
@@ -206,9 +213,10 @@ namespace YoutubeDownloader
             }
         }
 
-        private string ValidateYoutubeUrl(YoutubeUrl youtubeUrl)
+        private string ValidateYoutubeUrl(object arg)
         {
-            if (youtubeUrl.UrlType == YoutubeUrlType.Error) return "⚠Invalid url";
+            var youtubeUrl = (YoutubeUrl)arg;
+            if (youtubeUrl.UrlType == YoutubeUrlType.Error) return Consts.InvalidUrlMessage;
             return string.Empty;
         }
 

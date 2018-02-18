@@ -8,9 +8,7 @@ namespace YoutubeDownloader
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            var youtubeUrl = (YoutubeUrl)value;
-
-            return youtubeUrl.ToString();
+            return value.ToString();
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

@@ -40,9 +40,9 @@ namespace YoutubeDownloader
 
         public static void OpenInExplorer(string path)
         {
-            string cmd = "explorer.exe";
-            string arg = "/select, " + path;
-            Process.Start(cmd, arg);
+            const string cmd = "explorer.exe";
+            const string arg = "/select, ";
+            Process.Start(cmd, arg + path);
         }
 
         public static string GetMp3FilePath(string videoFileName, bool removeYoutubeSuffix = true)

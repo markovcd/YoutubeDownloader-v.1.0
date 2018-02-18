@@ -6,15 +6,19 @@ using System.IO;
 
 namespace YoutubeDownloader
 {
-    public sealed class SettingsModel : IXmlSerializable
+    public sealed class SettingsModel : BindableBase, IXmlSerializable
     {
         public SettingsModel()
         {
 
         }
 
-        public string Mp3DestinationDirectory { get; set; }
-
+        private string _mp3DestinationDirectory;
+        public string Mp3DestinationDirectory
+        {
+            get { return _mp3DestinationDirectory; }
+            set { SetProperty(ref _mp3DestinationDirectory, value); }
+        }
 
         public void ReadXml(XmlReader reader)
         {
