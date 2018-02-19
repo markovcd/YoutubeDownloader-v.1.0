@@ -101,6 +101,8 @@ namespace YoutubeDownloader
             _connectionHelper = new ConnectionHelper();
             _cursor = new CursorControl();
             _mp3List = new ObservableCollection<Mp3Model>();
+
+            AddValidationMappings();
         }
 
         private void InitializeQualityCollection()
@@ -114,6 +116,11 @@ namespace YoutubeDownloader
             };
 
             QualityModel = QualityList[3];
+        }
+
+        private void AddValidationMappings()
+        {
+            AddValidationMapping(nameof(YoutubeUrl), ValidateYoutubeUrl);
         }
 
         private void SavePlaylistToDisk(YoutubeUrl youtubeUrl)
@@ -193,14 +200,6 @@ namespace YoutubeDownloader
         #endregion
 
         #region Validators
-
-        protected override IEnumerable<KeyValuePair<string, Func<string>>> AddValidationMappings()
-        {
-            return new Dictionary<string, Func<string>>
-            {
-                { nameof(YoutubeUrl), ValidateYoutubeUrl },
-            };      
-        }
 
         private string ValidateYoutubeUrl()
         {

@@ -32,14 +32,13 @@ namespace YoutubeDownloader
             shortToastMessage = SetToastMessages(3, 5);
             longToastMessage = SetToastMessages(8, 8);
 
-            _validationDictionary = AddValidationMappings().ToDictionary(kv => kv.Key, kv => kv.Value);
+            _validationDictionary = new Dictionary<string, Func<string>>();
 
         }
 
-        // override this in child viewmodel to map property name to validation function
-        protected virtual IEnumerable<KeyValuePair<string, Func<string>>> AddValidationMappings()
+        protected void AddValidationMapping(string propertyName, Func<string> validationFunc)
         {
-            return Enumerable.Empty<KeyValuePair<string, Func<string>>>();
+            _validationDictionary.Add(propertyName, validationFunc);
         }
 
         private Notifier SetToastMessages(int notificationLifetime, int maximumNotificationCount)
