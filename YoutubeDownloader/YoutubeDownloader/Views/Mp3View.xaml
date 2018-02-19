@@ -5,8 +5,8 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:local="clr-namespace:YoutubeDownloader"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    d:DesignHeight="300"
-    d:DesignWidth="400"
+    d:DesignHeight="600"
+    d:DesignWidth="600"
     Background="{DynamicResource GrafitColor}"
     mc:Ignorable="d">
     <UserControl.Resources>
@@ -71,8 +71,9 @@
                         <ColumnDefinition Width="*" />
                     </Grid.ColumnDefinitions>
                     <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
+                        <RowDefinition Height="25" />
+                        <RowDefinition Height="25" />
+                        <RowDefinition Height="25" />
                     </Grid.RowDefinitions>
                     <Label
                         Grid.Row="0"
@@ -105,6 +106,14 @@
                         ItemsSource="{Binding QualityList}"
                         SelectedItem="{Binding QualityModel}"
                         Style="{DynamicResource ComboBoxStyle}" />
+                    <CheckBox
+                        Grid.Row="2"
+                        Grid.ColumnSpan="2"
+                        Margin="25,0,0,0"
+                        Content="Download whole playlist (if possible)"
+                        FontSize="12"
+                        Foreground="AliceBlue"
+                        IsChecked="{Binding DownloadPlaylist}" />
                 </Grid>
             </GroupBox>
         </Grid>

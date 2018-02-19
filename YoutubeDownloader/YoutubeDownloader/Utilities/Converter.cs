@@ -7,49 +7,56 @@ namespace YoutubeDownloader
 {
     enum ConversionSection { Input, Output }
 
-    public class Converter
+    public class Converter : IDisposable
     {
         #region Fields & Properties
         private readonly string ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
         private TimeSpan _totalDuration;
         private TimeSpan _currentDuration;
         private ConversionSection _conversionSection;
+        private Process _process;
         #endregion
 
         public event EventHandler<ProgressEventArgs> ProgressChanged;
 
         public double CurrentProgress { get; private set; }
 
+        public Converter()
+        {
+            var startInfo = new ProcessStartInfo
+            {
+                UseShellExecute = false,
+                RedirectStandardInput = true,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                CreateNoWindow = true,
+                WindowStyle = ProcessWindowStyle.Hidden,
+                FileName = ffmpegExePath
+            };
+
+            _process = new Process() {
+                StartInfo = startInfo,
+                EnableRaisingEvents = true,
+
+            };
+
+            _process.EnableRaisingEvents = true;
+            _process.ErrorDataReceived += new DataReceivedEventHandler(OnErrorDataReceived);
+            _process.Exited += new EventHandler(OnConversionExited);
+
+        }
+
         #region Methods
         public void ExtractAudioMp3FromVideo(string inputFile, string outputFile, string quality)
         {
             try
             {
-                using (var process = new Process())
+                _process.StartInfo.Arguments = $" -i \"{inputFile}\" -codec:a libmp3lame -b:a {quality} \"{outputFile}\"";
 
-                {
+                _process.Start();
+                _process.BeginErrorReadLine();
 
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.RedirectStandardInput = true;
-                    process.StartInfo.RedirectStandardOutput = true;
-                    process.StartInfo.RedirectStandardError = true;
-                    process.StartInfo.CreateNoWindow = true;
-                    process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-                    process.StartInfo.FileName = ffmpegExePath;
-
-
-                    process.EnableRaisingEvents = true;
-                    process.ErrorDataReceived += new DataReceivedEventHandler(OnErrorDataReceived);
-                    process.Exited += new EventHandler(OnConversionExited);
-
-                    process.StartInfo.Arguments = " -i \"" + inputFile + "\" -codec:a libmp3lame -b:a " + quality + " \"" + outputFile + "\"";
-
-                    process.Start();
-                    process.BeginErrorReadLine();
-
-
-                    process.WaitForExit();
-                }
+                _process.WaitForExit();
 
             }
             catch (Exception e)
@@ -110,6 +117,12 @@ namespace YoutubeDownloader
             // TODO: implement logger
             //Debug.WriteLine("Input line: {0} ({1:m:s:fff})", _currentLine++, DateTime.Now);
             Debug.WriteLine(e.Data);
+        }
+
+        public void Dispose()
+        {
+            if (_process != null && !_process.HasExited) _process.Kill();
+            _process.Dispose();
         }
 
         #endregion

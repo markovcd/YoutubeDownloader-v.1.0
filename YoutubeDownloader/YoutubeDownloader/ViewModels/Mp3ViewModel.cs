@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
@@ -46,6 +44,13 @@ namespace YoutubeDownloader
             set { SetProperty(ref _youtubeUrl, value); }
         }
 
+        private bool _downloadPlaylist;
+        public bool DownloadPlaylist
+        {
+            get { return _downloadPlaylist; }
+            set { SetProperty(ref _downloadPlaylist, value); }
+        }
+
         #endregion
 
         #region Commands
@@ -72,10 +77,27 @@ namespace YoutubeDownloader
         #region Events
         private void StartMp3Download(YoutubeUrl youtubeUrl)
         {
-            if (CheckIfInternetConnectivityIsOn())
+            Task.Run(() => 
             {
-                SaveVideoToDisk(youtubeUrl.Url);   
-            }
+                if (!CheckIfInternetConnectivityIsOn()) return;
+
+                if (youtubeUrl.UrlType == YoutubeUrlType.Video)
+                {
+                    SaveVideoToDisk(youtubeUrl.Url);
+                }
+                else if (youtubeUrl.UrlType == YoutubeUrlType.Playlist)
+                {
+                    SavePlaylistToDisk(youtubeUrl.PlaylistId);
+                }
+                else if (DownloadPlaylist && youtubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
+                {
+                    SavePlaylistToDisk(youtubeUrl.PlaylistId);
+                }
+                else if (!DownloadPlaylist && youtubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
+                {
+                    SaveVideoToDisk(youtubeUrl.Url);
+                }
+            });
         }
 
         private bool CanStartMp3Download(YoutubeUrl youtubeUrl)
@@ -123,77 +145,112 @@ namespace YoutubeDownloader
             AddValidationMapping(nameof(YoutubeUrl), ValidateYoutubeUrl);
         }
 
-        private void SavePlaylistToDisk(YoutubeUrl youtubeUrl)
+        private void SavePlaylistToDisk(string youtubePlaylistId)
         {
-            foreach (var url in YoutubePlaylist.GetVideosFromPlaylist(youtubeUrl.PlaylistId))
+            foreach (var url in YoutubePlaylist.GetVideosFromPlaylist(youtubePlaylistId))
             {
                 SaveVideoToDisk(url);
-            }
+            };
+
         }
 
-        private void SaveVideoToDisk(string youtubeLinkUrl)
+        private bool DownloadYoutubeVideo(Mp3Model mp3Model)
         {
-            Task.Factory.StartNew(() =>
+            FileStream outFile = null;
+            VideoDownloader videoDownloader = null;
+
+            try
             {
-                var tempPath = FileHelper.GetTempFileName();
 
-                Mp3Model mp3Model;
+                outFile = File.OpenWrite(mp3Model.Path);
+                videoDownloader = new VideoDownloader(mp3Model.Url, outFile);
 
-                using (var outFile = File.OpenWrite(tempPath))
+                mp3Model.Name = videoDownloader.CurrentVideo.Title;
+
+                if (File.Exists(FileHelper.GetMp3FilePath(mp3Model.Name)))
                 {
-                    using (var videoDownloader = new VideoDownloader(youtubeLinkUrl, outFile))
-                    {
-                        var destPath = FileHelper.GetMp3FilePath(videoDownloader.CurrentVideo.FullName);
-
-                        mp3Model = new Mp3Model
-                        {
-                            Name = Path.GetFileNameWithoutExtension(destPath),
-                            Path = destPath,
-                            Url = youtubeLinkUrl,
-                            State = Mp3ModelState.Downloading,
-                        };
-
-                        if (File.Exists(mp3Model.Path))
-                        {
-                            shortToastMessage.ShowInformation(Consts.FileAlreadyExistsInfo);
-                            return;
-                        }
-
-                        FileHelper.EnsureDirectoryExist(mp3Model.Path);
-
-                        Application.Current.Dispatcher.BeginInvoke(new Action(() => _mp3List.Add(mp3Model)));
-
-                        videoDownloader.ProgressChanged += (s, a) =>
-                        {
-                            mp3Model.CurrentProgress = a.CurrentProgress;
-                            Debug.WriteLine($"{a.CurrentProgress}% of video downloaded");
-                        };
-
-                        videoDownloader.Download();
-                    }
+                    DispatchService.Invoke(() => shortToastMessage.ShowInformation(Consts.FileAlreadyExistsInfo));
+                    return false;
                 }
 
+                mp3Model.State = Mp3ModelState.Downloading;
 
-                mp3Model.State = Mp3ModelState.Converting;             
-                DispatchService.Invoke(() => shortToastMessage.ShowInformation("Converting..."));
+                DispatchService.Invoke(() => _mp3List.Add(mp3Model));
 
-                var converter = new Converter();
+                videoDownloader.ProgressChanged += (s, a) => mp3Model.CurrentProgress = a.CurrentProgress;
+
+                videoDownloader.Download();
+            
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.Message);
+                mp3Model.State = Mp3ModelState.Error;
+
+                return false;
+            }
+            finally
+            {
+                videoDownloader?.Dispose();
+                outFile?.Dispose();
+            }
+
+            return true;
+        }
+
+        private bool ConvertYoutubeVideo(Mp3Model mp3Model, string quality)
+        {
+            Converter converter = null;
+            var srcPath = mp3Model.Path;
+
+            try
+            {
+                mp3Model.State = Mp3ModelState.Converting;
+                DispatchService.Invoke(() => shortToastMessage.ShowInformation(Consts.Converting));
+
+                converter = new Converter();
 
                 mp3Model.CurrentProgress = 0;
-                converter.ProgressChanged += (s, a) =>  mp3Model.CurrentProgress = a.CurrentProgress;
-                
-                converter.ExtractAudioMp3FromVideo(tempPath, mp3Model.Path, QualityModel.Quality);
+                converter.ProgressChanged += (s, a) => mp3Model.CurrentProgress = a.CurrentProgress;
 
-                File.Delete(tempPath);
+                mp3Model.Path = FileHelper.GetMp3FilePath(mp3Model.Name);
 
-                DispatchService.Invoke(() =>
-                {
-                    longToastMessage.ShowSuccess(mp3Model.Name);
-                });
+                FileHelper.EnsureDirectoryExist(mp3Model.Path);
+                converter.ExtractAudioMp3FromVideo(srcPath, mp3Model.Path, quality);
+
+                DispatchService.Invoke(() => longToastMessage.ShowSuccess(mp3Model.Name));
 
                 mp3Model.State = Mp3ModelState.Done;
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.Message);
+                mp3Model.State = Mp3ModelState.Error;
+                return false;
+            }
+            finally
+            {
+                File.Delete(srcPath);
+                converter?.Dispose();
+            }
+           
+            return true; 
 
-            });
+        }
+
+        private void SaveVideoToDisk(string youtubeUrl)
+        {
+            var mp3Model = new Mp3Model
+            {
+                Url = youtubeUrl,
+                Path = FileHelper.GetTempFileName()
+            };
+
+            if (DownloadYoutubeVideo(mp3Model))
+            {
+                ConvertYoutubeVideo(mp3Model, QualityModel.Quality);
+            }
+            
         }
 
 
