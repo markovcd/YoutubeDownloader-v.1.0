@@ -35,9 +35,12 @@
             <Setter.Value>
                 <ControlTemplate>
                     <StackPanel>
-                        <!-- Placeholder for the TextBox itself -->
-                        <AdornedElementPlaceholder x:Name="textBox"/>
-                        <TextBlock Margin="5,5,0,0" Text="{Binding ErrorContent}" Foreground="{DynamicResource CyanColor}"/>
+                        <!--  Placeholder for the TextBox itself  -->
+                        <AdornedElementPlaceholder x:Name="textBox" />
+                        <TextBlock
+                            Margin="5,5,0,0"
+                            Foreground="{DynamicResource CyanColor}"
+                            Text="{Binding ErrorContent}" />
                     </StackPanel>
                 </ControlTemplate>
             </Setter.Value>

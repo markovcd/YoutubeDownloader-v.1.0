@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using ToastNotifications;
 using ToastNotifications.Lifetime;
@@ -10,36 +11,40 @@ namespace YoutubeDownloader
 {
     abstract class BaseViewModel : BindableBase, IDataErrorInfo
     {
-        protected Notifier shortToastMessage;
-        protected Notifier longToastMessage;
+        protected readonly Notifier shortToastMessage;
+        protected readonly Notifier longToastMessage;
 
-        private readonly Dictionary<string, Func<object, string>> _validationDictionary;
+        private readonly IDictionary<string, Func<string>> _validationDictionary;
 
         public virtual string Error { get { return string.Empty; } }
 
-        public abstract string this[string columnName]
+        public string this[string columnName]
         {
             get
             {
-                if ()
-                if (columnName == nameof(YoutubeUrl)) return ValidateYoutubeUrl(YoutubeUrl);
-                return string.Empty;
+                return _validationDictionary.ContainsKey(columnName) ?
+                           _validationDictionary[columnName]() : string.Empty;
             }
         }
 
         protected BaseViewModel()
         {
-            SetToastMessages();
-            SetLongToastMessages();
+            shortToastMessage = SetToastMessages(3, 5);
+            longToastMessage = SetToastMessages(8, 8);
 
-            _validationDictionary = new Dictionary<string, Func<object, string>>();
+            _validationDictionary = AddValidationMappings().ToDictionary(kv => kv.Key, kv => kv.Value);
+
         }
 
-        protected abstract void AddValidationMapping(string propertyName, Func<object, string> validationFunc);
-
-        private void SetToastMessages()
+        // override this in child viewmodel to map property name to validation function
+        protected virtual IEnumerable<KeyValuePair<string, Func<string>>> AddValidationMappings()
         {
-            shortToastMessage = new Notifier(cfg =>
+            return Enumerable.Empty<KeyValuePair<string, Func<string>>>();
+        }
+
+        private Notifier SetToastMessages(int notificationLifetime, int maximumNotificationCount)
+        {
+            return new Notifier(cfg =>
             {
                 cfg.PositionProvider = new WindowPositionProvider(
                     parentWindow: Application.Current.MainWindow,
@@ -48,26 +53,8 @@ namespace YoutubeDownloader
                     offsetY: 10);
 
                 cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
-                    notificationLifetime: TimeSpan.FromSeconds(3),
-                    maximumNotificationCount: MaximumNotificationCount.FromCount(5));
-
-                cfg.Dispatcher = Application.Current.Dispatcher;
-            });
-        }
-
-        private void SetLongToastMessages()
-        {
-            longToastMessage = new Notifier(cfg =>
-            {
-                cfg.PositionProvider = new WindowPositionProvider(
-                    parentWindow: Application.Current.MainWindow,
-                    corner: Corner.BottomRight,
-                    offsetX: 10,
-                    offsetY: 10);
-
-                cfg.LifetimeSupervisor = new TimeAndCountBasedLifetimeSupervisor(
-                    notificationLifetime: TimeSpan.FromSeconds(8),
-                    maximumNotificationCount: MaximumNotificationCount.FromCount(8));
+                    notificationLifetime: TimeSpan.FromSeconds(notificationLifetime),
+                    maximumNotificationCount: MaximumNotificationCount.FromCount(maximumNotificationCount));
 
                 cfg.Dispatcher = Application.Current.Dispatcher;
             });

@@ -102,7 +102,7 @@ namespace YoutubeDownloader
         #endregion
 
         #region Ctor
-        public NavigationViewModel()
+        public NavigationViewModel() : base()
         {
             SelectedViewModel = Mp3ViewModelInstance;
             Mp3BackgroundColor = (SolidColorBrush)Application.Current.Resources["GrafitColor"];

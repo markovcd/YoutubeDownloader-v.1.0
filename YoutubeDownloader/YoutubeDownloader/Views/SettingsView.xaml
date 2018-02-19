@@ -19,7 +19,7 @@
                     </Grid.RowDefinitions>
 
 
-                    <TextBox Style="{DynamicResource TextBoxStyle}" Text="{Binding Model.Mp3DestinationDirectory}"/>
+                    <TextBox Style="{DynamicResource TextBoxStyle}" Text="{Binding Model.Mp3DestinationDirectory}" />
 
 
 

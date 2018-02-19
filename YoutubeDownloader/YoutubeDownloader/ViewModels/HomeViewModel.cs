@@ -8,5 +8,6 @@ namespace YoutubeDownloader
 {
     class HomeViewModel : BaseViewModel
     {
+        public HomeViewModel() : base() { }
     }
 }

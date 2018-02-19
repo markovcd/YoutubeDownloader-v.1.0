@@ -50,16 +50,14 @@ namespace YoutubeDownloader
 
         #region Commands
         public ICommand StartMp3DownloadCommand
-        {
-            get { return new RelayCommand<YoutubeUrl>(StartMp3Download, CanStartMp3Download); }
+        { 
+           get { return new RelayCommand<YoutubeUrl>(StartMp3Download, CanStartMp3Download); }
         }
 
         public ICommand OpenMp3LocationCommand
         {
             get { return new RelayCommand<Mp3Model>(OpenMp3Location, CanOpenMp3Location); }
         }
-
-        
 
         #endregion
 
@@ -196,28 +194,17 @@ namespace YoutubeDownloader
 
         #region Validators
 
-        private void ValidationMapping()
+        protected override IEnumerable<KeyValuePair<string, Func<string>>> AddValidationMappings()
         {
-            var d = new Dictionary<string, Func<object, string>>
+            return new Dictionary<string, Func<string>>
             {
-                {nameof(YoutubeUrl), ValidateYoutubeUrl}
-            };
+                { nameof(YoutubeUrl), ValidateYoutubeUrl },
+            };      
         }
 
-        public override string this[string columnName]
+        private string ValidateYoutubeUrl()
         {
-            get
-            {
-                if (columnName == nameof(YoutubeUrl)) return ValidateYoutubeUrl(YoutubeUrl);
-                return string.Empty;
-            }
-        }
-
-        private string ValidateYoutubeUrl(object arg)
-        {
-            var youtubeUrl = (YoutubeUrl)arg;
-            if (youtubeUrl.UrlType == YoutubeUrlType.Error) return Consts.InvalidUrlMessage;
-            return string.Empty;
+            return YoutubeUrl.UrlType == YoutubeUrlType.Error ? Consts.InvalidUrlMessage : string.Empty;
         }
 
         private bool CheckIfInternetConnectivityIsOn()
