@@ -13,7 +13,7 @@ namespace YoutubeDownloader
             switch (state)
             {
                 case Mp3ModelState.None:
-                    break;
+                    return Visibility.Hidden;
                 case Mp3ModelState.Downloading:
                     return Visibility.Visible;
                 case Mp3ModelState.Converting:
@@ -37,7 +37,7 @@ namespace YoutubeDownloader
             switch (state)
             {
                 case Mp3ModelState.None:
-                    break;
+                    return Visibility.Hidden;
                 case Mp3ModelState.Downloading:
                     return Visibility.Hidden;
                 case Mp3ModelState.Converting:

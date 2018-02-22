@@ -1,27 +1,24 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 
 namespace YoutubeDownloader
 {
-    public sealed class FileHelper
+    public static class FileHelper
     {
 
         #region Methods
         
-        public static string RemoveYoutubeSuffix(string fileName)
+        public static string RemoveYoutubeSuffix(string name)
         {
             const string youtubeSuffix = " - YouTube";
 
-            var ext = Path.GetExtension(fileName);
-            var name = Path.GetFileNameWithoutExtension(fileName);
+            if (!name.EndsWith(youtubeSuffix)) return name;
 
-            if (!name.EndsWith(youtubeSuffix)) return fileName;
-
-            return name.Substring(0, name.Length - youtubeSuffix.Length) + ext;
+            return name.Substring(0, name.Length - youtubeSuffix.Length);
         }
-
 
         public static void EnsureDirectoryExist(string filePath)
         {
@@ -45,9 +42,15 @@ namespace YoutubeDownloader
             Process.Start(cmd, arg + path);
         }
 
-        public static string GetMp3FilePath(string videoFileName, bool removeYoutubeSuffix = true)
+        private static string CleanFileName(string fileName)
         {
-            if (removeYoutubeSuffix) videoFileName = RemoveYoutubeSuffix(videoFileName);
+            return Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c.ToString(), string.Empty));
+        }
+
+        public static string GetMp3FilePath(string videoFileName)
+        {
+            videoFileName = CleanFileName(videoFileName);
+            videoFileName = RemoveYoutubeSuffix(videoFileName);
 
             return Path.Combine(SettingsSingleton.Instance.Model.Mp3DestinationDirectory,
                                 Path.ChangeExtension(videoFileName, ".mp3"));

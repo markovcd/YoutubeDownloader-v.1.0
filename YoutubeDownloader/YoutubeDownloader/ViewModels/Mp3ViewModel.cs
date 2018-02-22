@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using System.Linq;
 using ToastNotifications.Messages;
 
 namespace YoutubeDownloader
@@ -71,6 +73,7 @@ namespace YoutubeDownloader
         {
             Initialize();
             InitializeQualityCollection();
+            InitializeValidationMappings();
         }
         #endregion
 
@@ -123,8 +126,6 @@ namespace YoutubeDownloader
             _connectionHelper = new ConnectionHelper();
             _cursor = new CursorControl();
             _mp3List = new ObservableCollection<Mp3Model>();
-
-            AddValidationMappings();
         }
 
         private void InitializeQualityCollection()
@@ -140,18 +141,46 @@ namespace YoutubeDownloader
             QualityModel = QualityList[3];
         }
 
-        private void AddValidationMappings()
+        private void InitializeValidationMappings()
         {
             AddValidationMapping(nameof(YoutubeUrl), ValidateYoutubeUrl);
         }
 
         private void SavePlaylistToDisk(string youtubePlaylistId)
         {
-            foreach (var url in YoutubePlaylist.GetVideosFromPlaylist(youtubePlaylistId))
+            foreach (var mp3Model in AddMp3ModelsFromPlaylist(youtubePlaylistId).ToArray())
             {
-                SaveVideoToDisk(url);
+                if (DownloadYoutubeVideo(mp3Model)) ConvertYoutubeVideo(mp3Model, QualityModel.Quality);
             };
+        }
 
+        private void SaveVideoToDisk(string youtubeUrl)
+        {
+            var mp3Model = AddMp3Models(youtubeUrl).First();
+
+            if (DownloadYoutubeVideo(mp3Model)) ConvertYoutubeVideo(mp3Model, QualityModel.Quality);
+        }
+
+        private IEnumerable<Mp3Model> AddMp3ModelsFromPlaylist(string youtubePlaylistId)
+        {
+            return AddMp3Models(YoutubePlaylist.GetVideosFromPlaylist(youtubePlaylistId).ToArray());
+        }
+
+        private IEnumerable<Mp3Model> AddMp3Models(params string[] urls)
+        {
+            foreach (var url in urls)
+            {
+                var mp3Model = new Mp3Model
+                {
+                    Url = url,
+                    Name = url,
+                    Path = FileHelper.GetTempFileName()
+                };
+
+                DispatchService.Invoke(() => _mp3List.Add(mp3Model));
+
+                yield return mp3Model;
+            }
         }
 
         private bool DownloadYoutubeVideo(Mp3Model mp3Model)
@@ -161,21 +190,18 @@ namespace YoutubeDownloader
 
             try
             {
-
                 outFile = File.OpenWrite(mp3Model.Path);
                 videoDownloader = new VideoDownloader(mp3Model.Url, outFile);
 
-                mp3Model.Name = videoDownloader.CurrentVideo.Title;
+                mp3Model.Name = FileHelper.RemoveYoutubeSuffix(videoDownloader.CurrentVideo.Title);
 
                 if (File.Exists(FileHelper.GetMp3FilePath(mp3Model.Name)))
                 {
                     DispatchService.Invoke(() => shortToastMessage.ShowInformation(Consts.FileAlreadyExistsInfo));
-                    return false;
+                    throw new IOException(Consts.FileAlreadyExistsInfo);
                 }
 
                 mp3Model.State = Mp3ModelState.Downloading;
-
-                DispatchService.Invoke(() => _mp3List.Add(mp3Model));
 
                 videoDownloader.ProgressChanged += (s, a) => mp3Model.CurrentProgress = a.CurrentProgress;
 
@@ -230,29 +256,13 @@ namespace YoutubeDownloader
             }
             finally
             {
-                File.Delete(srcPath);
                 converter?.Dispose();
+                File.Delete(srcPath);
             }
            
             return true; 
 
         }
-
-        private void SaveVideoToDisk(string youtubeUrl)
-        {
-            var mp3Model = new Mp3Model
-            {
-                Url = youtubeUrl,
-                Path = FileHelper.GetTempFileName()
-            };
-
-            if (DownloadYoutubeVideo(mp3Model))
-            {
-                ConvertYoutubeVideo(mp3Model, QualityModel.Quality);
-            }
-            
-        }
-
 
         #endregion
 
