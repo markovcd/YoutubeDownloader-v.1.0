@@ -4,10 +4,9 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Input;
 using System.Linq;
-using ToastNotifications.Messages;
+using System.Threading;
 
 namespace YoutubeDownloader
 {
@@ -16,7 +15,8 @@ namespace YoutubeDownloader
         #region Fields and Properties
         private ConnectionHelper _connectionHelper;
         private CursorControl _cursor;
-
+        private Task _downloadTask;
+        private Task _convertTask;
 
         private ObservableCollection<Mp3Model> _mp3List;
         public ObservableCollection<Mp3Model> Mp3List
@@ -80,44 +80,37 @@ namespace YoutubeDownloader
         #region Events
         private void StartMp3Download(YoutubeUrl youtubeUrl)
         {
+            YoutubeUrl = new YoutubeUrl(); // clears youtube url textbox
+
             Task.Run(() => 
             {
                 if (!CheckIfInternetConnectivityIsOn()) return;
 
                 if (youtubeUrl.UrlType == YoutubeUrlType.Video)
                 {
-                    SaveVideoToDisk(youtubeUrl.Url);
-                }
-                else if (youtubeUrl.UrlType == YoutubeUrlType.Playlist)
-                {
-                    SavePlaylistToDisk(youtubeUrl.PlaylistId);
-                }
-                else if (DownloadPlaylist && youtubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
-                {
-                    SavePlaylistToDisk(youtubeUrl.PlaylistId);
+                    AddMp3Models(youtubeUrl.Url).ToArray();
                 }
                 else if (!DownloadPlaylist && youtubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
                 {
-                    SaveVideoToDisk(youtubeUrl.Url);
+                    AddMp3Models(youtubeUrl.Url).ToArray();
+                }
+                else if (youtubeUrl.UrlType == YoutubeUrlType.Playlist)
+                {
+                    AddMp3ModelsFromPlaylist(youtubeUrl.PlaylistId).ToArray();
+                }
+                else if (DownloadPlaylist && youtubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
+                {
+                    AddMp3ModelsFromPlaylist(youtubeUrl.PlaylistId).ToArray();
                 }
             });
-        }
-
-        private bool CanStartMp3Download(YoutubeUrl youtubeUrl)
-        {
-            return youtubeUrl.UrlType != YoutubeUrlType.Empty && youtubeUrl.UrlType != YoutubeUrlType.Error;
-        }
+        }    
 
         private void OpenMp3Location(Mp3Model mp3Model)
         {
             FileHelper.OpenInExplorer(mp3Model.Path);
 
         }
-
-        private bool CanOpenMp3Location(Mp3Model mp3Model)
-        {
-            return mp3Model.State == Mp3ModelState.Done;
-        }
+        
         #endregion
 
         #region Methods Private
@@ -126,6 +119,8 @@ namespace YoutubeDownloader
             _connectionHelper = new ConnectionHelper();
             _cursor = new CursorControl();
             _mp3List = new ObservableCollection<Mp3Model>();
+            _downloadTask = KeepDownloadingVideos();
+            _convertTask = KeepConvertingVideos();
         }
 
         private void InitializeQualityCollection()
@@ -146,19 +141,32 @@ namespace YoutubeDownloader
             AddValidationMapping(nameof(YoutubeUrl), ValidateYoutubeUrl);
         }
 
-        private void SavePlaylistToDisk(string youtubePlaylistId)
+        private Task KeepDownloadingVideos()
         {
-            foreach (var mp3Model in AddMp3ModelsFromPlaylist(youtubePlaylistId).ToArray())
+            return Task.Run(() =>
             {
-                if (DownloadYoutubeVideo(mp3Model)) ConvertYoutubeVideo(mp3Model, QualityModel.Quality);
-            };
+                while (true)
+                {
+                    Thread.Sleep(1000);
+                    var mp3Model = _mp3List.FirstOrDefault(mp3 => mp3.State == Mp3ModelState.None);
+                    if (mp3Model == null) continue;
+                    DownloadYoutubeVideo(mp3Model);
+                }
+            });
         }
 
-        private void SaveVideoToDisk(string youtubeUrl)
+        private Task KeepConvertingVideos()
         {
-            var mp3Model = AddMp3Models(youtubeUrl).First();
-
-            if (DownloadYoutubeVideo(mp3Model)) ConvertYoutubeVideo(mp3Model, QualityModel.Quality);
+            return Task.Run(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(1000);
+                    var mp3Model = _mp3List.FirstOrDefault(mp3 => mp3.State == Mp3ModelState.Downloaded);
+                    if (mp3Model == null) continue;
+                    ConvertYoutubeVideo(mp3Model);
+                }
+            });
         }
 
         private IEnumerable<Mp3Model> AddMp3ModelsFromPlaylist(string youtubePlaylistId)
@@ -174,7 +182,9 @@ namespace YoutubeDownloader
                 {
                     Url = url,
                     Name = url,
-                    Path = FileHelper.GetTempFileName()
+                    Path = FileHelper.GetTempFileName(),
+                    Quality = QualityModel.Quality,
+                    State = Mp3ModelState.None
                 };
 
                 DispatchService.Invoke(() => _mp3List.Add(mp3Model));
@@ -197,8 +207,9 @@ namespace YoutubeDownloader
 
                 if (File.Exists(FileHelper.GetMp3FilePath(mp3Model.Name)))
                 {
-                    DispatchService.Invoke(() => shortToastMessage.ShowInformation(Consts.FileAlreadyExistsInfo));
-                    throw new IOException(Consts.FileAlreadyExistsInfo);
+                    ShowInformation(string.Format(Consts.FileAlreadyExistsInfo, mp3Model.Name));
+                    mp3Model.State = Mp3ModelState.Error;
+                    return false;
                 }
 
                 mp3Model.State = Mp3ModelState.Downloading;
@@ -206,11 +217,14 @@ namespace YoutubeDownloader
                 videoDownloader.ProgressChanged += (s, a) => mp3Model.CurrentProgress = a.CurrentProgress;
 
                 videoDownloader.Download();
-            
+
+                mp3Model.State = Mp3ModelState.Downloaded;
+
             }
             catch (Exception e)
             {
                 Debug.Print(e.Message);
+                ShowError(e.Message + ": " + mp3Model.Name);
                 mp3Model.State = Mp3ModelState.Error;
 
                 return false;
@@ -224,7 +238,7 @@ namespace YoutubeDownloader
             return true;
         }
 
-        private bool ConvertYoutubeVideo(Mp3Model mp3Model, string quality)
+        private bool ConvertYoutubeVideo(Mp3Model mp3Model)
         {
             Converter converter = null;
             var srcPath = mp3Model.Path;
@@ -232,7 +246,7 @@ namespace YoutubeDownloader
             try
             {
                 mp3Model.State = Mp3ModelState.Converting;
-                DispatchService.Invoke(() => shortToastMessage.ShowInformation(Consts.Converting));
+                ShowInformation(string.Format(Consts.Converting, mp3Model.Name));
 
                 converter = new Converter();
 
@@ -242,15 +256,16 @@ namespace YoutubeDownloader
                 mp3Model.Path = FileHelper.GetMp3FilePath(mp3Model.Name);
 
                 FileHelper.EnsureDirectoryExist(mp3Model.Path);
-                converter.ExtractAudioMp3FromVideo(srcPath, mp3Model.Path, quality);
+                converter.ExtractAudioMp3FromVideo(srcPath, mp3Model.Path, mp3Model.Quality);
 
-                DispatchService.Invoke(() => longToastMessage.ShowSuccess(mp3Model.Name));
+                ShowSuccess(string.Format(Consts.DoneConverting, mp3Model.Name), isShortMessage: false);
 
                 mp3Model.State = Mp3ModelState.Done;
             }
             catch (Exception e)
             {
                 Debug.Print(e.Message);
+                ShowError(e.Message + ": " + mp3Model.Name);
                 mp3Model.State = Mp3ModelState.Error;
                 return false;
             }
@@ -283,10 +298,20 @@ namespace YoutubeDownloader
                 }
                 else
                 {
-                    shortToastMessage.ShowError(Consts.InternetConnectionError);
+                    ShowError(Consts.InternetConnectionError);
                 }
             }
             return false;
+        }
+
+        private bool CanStartMp3Download(YoutubeUrl youtubeUrl)
+        {
+            return youtubeUrl.UrlType != YoutubeUrlType.Empty && youtubeUrl.UrlType != YoutubeUrlType.Error;
+        }
+
+        private bool CanOpenMp3Location(Mp3Model mp3Model)
+        {
+            return mp3Model.State == Mp3ModelState.Done;
         }
 
         #endregion

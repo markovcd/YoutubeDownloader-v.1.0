@@ -16,6 +16,8 @@ namespace YoutubeDownloader
                     return Visibility.Hidden;
                 case Mp3ModelState.Downloading:
                     return Visibility.Visible;
+                case Mp3ModelState.Downloaded:
+                    return Visibility.Hidden;
                 case Mp3ModelState.Converting:
                     return Visibility.Visible;
                 case Mp3ModelState.Done:
@@ -40,6 +42,8 @@ namespace YoutubeDownloader
                     return Visibility.Hidden;
                 case Mp3ModelState.Downloading:
                     return Visibility.Hidden;
+                case Mp3ModelState.Downloaded:
+                    return Visibility.Visible;
                 case Mp3ModelState.Converting:
                     return Visibility.Hidden;
                 case Mp3ModelState.Done:

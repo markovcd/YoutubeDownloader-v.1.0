@@ -3,7 +3,7 @@ namespace YoutubeDownloader
 {
     public enum Mp3ModelState
     {
-        None, Downloading, Converting, Done, Error
+        None, Downloading, Downloaded, Converting, Done, Error
     }
 
     sealed public class Mp3Model : BindableBase
@@ -41,6 +41,13 @@ namespace YoutubeDownloader
         {
             get { return _currentProgress; }
             set { SetProperty(ref _currentProgress, value); }
+        }
+
+        private string _quality;
+        public string Quality
+        {
+            get { return _quality; }
+            set { SetProperty(ref _quality, value); }
         }
 
     }

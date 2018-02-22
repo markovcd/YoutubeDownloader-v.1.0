@@ -6,9 +6,10 @@ namespace YoutubeDownloader
 
     struct YoutubeUrl
     {
-        private const string _regexVideoAndPlaylist = @"https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)&list=([a-zA-Z0-9_-]+)($|(&.+))";
-        private const string _regexPlaylist = @"https:\/\/www\.youtube\.com\/playlist\?list=([a-zA-Z0-9_-]+)($|(&.+))";
-        private const string _regexVideo = @"https:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]+)($|(&.+))";
+        private const string _regexYoutube = @"https:\/\/www\.youtube\.com\/";
+        private const string _regexVideoAndPlaylist = @"watch\?v=([a-zA-Z0-9_-]+)&list=([a-zA-Z0-9_-]+)($|(&.+))";
+        private const string _regexPlaylist = @"playlist\?list=([a-zA-Z0-9_-]+)($|(&.+))";
+        private const string _regexVideo = @"watch\?v=([a-zA-Z0-9_-]+)($|(&.+))";
 
         public string VideoId { get; }
         public string PlaylistId { get; }
@@ -19,9 +20,9 @@ namespace YoutubeDownloader
         {
             Url = url;
 
-            var matchVideoAndPlaylist = Regex.Match(url, _regexVideoAndPlaylist);
-            var matchVideo = Regex.Match(url, _regexVideo);
-            var matchPlaylist = Regex.Match(url, _regexPlaylist);
+            var matchVideoAndPlaylist = Regex.Match(url, _regexYoutube + _regexVideoAndPlaylist);
+            var matchVideo = Regex.Match(url, _regexYoutube + _regexVideo);
+            var matchPlaylist = Regex.Match(url, _regexYoutube + _regexPlaylist);
 
             if (matchVideoAndPlaylist.Value != string.Empty)
             {

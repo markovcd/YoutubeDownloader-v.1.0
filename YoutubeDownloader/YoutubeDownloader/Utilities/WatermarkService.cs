@@ -67,6 +67,7 @@ namespace YoutubeDownloader
             {
                 control.GotKeyboardFocus += Control_GotKeyboardFocus;
                 control.LostKeyboardFocus += Control_Loaded;
+                (control as TextBox).TextChanged += WatermarkService_TextChanged;
             }
             else if (d is ComboBox)
             {
@@ -85,6 +86,19 @@ namespace YoutubeDownloader
                 // for ItemsSource property  
                 DependencyPropertyDescriptor prop = DependencyPropertyDescriptor.FromProperty(ItemsControl.ItemsSourceProperty, i.GetType());
                 prop.AddValueChanged(i, ItemsSourceChanged);
+            }
+        }
+
+        private static void WatermarkService_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Control control = (Control)sender;
+            if (ShouldShowWatermark(control))
+            {
+                ShowWatermark(control);
+            }
+            else
+            {
+                RemoveWatermark(control);
             }
         }
 
