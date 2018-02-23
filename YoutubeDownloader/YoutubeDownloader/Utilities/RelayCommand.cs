@@ -16,10 +16,16 @@ namespace YoutubeDownloader
 
         public RelayCommand(Action<TParam> execute, Func<TParam, bool> canExecute = null)
         {
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+        }
+
+        protected RelayCommand(Action execute, Func<bool> canExecute = null)
+        {
             if (execute == null) throw new ArgumentNullException(nameof(execute));
 
-            _execute = execute;
-            _canExecute = canExecute;
+            _execute = (obj) => execute();
+            _canExecute = (obj) => canExecute();
         }
 
         public bool CanExecute(object parameter)
@@ -35,6 +41,6 @@ namespace YoutubeDownloader
 
     public class RelayCommand : RelayCommand<object>
     {
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null) : base(execute, canExecute) { }
+        public RelayCommand(Action execute, Func<bool> canExecute = null) : base(execute, canExecute) { }
     }
 }

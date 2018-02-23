@@ -15,16 +15,9 @@ namespace YoutubeDownloader
         private readonly Notifier _longToastMessage;
         private readonly IDictionary<string, Func<string>> _validationDictionary;
 
-        public virtual string Error { get { return string.Empty; } }
+        public virtual string Error => string.Empty;
 
-        public string this[string columnName]
-        {
-            get
-            {
-                return _validationDictionary.ContainsKey(columnName) ?
-                           _validationDictionary[columnName]() : string.Empty;
-            }
-        }
+        public string this[string columnName] => _validationDictionary.ContainsKey(columnName) ? _validationDictionary[columnName]() : string.Empty;
 
         protected BaseViewModel()
         {

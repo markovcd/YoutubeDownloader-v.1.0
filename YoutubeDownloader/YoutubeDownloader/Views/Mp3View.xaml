@@ -53,8 +53,7 @@
                 Grid.Column="1"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Command="{Binding StartMp3DownloadCommand}"
-                CommandParameter="{Binding YoutubeUrl}"
+                Command="{Binding StartMp3DownloadCommand}"              
                 Content="Go!"
                 Style="{DynamicResource GoButtonStyle}" />
             <GroupBox

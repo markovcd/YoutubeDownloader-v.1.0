@@ -8,7 +8,7 @@ namespace YoutubeDownloader
 {
     sealed class SettingsViewModel : BaseViewModel
     {
-        public SettingsViewModel() : base()
+        public SettingsViewModel()
         {
             
         }

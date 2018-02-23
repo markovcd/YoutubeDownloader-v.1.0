@@ -6,11 +6,10 @@ namespace YoutubeDownloader
 {
     sealed class SettingsSingleton : BaseViewModel
     {
-        public string FilePath { get { return Path.Combine(FileHelper.GetApplicationFolder(), Consts.SettingsFilename); } }
+        public string FilePath => Path.Combine(FileHelper.GetApplicationFolder(), Consts.SettingsFilename);
 
         private static SettingsSingleton _instance;
-
-        public static SettingsSingleton Instance { get { return _instance ?? (_instance = new SettingsSingleton()); } }
+        public static SettingsSingleton Instance => _instance ?? (_instance = new SettingsSingleton());
 
         public SettingsModel Model { get; private set; }
 

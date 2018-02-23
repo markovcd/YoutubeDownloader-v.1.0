@@ -11,43 +11,43 @@ namespace YoutubeDownloader
         private string _name;
         public string Name
         {
-            get { return _name; }
-            set { SetProperty(ref _name, value); }
+            get => _name;
+            set => SetProperty(ref _name, value);
         }
 
         private string _path;
         public string Path
         {
-            get { return _path; }
-            set { SetProperty(ref _path, value); }
+            get => _path;
+            set => SetProperty(ref _path, value);
         }
 
         private string _url;
         public string Url
         {
-            get { return _url; }
-            set { SetProperty(ref _url, value); }
+            get => _url;
+            set => SetProperty(ref _url, value);
         }
 
         private Mp3ModelState _state;
         public Mp3ModelState State
         {
-            get { return _state; }
-            set { SetProperty(ref _state, value); }
+            get => _state;
+            set => SetProperty(ref _state, value);
         }
 
         private double _currentProgress;
         public double CurrentProgress
         {
-            get { return _currentProgress; }
-            set { SetProperty(ref _currentProgress, value); }
+            get => _currentProgress;
+            set => SetProperty(ref _currentProgress, value);
         }
 
         private string _quality;
         public string Quality
         {
-            get { return _quality; }
-            set { SetProperty(ref _quality, value); }
+            get => _quality;
+            set => SetProperty(ref _quality, value);
         }
 
     }

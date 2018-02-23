@@ -49,7 +49,10 @@ namespace YoutubeDownloader
             }
         }
 
-        public static IEnumerable<JObject> GetAllPlaylistData(string playlistId, int maxResults = 20) => GetPlaylistDataRecursive(playlistId, "", maxResults);
+        public static IEnumerable<JObject> GetAllPlaylistData(string playlistId, int maxResults = 20)
+        {
+            return GetPlaylistDataRecursive(playlistId, "", maxResults);
+        }
 
         public static IEnumerable<string> GetVideosFromPlaylist(string playlistId)
         {

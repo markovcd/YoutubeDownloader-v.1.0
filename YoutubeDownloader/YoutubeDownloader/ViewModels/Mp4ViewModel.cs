@@ -8,6 +8,6 @@ namespace YoutubeDownloader
 {
     class Mp4ViewModel : BaseViewModel
     {
-        public Mp4ViewModel() : base() { }
+        public Mp4ViewModel() { }
     }
 }

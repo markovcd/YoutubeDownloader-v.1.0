@@ -17,59 +17,54 @@ namespace YoutubeDownloader
         private CursorControl _cursor;
         private Task _downloadTask;
         private Task _convertTask;
+        private CancellationToken _downloadCancellation;
+        private CancellationToken _convertCancellation;
 
         private ObservableCollection<Mp3Model> _mp3List;
         public ObservableCollection<Mp3Model> Mp3List
         {
-            get { return _mp3List; }
-            set { SetProperty(ref _mp3List, value); }
+            get => _mp3List;
+            set => SetProperty(ref _mp3List, value);
         }
 
         private ObservableCollection<QualityModel> _qualityList;
         public ObservableCollection<QualityModel> QualityList
         {
-            get { return _qualityList; }
-            set { SetProperty(ref _qualityList, value); }
+            get => _qualityList;
+            set => SetProperty(ref _qualityList, value);
         }
 
         private QualityModel _qualityModel;
         public QualityModel QualityModel
         {
-            get { return _qualityModel; }
-            set { SetProperty(ref _qualityModel, value); }
+            get => _qualityModel;
+            set => SetProperty(ref _qualityModel, value);
         }
 
         private YoutubeUrl _youtubeUrl;
         public YoutubeUrl YoutubeUrl
         {
-            get { return _youtubeUrl; }
-            set { SetProperty(ref _youtubeUrl, value); }
+            get => _youtubeUrl;
+            set => SetProperty(ref _youtubeUrl, value);
         }
 
         private bool _downloadPlaylist;
         public bool DownloadPlaylist
         {
-            get { return _downloadPlaylist; }
-            set { SetProperty(ref _downloadPlaylist, value); }
+            get => _downloadPlaylist;
+            set => SetProperty(ref _downloadPlaylist, value);
         }
 
         #endregion
 
         #region Commands
-        public ICommand StartMp3DownloadCommand
-        { 
-           get { return new RelayCommand<YoutubeUrl>(StartMp3Download, CanStartMp3Download); }
-        }
-
-        public ICommand OpenMp3LocationCommand
-        {
-            get { return new RelayCommand<Mp3Model>(OpenMp3Location, CanOpenMp3Location); }
-        }
+        public ICommand StartMp3DownloadCommand => new RelayCommand(StartMp3Download, CanStartMp3Download);
+        public ICommand OpenMp3LocationCommand => new RelayCommand<Mp3Model>(OpenMp3Location, CanOpenMp3Location);
 
         #endregion
 
         #region Constructor
-        public Mp3ViewModel() : base()
+        public Mp3ViewModel()
         {
             Initialize();
             InitializeQualityCollection();
@@ -78,7 +73,7 @@ namespace YoutubeDownloader
         #endregion
 
         #region Events
-        private void StartMp3Download(YoutubeUrl youtubeUrl)
+        private void StartMp3Download()
         {
             YoutubeUrl = new YoutubeUrl(); // clears youtube url textbox
 
@@ -86,21 +81,21 @@ namespace YoutubeDownloader
             {
                 if (!CheckIfInternetConnectivityIsOn()) return;
 
-                if (youtubeUrl.UrlType == YoutubeUrlType.Video)
+                if (YoutubeUrl.UrlType == YoutubeUrlType.Video)
                 {
-                    AddMp3Models(youtubeUrl.Url).ToArray();
+                    AddMp3Models(YoutubeUrl.Url).ToArray();
                 }
-                else if (!DownloadPlaylist && youtubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
+                else if (!DownloadPlaylist && YoutubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
                 {
-                    AddMp3Models(youtubeUrl.Url).ToArray();
+                    AddMp3Models(YoutubeUrl.Url).ToArray();
                 }
-                else if (youtubeUrl.UrlType == YoutubeUrlType.Playlist)
+                else if (YoutubeUrl.UrlType == YoutubeUrlType.Playlist)
                 {
-                    AddMp3ModelsFromPlaylist(youtubeUrl.PlaylistId).ToArray();
+                    AddMp3ModelsFromPlaylist(YoutubeUrl.PlaylistId).ToArray();
                 }
-                else if (DownloadPlaylist && youtubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
+                else if (DownloadPlaylist && YoutubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
                 {
-                    AddMp3ModelsFromPlaylist(youtubeUrl.PlaylistId).ToArray();
+                    AddMp3ModelsFromPlaylist(YoutubeUrl.PlaylistId).ToArray();
                 }
             });
         }    
@@ -108,7 +103,6 @@ namespace YoutubeDownloader
         private void OpenMp3Location(Mp3Model mp3Model)
         {
             FileHelper.OpenInExplorer(mp3Model.Path);
-
         }
         
         #endregion
@@ -143,6 +137,8 @@ namespace YoutubeDownloader
 
         private Task KeepDownloadingVideos()
         {
+            _downloadCancellation = new CancellationToken();
+
             return Task.Run(() =>
             {
                 while (true)
@@ -152,7 +148,7 @@ namespace YoutubeDownloader
                     if (mp3Model == null) continue;
                     DownloadYoutubeVideo(mp3Model);
                 }
-            });
+            }, _downloadCancellation);
         }
 
         private Task KeepConvertingVideos()
@@ -304,9 +300,9 @@ namespace YoutubeDownloader
             return false;
         }
 
-        private bool CanStartMp3Download(YoutubeUrl youtubeUrl)
+        private bool CanStartMp3Download()
         {
-            return youtubeUrl.UrlType != YoutubeUrlType.Empty && youtubeUrl.UrlType != YoutubeUrlType.Error;
+            return YoutubeUrl.UrlType != YoutubeUrlType.Empty && YoutubeUrl.UrlType != YoutubeUrlType.Error;
         }
 
         private bool CanOpenMp3Location(Mp3Model mp3Model)
