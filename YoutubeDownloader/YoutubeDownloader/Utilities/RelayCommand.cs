@@ -20,14 +20,6 @@ namespace YoutubeDownloader
             _canExecute = canExecute;
         }
 
-        protected RelayCommand(Action execute, Func<bool> canExecute = null)
-        {
-            if (execute == null) throw new ArgumentNullException(nameof(execute));
-
-            _execute = (obj) => execute();
-            _canExecute = (obj) => canExecute();
-        }
-
         public bool CanExecute(object parameter)
         {
             return _canExecute == null || parameter == null || _canExecute((TParam)parameter);
@@ -39,8 +31,31 @@ namespace YoutubeDownloader
         }
     }
 
-    public class RelayCommand : RelayCommand<object>
+    public class RelayCommand : ICommand
     {
-        public RelayCommand(Action execute, Func<bool> canExecute = null) : base(execute, canExecute) { }
+        private Action _execute;
+        private Func<bool> _canExecute;
+
+        public event EventHandler CanExecuteChanged
+        {
+            add { CommandManager.RequerySuggested += value; }
+            remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public RelayCommand(Action execute, Func<bool> canExecute = null)
+        {
+            _execute = execute ?? throw new ArgumentNullException(nameof(execute));
+            _canExecute = canExecute;
+        }
+
+        public bool CanExecute(object parameter)
+        {
+            return _canExecute == null || _canExecute();
+        }
+
+        public void Execute(object parameter)
+        {
+            _execute();
+        }
     }
 }

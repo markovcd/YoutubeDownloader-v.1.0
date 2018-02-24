@@ -10,8 +10,6 @@
     Background="{DynamicResource GrafitColor}"
     mc:Ignorable="d">
     <UserControl.Resources>
-        <local:Mp3ModelStateToOperationDoneVisibilityConverter x:Key="Mp3ModelStateToOperationDoneVisibilityConverter" />
-        <local:Mp3ModelStateToProgressVisibilityConverter x:Key="Mp3ModelStateToProgressVisibilityConverter" />
         <local:YoutubeUrlToStringConverter x:Key="YoutubeUrlToStringConverter" />
     </UserControl.Resources>
 
@@ -33,18 +31,9 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
-            <TextBox
-                Grid.Row="0"
-                Grid.Column="0"
-                Style="{DynamicResource TextBoxStyle}"
-                Text="{Binding YoutubeUrl, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, Converter={StaticResource YoutubeUrlToStringConverter}}">
+            <TextBox Grid.Row="0" Grid.Column="0" Style="{DynamicResource TextBoxStyle}" Text="{Binding YoutubeUrl, UpdateSourceTrigger=PropertyChanged, ValidatesOnDataErrors=True, Converter={StaticResource YoutubeUrlToStringConverter}}">
                 <local:WatermarkService.Watermark>
-                    <TextBlock
-                        Margin="7,0,0,0"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Center">
-                        Please enter your link here!
-                    </TextBlock>
+                    <TextBlock Margin="7,0,0,0" HorizontalAlignment="Left" VerticalAlignment="Center" Text="{x:Static local:Consts.DefaultTextBoxEntry}" />
                 </local:WatermarkService.Watermark>
             </TextBox>
 
@@ -53,8 +42,9 @@
                 Grid.Column="1"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                Command="{Binding StartMp3DownloadCommand}"              
+                Command="{Binding StartMp3DownloadCommand}"
                 Content="Go!"
+                IsDefault="True"
                 Style="{DynamicResource GoButtonStyle}" />
             <GroupBox
                 Grid.Row="1"
@@ -116,10 +106,7 @@
                 </Grid>
             </GroupBox>
         </Grid>
-        <Grid
-            Grid.Row="1"
-            Grid.RowSpan="2"
-            Grid.Column="0">
+        <Grid Grid.Row="1" Grid.RowSpan="2" Grid.Column="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
@@ -130,51 +117,16 @@
             <ListView ItemsSource="{Binding Mp3List}" Style="{DynamicResource Mp3ListViewStyle}">
                 <ListView.View>
                     <GridView>
-
-                        <GridViewColumn Width="250" Header="Track Name">
-
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Border Background="Transparent">
-                                        <Border.InputBindings>
-                                            <MouseBinding
-                                                Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=DataContext.OpenMp3LocationCommand}"
-                                                CommandParameter="{Binding}"
-                                                Gesture="LeftDoubleClick" />
-                                        </Border.InputBindings>
-                                        <TextBlock
-                                            VerticalAlignment="Center"
-                                            Foreground="{DynamicResource SnowColor}"
-                                            Text="{Binding Name}" />
-                                    </Border>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
-                        <GridViewColumn Width="300" Header="Progress">
-                            <GridViewColumn.CellTemplate>
-                                <DataTemplate>
-                                    <Grid Width="280">
-                                        <ProgressBar
-                                            Foreground="{DynamicResource CyanColor}"
-                                            Style="{DynamicResource ProgressBarStyle}"
-                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressVisibilityConverter}}"
-                                            Value="{Binding CurrentProgress, Mode=OneWay}" />
-                                        <TextBlock Style="{DynamicResource Mp3ListTextBlockStyle}" Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToProgressVisibilityConverter}}">
-                                            <Run Text="{Binding State}" />
-                                            <Run Text="{Binding CurrentProgress, StringFormat={}{0:0}%}" />
-                                        </TextBlock>
-                                        <TextBlock
-                                            Style="{DynamicResource Mp3ListTextBlockStyleLight}"
-                                            Text="{Binding State}"
-                                            Visibility="{Binding State, Converter={StaticResource Mp3ModelStateToOperationDoneVisibilityConverter}}" />
-
-                                    </Grid>
-                                </DataTemplate>
-                            </GridViewColumn.CellTemplate>
-                        </GridViewColumn>
+                        <GridViewColumn Width="250" CellTemplate="{DynamicResource Mp3ListItemNameTemplate}" Header="Track Name" />
+                        <GridViewColumn Width="Auto" CellTemplate="{DynamicResource Mp3ListItemActionsTemplate}" Header="Actions" />
+                        <GridViewColumn Width="300" CellTemplate="{DynamicResource Mp3ListItemProgressTemplate}" Header="Progress" />
                     </GridView>
                 </ListView.View>
             </ListView>
+
+
+
+
 
 
         </Grid>

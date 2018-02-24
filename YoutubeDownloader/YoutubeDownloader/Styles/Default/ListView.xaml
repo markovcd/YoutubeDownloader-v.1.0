@@ -1,7 +1,4 @@
-﻿<ResourceDictionary
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="clr-namespace:YoutubeDownloader">
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:YoutubeDownloader">
 
     <!--  ListView Style  -->
     <Style x:Key="Mp3ListViewStyle" TargetType="{x:Type ListView}">
@@ -13,17 +10,42 @@
 
 
     <!--  ListViewItem Style  -->
+
+    <DataTemplate x:Key="Mp3ListItemNameTemplate">
+        <Border Background="Transparent">
+            <Border.InputBindings>
+                <MouseBinding Command="{Binding RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type ListView}}, Path=DataContext.OpenMp3LocationCommand}" CommandParameter="{Binding}" Gesture="LeftDoubleClick" />
+            </Border.InputBindings>
+            <StackPanel Orientation="Horizontal">
+                <Image Width="16" Height="16" Margin="5" Source="/YoutubeDownloader;component/Assets/music-player.png" />
+                <TextBlock VerticalAlignment="Center" Foreground="{DynamicResource SnowColor}" Text="{Binding Name}" />
+            </StackPanel>
+        </Border>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Mp3ListItemActionsTemplate">
+        <StackPanel Orientation="Horizontal">
+            <Image Width="16" Height="16" Margin="5" Source="/YoutubeDownloader;component/Assets/music-player-play.png" />
+            <Image Width="16" Height="16" Margin="5" Source="/YoutubeDownloader;component/Assets/waste-bin.png" />
+        </StackPanel>
+    </DataTemplate>
+
+    <DataTemplate x:Key="Mp3ListItemProgressTemplate">
+        <Grid Width="280">
+            <local:CaptionProgressBar Panel.ZIndex="2" Style="{DynamicResource CaptionProgressBar}" />
+            <TextBlock Panel.ZIndex="1" Style="{DynamicResource Mp3ListTextBlockStyleLight}" />
+        </Grid>
+    </DataTemplate>
+
     <Style x:Key="Mp3ListViewItemStyle" TargetType="{x:Type ListViewItem}">
         <Setter Property="Background" Value="Transparent" />
         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
         <Setter Property="VerticalContentAlignment" Value="Stretch" />
+
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type ListViewItem}">
-                    <Border
-                        Background="{TemplateBinding Background}"
-                        BorderBrush="Transparent"
-                        BorderThickness="0">
+                    <Border Background="{TemplateBinding Background}" BorderBrush="Transparent" BorderThickness="0">
                         <GridViewRowPresenter
                             Width="Auto"
                             Margin="0"
@@ -61,10 +83,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="{x:Type Thumb}">
                     <Border Padding="{TemplateBinding Padding}" Background="Transparent">
-                        <Rectangle
-                            Width="1"
-                            HorizontalAlignment="Center"
-                            Fill="{TemplateBinding Background}" />
+                        <Rectangle Width="1" HorizontalAlignment="Center" Fill="{TemplateBinding Background}" />
                     </Border>
                 </ControlTemplate>
             </Setter.Value>
@@ -93,11 +112,7 @@
                                 RecognizesAccessKey="True"
                                 SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                         </Border>
-                        <Thumb
-                            x:Name="PART_HeaderGripper"
-                            Margin="0,0,-9,0"
-                            HorizontalAlignment="Right"
-                            Style="{DynamicResource GridViewColumnHeaderGripper}" />
+                        <Thumb x:Name="PART_HeaderGripper" Margin="0,0,-9,0" HorizontalAlignment="Right" Style="{DynamicResource GridViewColumnHeaderGripper}" />
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>

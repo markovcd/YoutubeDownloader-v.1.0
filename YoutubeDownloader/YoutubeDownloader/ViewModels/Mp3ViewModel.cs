@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using System.Linq;
 using System.Threading;
+using YoutubeSnoop;
 
 namespace YoutubeDownloader
 {
@@ -75,8 +76,6 @@ namespace YoutubeDownloader
         #region Events
         private void StartMp3Download()
         {
-            YoutubeUrl = new YoutubeUrl(); // clears youtube url textbox
-
             Task.Run(() => 
             {
                 if (!CheckIfInternetConnectivityIsOn()) return;
@@ -97,6 +96,8 @@ namespace YoutubeDownloader
                 {
                     AddMp3ModelsFromPlaylist(YoutubeUrl.PlaylistId).ToArray();
                 }
+
+                YoutubeUrl = new YoutubeUrl(); // clears youtube url textbox
             });
         }    
 
@@ -167,7 +168,8 @@ namespace YoutubeDownloader
 
         private IEnumerable<Mp3Model> AddMp3ModelsFromPlaylist(string youtubePlaylistId)
         {
-            return AddMp3Models(YoutubePlaylist.GetVideosFromPlaylist(youtubePlaylistId).ToArray());
+            var playlist = new YoutubePlaylist(youtubePlaylistId, 50);
+            return AddMp3Models(playlist);
         }
 
         private IEnumerable<Mp3Model> AddMp3Models(params string[] urls)
@@ -178,6 +180,25 @@ namespace YoutubeDownloader
                 {
                     Url = url,
                     Name = url,
+                    Path = FileHelper.GetTempFileName(),
+                    Quality = QualityModel.Quality,
+                    State = Mp3ModelState.None
+                };
+
+                DispatchService.Invoke(() => _mp3List.Add(mp3Model));
+
+                yield return mp3Model;
+            }
+        }
+
+        private IEnumerable<Mp3Model> AddMp3Models(IEnumerable<YoutubeVideo> infos)
+        {
+            foreach (var info in infos)
+            {
+                var mp3Model = new Mp3Model
+                {
+                    Url = info.Url,
+                    Name = info.Title,
                     Path = FileHelper.GetTempFileName(),
                     Quality = QualityModel.Quality,
                     State = Mp3ModelState.None
