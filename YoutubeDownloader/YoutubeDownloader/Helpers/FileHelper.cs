@@ -11,15 +11,6 @@ namespace YoutubeDownloader
 
         #region Methods
         
-        public static string RemoveYoutubeSuffix(string name)
-        {
-            const string youtubeSuffix = " - YouTube";
-
-            if (!name.EndsWith(youtubeSuffix)) return name;
-
-            return name.Substring(0, name.Length - youtubeSuffix.Length);
-        }
-
         public static void EnsureDirectoryExist(string filePath)
         {
             Directory.CreateDirectory(Path.GetDirectoryName(filePath));
@@ -50,7 +41,6 @@ namespace YoutubeDownloader
         public static string GetMp3FilePath(string videoFileName)
         {
             videoFileName = CleanFileName(videoFileName);
-            videoFileName = RemoveYoutubeSuffix(videoFileName);
 
             return Path.Combine(SettingsSingleton.Instance.Model.Mp3DestinationDirectory,
                                 Path.ChangeExtension(videoFileName, ".mp3"));

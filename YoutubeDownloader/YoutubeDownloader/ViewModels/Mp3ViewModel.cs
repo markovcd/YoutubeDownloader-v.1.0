@@ -82,19 +82,19 @@ namespace YoutubeDownloader
 
                 if (YoutubeUrl.UrlType == YoutubeUrlType.Video)
                 {
-                    AddMp3Models(YoutubeUrl.Url).ToArray();
+                    AddMp3Model(YoutubeUrl);
                 }
                 else if (!DownloadPlaylist && YoutubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
                 {
-                    AddMp3Models(YoutubeUrl.Url).ToArray();
+                    AddMp3Model(YoutubeUrl);
                 }
                 else if (YoutubeUrl.UrlType == YoutubeUrlType.Playlist)
                 {
-                    AddMp3ModelsFromPlaylist(YoutubeUrl.PlaylistId).ToArray();
+                    AddMp3ModelsFromPlaylist(YoutubeUrl).ToArray();
                 }
                 else if (DownloadPlaylist && YoutubeUrl.UrlType == YoutubeUrlType.VideoAndPlaylist)
                 {
-                    AddMp3ModelsFromPlaylist(YoutubeUrl.PlaylistId).ToArray();
+                    AddMp3ModelsFromPlaylist(YoutubeUrl).ToArray();
                 }
 
                 YoutubeUrl = new YoutubeUrl(); // clears youtube url textbox
@@ -166,48 +166,32 @@ namespace YoutubeDownloader
             });
         }
 
-        private IEnumerable<Mp3Model> AddMp3ModelsFromPlaylist(string youtubePlaylistId)
+        private IEnumerable<Mp3Model> AddMp3ModelsFromPlaylist(YoutubeUrl url)
         {
-            var playlist = new YoutubePlaylist(youtubePlaylistId, 50);
-            return AddMp3Models(playlist);
+            var playlist = new YoutubePlaylist(url.PlaylistId);
+            return playlist.Select(AddMp3Model);
         }
 
-        private IEnumerable<Mp3Model> AddMp3Models(params string[] urls)
+        private Mp3Model AddMp3Model(YoutubeUrl url)
         {
-            foreach (var url in urls)
-            {
-                var mp3Model = new Mp3Model
-                {
-                    Url = url,
-                    Name = url,
-                    Path = FileHelper.GetTempFileName(),
-                    Quality = QualityModel.Quality,
-                    State = Mp3ModelState.None
-                };
-
-                DispatchService.Invoke(() => _mp3List.Add(mp3Model));
-
-                yield return mp3Model;
-            }
+            var video = new YoutubeVideo(url.VideoId);
+            return AddMp3Model(video);
         }
 
-        private IEnumerable<Mp3Model> AddMp3Models(IEnumerable<YoutubeVideo> infos)
+        private Mp3Model AddMp3Model(YoutubeVideo video)
         {
-            foreach (var info in infos)
+            var mp3Model = new Mp3Model
             {
-                var mp3Model = new Mp3Model
-                {
-                    Url = info.Url,
-                    Name = info.Title,
-                    Path = FileHelper.GetTempFileName(),
-                    Quality = QualityModel.Quality,
-                    State = Mp3ModelState.None
-                };
+                Url = video.Url,
+                Name = video.Title,
+                Path = FileHelper.GetTempFileName(),
+                Quality = QualityModel.Quality,
+                State = Mp3ModelState.None
+            };
+            
+            DispatchService.Invoke(() => _mp3List.Add(mp3Model));
 
-                DispatchService.Invoke(() => _mp3List.Add(mp3Model));
-
-                yield return mp3Model;
-            }
+            return mp3Model;
         }
 
         private bool DownloadYoutubeVideo(Mp3Model mp3Model)
@@ -219,8 +203,6 @@ namespace YoutubeDownloader
             {
                 outFile = File.OpenWrite(mp3Model.Path);
                 videoDownloader = new VideoDownloader(mp3Model.Url, outFile);
-
-                mp3Model.Name = FileHelper.RemoveYoutubeSuffix(videoDownloader.CurrentVideo.Title);
 
                 if (File.Exists(FileHelper.GetMp3FilePath(mp3Model.Name)))
                 {
