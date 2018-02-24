@@ -25,15 +25,8 @@
 
     <DataTemplate x:Key="Mp3ListItemActionsTemplate">
         <StackPanel Orientation="Horizontal">
-            <Button Style="{DynamicResource ImageButtonStyle}">
-                <Image Source="/YoutubeDownloader;component/Assets/music-player-play.png" Stretch="Fill"/>
-            </Button>
-            <Button Style="{DynamicResource ImageButtonStyle}">
-                <Image Source="/YoutubeDownloader;component/Assets/settings-work-tool.png" Stretch="Fill"/>
-            </Button>
-            <Button Style="{DynamicResource ImageButtonStyle}">
-                <Image Source="/YoutubeDownloader;component/Assets/waste-bin.png" Stretch="Fill"/>
-            </Button>
+            <Button Style="{DynamicResource StartImageButtonStyle}" />
+            <Button Style="{DynamicResource PauseImageButtonStyle}" />
         </StackPanel>
     </DataTemplate>
 

@@ -61,6 +61,9 @@ namespace YoutubeDownloader
         #region Commands
         public ICommand StartMp3DownloadCommand => new RelayCommand(StartMp3Download, CanStartMp3Download);
         public ICommand OpenMp3LocationCommand => new RelayCommand<Mp3Model>(OpenMp3Location, CanOpenMp3Location);
+        public ICommand PauseProgressCommand => new RelayCommand<Mp3Model>(PauseProgress, CanPauseProgress);
+        public ICommand StartProgressCommand => new RelayCommand<Mp3Model>(StartProgress, CanStartProgress);
+        public ICommand DeleteItemCommand => new RelayCommand<Mp3Model>(DeleteItem, CanDeleteItem);
 
         #endregion
 
@@ -105,7 +108,27 @@ namespace YoutubeDownloader
         {
             FileHelper.OpenInExplorer(mp3Model.Path);
         }
-        
+
+        private void PauseProgress(Mp3Model mp3Model)
+        {
+            if (mp3Model.State == Mp3ModelState.Downloading) mp3Model.State = Mp3ModelState.DownloadPaused;
+            if (mp3Model.State == Mp3ModelState.Converting) mp3Model.State = Mp3ModelState.ConvertPaused;
+            Debug.Print("PauseProgress");
+        }
+
+        private void StartProgress(Mp3Model mp3Model)
+        {
+            if (mp3Model.State == Mp3ModelState.DownloadPaused) mp3Model.State = Mp3ModelState.Downloading;
+            if (mp3Model.State == Mp3ModelState.None) mp3Model.State = Mp3ModelState.Downloading;
+            if (mp3Model.State == Mp3ModelState.ConvertPaused) mp3Model.State = Mp3ModelState.Converting;
+            Debug.Print("StartProgress");
+        }
+
+        private void DeleteItem(Mp3Model mp3Model)
+        {
+            Debug.Print("DeleteItem");
+        }
+
         #endregion
 
         #region Methods Private
@@ -311,6 +334,21 @@ namespace YoutubeDownloader
         private bool CanOpenMp3Location(Mp3Model mp3Model)
         {
             return mp3Model.State == Mp3ModelState.Done;
+        }
+
+        private bool CanPauseProgress(Mp3Model mp3Model)
+        {
+            return mp3Model.State == Mp3ModelState.Converting || mp3Model.State == Mp3ModelState.Downloading;
+        }
+
+        private bool CanStartProgress(Mp3Model mp3Model)
+        {
+            return !CanPauseProgress(mp3Model);
+        }
+
+        private bool CanDeleteItem(Mp3Model mp3Model)
+        {
+            return true;
         }
 
         #endregion

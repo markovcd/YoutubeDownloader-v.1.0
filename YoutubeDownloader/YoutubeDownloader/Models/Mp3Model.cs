@@ -3,7 +3,7 @@ namespace YoutubeDownloader
 {
     public enum Mp3ModelState
     {
-        None, Downloading, Downloaded, Converting, Done, Error
+        None, Downloading, DownloadPaused, Downloaded, Converting, ConvertPaused, Done, Error
     }
 
     sealed public class Mp3Model : BindableBase
