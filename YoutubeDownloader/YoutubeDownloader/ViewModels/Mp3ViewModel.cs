@@ -8,6 +8,7 @@ using System.Windows.Input;
 using System.Linq;
 using System.Threading;
 using YoutubeSnoop;
+//using YoutubeSnoop;
 
 namespace YoutubeDownloader
 {
@@ -191,8 +192,8 @@ namespace YoutubeDownloader
 
         private IEnumerable<Mp3Model> AddMp3ModelsFromPlaylist(YoutubeUrl url)
         {
-            var playlist = new YoutubePlaylist(url.PlaylistId);
-            return playlist.Select(AddMp3Model);
+            var playlist = new YoutubePlaylistItems(url.PlaylistId);
+            return playlist.Items.Select(AddMp3Model);
         }
 
         private Mp3Model AddMp3Model(YoutubeUrl url)
@@ -212,6 +213,22 @@ namespace YoutubeDownloader
                 State = Mp3ModelState.None
             };
             
+            DispatchService.Invoke(() => _mp3List.Add(mp3Model));
+
+            return mp3Model;
+        }
+
+        private Mp3Model AddMp3Model(YoutubePlaylistItem video)
+        {
+            var mp3Model = new Mp3Model
+            {
+                Url = ((YoutubeVideo)video.Details).Url,
+                Name = video.Title,
+                Path = FileHelper.GetTempFileName(),
+                Quality = QualityModel.Quality,
+                State = Mp3ModelState.None
+            };
+
             DispatchService.Invoke(() => _mp3List.Add(mp3Model));
 
             return mp3Model;
