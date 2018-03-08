@@ -7,7 +7,7 @@ namespace YoutubeDownloader.Utilities
     public static class ProcessSuspender
     {
         [Flags]
-        enum ThreadAccess : int
+        enum ThreadAccess
         {
             TERMINATE = (0x0001),
             SUSPEND_RESUME = (0x0002),

@@ -2,10 +2,28 @@
 using System.Diagnostics;
 using System.IO;
 using System.Text.RegularExpressions;
+using YoutubeDownloader.Utilities;
 
 namespace YoutubeDownloader
 {
     enum ConversionSection { Input, Output }
+
+    public class CustomProcess : IDisposable
+    {
+        private readonly Process _process;
+
+        public CustomProcess()
+        {
+            _process = new Process();
+        }
+
+        public void Dispose()
+        {
+            if (_process != null && !_process.HasExited) _process.Kill();
+            _process.Dispose();
+        }
+
+    }
 
     public class VideoConverter : IDisposable
     {
@@ -39,29 +57,54 @@ namespace YoutubeDownloader
                 EnableRaisingEvents = true,
 
             };
-
+            
             _process.EnableRaisingEvents = true;
-            _process.ErrorDataReceived += new DataReceivedEventHandler(OnErrorDataReceived);
-            _process.Exited += new EventHandler(OnConversionExited);
+            _process.ErrorDataReceived += OnErrorDataReceived;
+            _process.Exited += OnConversionExited;
 
         }
 
-        #region Methods
-        public void ExtractAudioMp3FromVideo(string inputFile, string outputFile, string quality)
+        private void SetArguments(string inputFile, string outputFile, string quality)
+        {
+            _process.StartInfo.Arguments = $" -i \"{inputFile}\" -codec:a libmp3lame -b:a {quality} \"{outputFile}\"";
+        }
+
+        public bool PauseConversion()
         {
             try
             {
-                _process.StartInfo.Arguments = $" -i \"{inputFile}\" -codec:a libmp3lame -b:a {quality} \"{outputFile}\"";
+                if (_process.HasExited) return false;
+                _process.Suspend();
+                return true;
+            }
+            catch (Exception e)
+            {
+                return false;
+            }
+            
+        }
+
+        #region Methods
+        public bool ExtractAudioMp3FromVideo(string inputFile, string outputFile, string quality, bool isBlocking = true)
+        {
+            try
+            {
+                if (!_process.HasExited) throw new InvalidOperationException("Process already started");
+
+                SetArguments(inputFile, outputFile, quality);
 
                 _process.Start();
                 _process.BeginErrorReadLine();
+                
+                if (isBlocking) _process.WaitForExit();
 
-                _process.WaitForExit();
+                return true;
 
             }
             catch (Exception e)
             {
                 Debug.WriteLine("Exception Occured: {0}", e);
+                return false;
             }
         }
 
