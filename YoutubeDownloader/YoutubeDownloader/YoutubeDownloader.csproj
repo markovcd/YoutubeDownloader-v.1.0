@@ -85,11 +85,12 @@
       <DependentUpon>CaptionProgressBar.xaml</DependentUpon>
     </Compile>
     <Compile Include="Utilities\BindableBase.cs" />
+    <Compile Include="Utilities\ProcessSuspender.cs" />
     <Compile Include="Utilities\WatermarkAdorner.cs" />
     <Compile Include="Utilities\WatermarkService.cs" />
     <Compile Include="Utilities\YoutubeUrl.cs" />
     <Compile Include="Utilities\SettingsSingleton.cs" />
-    <Compile Include="Utilities\Converter.cs" />
+    <Compile Include="Utilities\VideoConverter.cs" />
     <Compile Include="Helpers\FileHelper.cs" />
     <Compile Include="Managers\TrackNameManager.cs" />
     <Compile Include="Models\VideoModel.cs" />

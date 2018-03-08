@@ -279,7 +279,7 @@ namespace YoutubeDownloader
 
         private bool ConvertYoutubeVideo(Mp3Model mp3Model)
         {
-            Converter converter = null;
+            VideoConverter converter = null;
             var srcPath = mp3Model.Path;
 
             try
@@ -287,7 +287,7 @@ namespace YoutubeDownloader
                 mp3Model.State = Mp3ModelState.Converting;
                 ShowInformation(string.Format(Consts.Converting, mp3Model.Name));
 
-                converter = new Converter();
+                converter = new VideoConverter();
 
                 mp3Model.CurrentProgress = 0;
                 converter.ProgressChanged += (s, a) => mp3Model.CurrentProgress = a.CurrentProgress;

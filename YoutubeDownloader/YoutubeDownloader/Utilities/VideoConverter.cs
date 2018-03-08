@@ -7,7 +7,7 @@ namespace YoutubeDownloader
 {
     enum ConversionSection { Input, Output }
 
-    public class Converter : IDisposable
+    public class VideoConverter : IDisposable
     {
         #region Fields & Properties
         private readonly string ffmpegExePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "ffmpeg\\ffmpeg.exe");
@@ -21,7 +21,7 @@ namespace YoutubeDownloader
 
         public double CurrentProgress { get; private set; }
 
-        public Converter()
+        public VideoConverter()
         {
             var startInfo = new ProcessStartInfo
             {
